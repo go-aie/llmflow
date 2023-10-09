@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>LLMFlow UI</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+	<script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+	<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+	<script src="https://unpkg.com/react-jsonschema-form/dist/react-jsonschema-form.js"></script>
+
+	<link href="./designer/css/designer.css" rel="stylesheet">
+	<link href="./designer/css/designer-light.css" rel="stylesheet">
+	<link href="./designer/css/designer-dark.css" rel="stylesheet">
+	<script src="./designer/dist/index.umd.js"></script>
+
+	<link rel="icon" href="./assets/favicon.ico">
+
+	<link rel="stylesheet" href="./assets/common.css">
+	<link rel="stylesheet" href="./assets/chatbot.css">
+	<style>
+		html, body {width: 100vw; height: 100vh; overflow: hidden;}
+		body {display: flex; flex-direction: column;}
+		#designer {flex: 1;}
+		/*#designer {position: absolute; left: 0; top: 50px; width: 70vw; height: 100vh;}*/
+
+		.sqd-editor {
+			padding: 10px;
+		}
+		.sqd-editor label {display: block; padding: 10px 0;}
+		.sqd-editor .container {
+			padding: 10px;
+			border: 1px solid #ddd;
+			margin: 10px 0;
+			border-radius: 5px;
+		}
+		.required:after {
+			content:" *";
+			color: red;
+		}
+
+		#designer .sqd-layout-desktop .sqd-smart-editor-toggle {
+			right: 450px;
+		}
+		#designer .sqd-layout-desktop .sqd-smart-editor {
+			position: fixed;
+			top: 40px;
+			right: 0px;
+			width: 450px;
+			height: 100%;
+			overflow-y: auto;
+		}
+		#designer .sqd-layout-desktop .sqd-smart-editor-toggle.sqd-collapsed {
+			right: 0;
+		}
+
+		button:disabled {
+			background: #666;
+		}
+
+		#result {position: absolute; right: 0; bottom: 0; width: 30vw; height: 100vh; padding: 10px; box-sizing: border-box; color: #FFF; background: #59c5d7;}
+		#result a {color: #FFF;}
+		#result a:hover {text-decoration: none;}
+		#result button {padding: 10px; color: #000; background: #FFF; border: 0; border-radius: 5px; cursor: pointer;}
+		#result button:disabled {background: #666;}
+		#result button:hover {opacity: 0.8;}
+	</style>
+</head>
+<body>
+	<header class="title-bar">
+		<div class="column flex-1 hidden-mobile">
+			<h1>LLMFlow UI</h1>
+		</div>
+		<div class="column">
+			<button id="load">Load</button>
+		</div>
+		<div class="column">
+			<button id="save" disabled>Save</button>
+		</div>
+		<div class="column text-end flex-1">
+			<a href="https://github.com/go-aie/llmflow" target="_blank">GitHub</a>
+		</div>
+	</header>
+
+	<div id="designer"></div>
+
+	<div id="result" style="display: none">
+		<div class="chatbot-container">
+			<div id="header">
+				<h1>Chatbot</h1>
+			</div>
+			<div id="chatbot">
+				<div id="conversation">
+					<div class="chatbot-message">
+						<p class="chatbot-text">Hi! 👋 it's great to see you!</p>
+					</div>
+				</div>
+				<div id="input-form">
+					<message-container>
+						<input id="input-field" type="text" placeholder="Type your message here">
+						<button id="submit-button">
+							<img class="send-icon" src="./assets/send-message.png" alt="">
+						</button>
+					</message-container>
+
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<script src="./assets/lib.js"></script>
+	<script type="module" src="./index.js"></script>
+</body>
+</html>

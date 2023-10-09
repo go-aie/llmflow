@@ -1,0 +1,171 @@
+{
+  "name": "vectorstore_upsert",
+  "type": "serial",
+  "description": "Perform an UPSERT action on a vector store",
+  "schema": {
+    "input": {
+      "type": "object",
+      "properties": {
+        "vendor": {
+          "type": "string",
+          "description": "The vendor name"
+        },
+        "uri": {
+          "type": "string",
+          "description": "The endpoint of the vector store"
+        },
+        "api_key": {
+          "type": "string",
+          "description": "The API key"
+        },
+        "vectors": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "description": "The vector item"
+            }
+          }
+        },
+        "documents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "vector": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "description": "The vector item"
+                }
+              },
+              "metadata": {
+                "type": "object",
+                "properties": {
+                  "source_id": {
+                    "type": "string"
+                  }
+                }
+              },
+              "extra": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "vendor",
+        "uri",
+        "api_key",
+        "vectors",
+        "documents"
+      ]
+    },
+    "output": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "description": "The error message"
+        }
+      }
+    }
+  },
+  "input": {
+    "tasks": [
+      {
+        "name": "attach_vectors_to_documents",
+        "type": "call",
+        "input": {
+          "loader": "system",
+          "task": "code",
+          "input": {
+            "code": "def _(ctx):\n    for i, doc in enumerate(ctx.input.documents):\n        doc.vector = ctx.input.vectors[i]\n    return ctx.input.documents",
+            "ctx": "${*}"
+          }
+        }
+      },
+      {
+        "name": "has_error",
+        "type": "decision",
+        "input": {
+          "switch": "#{string(attach_vectors_to_documents.error != \"\")}",
+          "cases": {
+            "true": {
+              "name": "failure",
+              "type": "terminate",
+              "input": {
+                "output": {
+                  "error": "${attach_vectors_to_documents.error}"
+                }
+              }
+            }
+          },
+          "default": {
+            "name": "x",
+            "type": "serial",
+            "input": {
+              "tasks": [
+                {
+                  "name": "upsert_documents",
+                  "type": "http",
+                  "input": {
+                    "method": "POST",
+                    "uri": "${input.uri}",
+                    "header": {
+                      "Authorization": [
+                        "#{\"Bearer \" + input.api_key}"
+                      ],
+                      "Content-Type": [
+                        "application/json"
+                      ]
+                    },
+                    "body": {
+                      "vendor": "${input.vendor}",
+                      "documents": "${attach_vectors_to_documents.result}"
+                    }
+                  }
+                },
+                {
+                  "name": "status",
+                  "type": "decision",
+                  "input": {
+                    "switch": "#{string(upsert_documents.status)}",
+                    "cases": {
+                      "200": {
+                        "name": "success",
+                        "type": "terminate",
+                        "input": {
+                          "output": {
+                            "error": ""
+                          }
+                        }
+                      }
+                    },
+                    "default": {
+                      "name": "failure",
+                      "type": "terminate",
+                      "input": {
+                        "output": {
+                          "error": "${upsert_documents.body.error.message}"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}
