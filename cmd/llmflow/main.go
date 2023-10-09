@@ -3,12 +3,9 @@ package main
 import (
 	"context"
 	"embed"
-	"encoding/json"
-	"flag"
 	"io/fs"
 	"log"
 	"net/http"
-	"os"
 	"sync"
 
 	"github.com/RussellLuo/kun/pkg/appx/httpapp"
@@ -20,7 +17,6 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
-	"sigs.k8s.io/yaml"
 )
 
 //go:embed ui
@@ -29,6 +25,12 @@ var staticFiles embed.FS
 type LLMFlow struct {
 	definitions map[string]map[string]any
 	mu          sync.RWMutex
+}
+
+func NewLLMFlow() *LLMFlow {
+	return &LLMFlow{
+		definitions: make(map[string]map[string]any),
+	}
 }
 
 func (lf *LLMFlow) UpsertTask(ctx context.Context, name string, definition map[string]any) error {
@@ -75,37 +77,6 @@ func (lf *LLMFlow) Execute(ctx context.Context, name string, input map[string]an
 }
 
 func main() {
-	var path string
-	flag.StringVar(&path, "flow", "./flow.yaml", "path to the YAML config")
-	flag.Parse()
-
-	//os.Setenv("CODE_API_ENDPOINT", "http://127.0.0.1:5005/exec")
-	//os.Setenv("CODE_API_KEY", "")
-
-	yamlContent, err := os.ReadFile(path)
-	if err != nil {
-		log.Fatalf("failed to read file: %s\n", path)
-	}
-
-	jsonContent, err := yaml.YAMLToJSON(yamlContent)
-	if err != nil {
-		log.Fatalf("failed to convert YAML to JSON: %s\n", path)
-	}
-
-	var m map[string]map[string]any
-	if err := json.Unmarshal(jsonContent, &m); err != nil {
-		log.Fatalf("failed to unmarshal flow definitions to map: %v\n", err)
-	}
-
-	definitions := make(map[string]map[string]any)
-	for name, flowDef := range m {
-		var def *orchestrator.TaskDefinition
-		if err := orchestrator.DefaultCodec.Decode(flowDef, &def); err != nil {
-			log.Fatalf("failed to unmarshal flow definitions to task definitions: %v\n", err)
-		}
-		definitions[name] = flowDef
-	}
-
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(cors.Handler(cors.Options{
@@ -116,9 +87,7 @@ func main() {
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
 
-	llmflow := &LLMFlow{
-		definitions: definitions,
-	}
+	llmflow := NewLLMFlow()
 	httpapp.MountRouter(r, "/api", api.NewHTTPRouter(llmflow, httpcodec.NewDefaultCodecs(nil)))
 
 	// Register user-defined tasks.

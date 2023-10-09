@@ -1,6 +1,6 @@
 # LLMFlow
 
-[![Go Reference](https://pkg.go.dev/badge/go-aie/llmflow/vulndb.svg)][1]
+[![Go Reference](https://pkg.go.dev/badge/go-aie/llmflow/vulndb.svg)][2]
 
 Orchestration engine & UI for your customized LLM flow.
 
@@ -14,12 +14,14 @@ go install github.com/go-aie/llmflow/cmd/llmflow@latest
 
 ## Run
 
-1. Run the [Python code server](cmd/llmflow/pycode).
+1. Run [OneAI][1].
 
-2. Run the orchestration engine:
+2. Run [Python Code Server](cmd/llmflow/pycode).
+
+3. Run the orchestration engine:
 
     ```bash
-    CODE_API_ENDPOINT=http://127.0.0.1:5000/exec llmflow -flow test.yaml
+    CODE_API_ENDPOINT=http://127.0.0.1:5000/exec llmflow
     ```
    
 
@@ -43,7 +45,8 @@ Defined in Go:
 
 ## Documentation
 
-Check out the [documentation][1].
+Check out the [documentation][2].
 
 
-[1]: https://pkg.go.dev/github.com/go-aie/llmflow
+[1]: https://github.com/go-aie/oneai
+[2]: https://pkg.go.dev/github.com/go-aie/llmflow

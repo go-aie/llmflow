@@ -1,0 +1,119 @@
+{
+  "type": "serial",
+  "name": "Retrieval_QA",
+  "schema": {
+    "input": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "The user's query"
+        }
+      },
+      "required": [
+        "query"
+      ]
+    },
+    "output": {
+      "type": "object",
+      "properties": {
+        "response": {
+          "type": "string",
+          "description": "The response message"
+        },
+        "error": {
+          "type": "string",
+          "description": "The error message"
+        }
+      }
+    }
+  },
+  "input": {
+    "tasks": [
+      {
+        "type": "call",
+        "name": "Calculate_Embedding",
+        "input": {
+          "loader": "system",
+          "task": "embedding",
+          "input": {
+            "model": "rocketqa-query",
+            "uri": "http://127.0.0.1:8080/embeddings",
+            "api_key": "123",
+            "texts": [
+              "${input.query}"
+            ]
+          }
+        }
+      },
+      {
+        "type": "call",
+        "name": "Query_Documents",
+        "input": {
+          "loader": "system",
+          "task": "vectorstore_query",
+          "input": {
+            "vendor": "memory",
+            "uri": "http://127.0.0.1:8080/vector/query",
+            "api_key": "123",
+            "vector": "${Calculate_Embedding.embeddings[0]}",
+            "top_k": 3,
+            "min_score": 0.7
+          }
+        }
+      },
+      {
+        "type": "decision",
+        "name": "similar_documents",
+        "input": {
+          "switch": "#{string(len(Query_Documents.similarities))}",
+          "cases": {
+            "0": {
+              "type": "terminate",
+              "name": "Return",
+              "input": {
+                "output": {
+                  "response": "对不起，我不知道"
+                }
+              }
+            }
+          },
+          "default": {
+            "type": "serial",
+            "name": "switch",
+            "input": {
+              "tasks": [
+                {
+                  "type": "template",
+                  "name": "Build_Prompt",
+                  "input": {
+                    "template": "Answer the question using the provided context.\n            \nContext:\n{{- range $.documents}}\n* {{.text}}\n{{- end}}\n\nQ:{{$.query}}\nA:",
+                    "args": {
+                      "query": "${input.query}",
+                      "documents": "${Query_Documents.similarities}"
+                    }
+                  }
+                },
+                {
+                  "type": "call",
+                  "name": "Ask_LLM",
+                  "input": {
+                    "loader": "system",
+                    "task": "llm",
+                    "input": {
+                      "model": "chatglm",
+                      "uri": "http://127.0.0.1:8080/chat/completions",
+                      "api_key": "123",
+                      "prompt": "${Build_Prompt.result}",
+                      "temperature": 0
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}
