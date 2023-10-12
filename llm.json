@@ -80,7 +80,7 @@
         "name": "status",
         "type": "decision",
         "input": {
-          "switch": "#{string(chat.status)}",
+          "expression": "#{string(chat.status)}",
           "cases": {
             "200": {
               "name": "success",

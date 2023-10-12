@@ -66,7 +66,7 @@
         "type": "decision",
         "name": "similar_documents",
         "input": {
-          "switch": "#{string(len(Query_Documents.similarities))}",
+          "expression": "#{string(len(Query_Documents.similarities))}",
           "cases": {
             "0": {
               "type": "terminate",

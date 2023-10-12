@@ -116,7 +116,7 @@
         "name": "status",
         "type": "decision",
         "input": {
-          "switch": "#{string(query_documents.status)}",
+          "expression": "#{string(query_documents.status)}",
           "cases": {
             "200": {
               "name": "success",

@@ -79,7 +79,7 @@
         "name": "status",
         "type": "decision",
         "input": {
-          "switch": "#{string(embed.status)}",
+          "expression": "#{string(embed.status)}",
           "cases": {
             "200": {
               "name": "success",

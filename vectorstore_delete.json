@@ -60,7 +60,7 @@
         "name": "status",
         "type": "decision",
         "input": {
-          "switch": "#{string(delete_documents.status)}",
+          "expression": "#{string(delete_documents.status)}",
           "cases": {
             "200": {
               "name": "success",

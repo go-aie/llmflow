@@ -17,7 +17,7 @@ const configuration = {
 						type: 'decision',
 						name: 'Switch',
 						properties: {
-							condition: ''
+							expression: ''
 						},
 						branches: {
 							'default': []
@@ -248,12 +248,12 @@ const schema = {
 		input: {
 			type: 'object',
 			properties: {
-				condition: {
+				expression: {
 					"type": "string"
 				}
 			},
 			required: [
-				'condition'
+				'expression'
 			]
 		}
 	},
@@ -766,13 +766,7 @@ function otherStepEditorProvider(step, editorContext) {
 }
 
 function getInputType(schema, name) {
-	if (name === 'switch') {
-		name = 'condition'
-	}
-	if (name === 'cases') {
-		return ''
-	}
-	if (name === 'default') {
+	if (schema.input.properties[name] === undefined) {
 		return ''
 	}
 
@@ -885,8 +879,8 @@ function loadTaskFromStep(step) {
 
 	switch (step.type) {
 		case 'decision':
+			s.properties = {expression: step.input.expression}
 			s.componentType = 'switch'
-			s.properties = {condition: step.input.switch}
 			s.branches = {}
 
 			for (const [cond, caseTask] of Object.entries(step.input.cases)) {
@@ -931,9 +925,8 @@ function loadTaskFromStep(step) {
 					s.sequence.push(loadTaskFromStep(task));
 				}
 			}
-			break
 
-		default:
+			break
 	}
 
 	for (const [name, value] of Object.entries(s.properties)) {
@@ -993,12 +986,13 @@ function getDefFromStep(step) {
 	let def = {
 		type: step.type,
 		name: step.name,
+		input: {...step.properties}
 	}
 
 	switch (step.type) {
 		case 'decision':
 			def.input = {
-				switch: step.properties.condition,
+				expression: step.properties.expression,
 				cases: {},
 				default: {},
 			}
@@ -1059,9 +1053,6 @@ function getDefFromStep(step) {
 			}
 
 			break
-
-		default:
-			def.input = {...step.properties}
 	}
 
 
