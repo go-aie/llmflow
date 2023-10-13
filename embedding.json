@@ -2,58 +2,58 @@
   "name": "embedding",
   "type": "serial",
   "description": "Calculate embeddings for given texts",
-  "schema": {
-    "input": {
-      "type": "object",
-      "properties": {
-        "model": {
-          "type": "string",
-          "description": "The model name"
-        },
-        "uri": {
-          "type": "string",
-          "description": "The model endpoint"
-        },
-        "api_key": {
-          "type": "string",
-          "description": "The API key"
-        },
-        "texts": {
-          "type": "array",
-          "items": {
+  "input": {
+    "schema": {
+      "input": {
+        "type": "object",
+        "required": [
+          "model",
+          "uri",
+          "api_key",
+          "texts"
+        ],
+        "properties": {
+          "model": {
             "type": "string",
-            "description": "The text to embed"
+            "description": "The model name"
+          },
+          "uri": {
+            "type": "string",
+            "description": "The model endpoint"
+          },
+          "api_key": {
+            "type": "string",
+            "description": "The API key"
+          },
+          "texts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "The text to embed"
+            }
           }
         }
       },
-      "required": [
-        "model",
-        "uri",
-        "api_key",
-        "texts"
-      ]
-    },
-    "output": {
-      "type": "object",
-      "properties": {
-        "embeddings": {
-          "type": "array",
-          "items": {
+      "output": {
+        "type": "object",
+        "properties": {
+          "embeddings": {
             "type": "array",
             "items": {
-              "type": "number",
-              "description": "The embedding item"
+              "type": "array",
+              "items": {
+                "type": "number",
+                "description": "The embedding item"
+              }
             }
+          },
+          "error": {
+            "type": "string",
+            "description": "The error message"
           }
-        },
-        "error": {
-          "type": "string",
-          "description": "The error message"
         }
       }
-    }
-  },
-  "input": {
+    },
     "tasks": [
       {
         "name": "embed",

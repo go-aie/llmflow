@@ -1,41 +1,41 @@
 {
   "name": "code",
   "type": "serial",
-  "description": "Execute a snippet of code",
-  "schema": {
-    "input": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "type": "string",
-          "description": "The source code of the function"
-        },
-        "ctx": {
-          "type": "object",
-          "description": "The context variables",
-          "patternProperties": {
-            "^.*$": {}
+  "description": "Execute a snippet of Python code",
+  "input": {
+    "schema": {
+      "input": {
+        "type": "object",
+        "required": [
+          "code",
+          "ctx"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "The source code of the function"
+          },
+          "ctx": {
+            "type": "object",
+            "description": "The context variables",
+            "patternProperties": {
+              "^.*$": {}
+            }
           }
         }
       },
-      "required": [
-        "code",
-        "ctx"
-      ]
-    },
-    "output": {
-      "type": "object",
-      "description": "The execution result",
-      "properties": {
-        "result": {},
-        "error": {
-          "type": "string",
-          "description": "The error message"
+      "output": {
+        "type": "object",
+        "description": "The execution result",
+        "properties": {
+          "result": {},
+          "error": {
+            "type": "string",
+            "description": "The error message"
+          }
         }
       }
-    }
-  },
-  "input": {
+    },
     "tasks": [
       {
         "name": "exec",
@@ -61,7 +61,7 @@
         "name": "status",
         "type": "decision",
         "input": {
-          "switch": "#{string(exec.status)}",
+          "expression": "#{string(exec.status)}",
           "cases": {
             "200": {
               "name": "success",

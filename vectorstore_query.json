@@ -2,93 +2,93 @@
   "name": "vectorstore_query",
   "type": "serial",
   "description": "Perform a QUERY action on a vector store",
-  "schema": {
-    "input": {
-      "type": "object",
-      "properties": {
-        "vendor": {
-          "type": "string",
-          "description": "The vendor name"
-        },
-        "uri": {
-          "type": "string",
-          "description": "The endpoint of the vector store"
-        },
-        "api_key": {
-          "type": "string",
-          "description": "The API key"
-        },
-        "vector": {
-          "type": "array",
-          "items": {
+  "input": {
+    "schema": {
+      "input": {
+        "type": "object",
+        "required": [
+          "vendor",
+          "uri",
+          "api_key",
+          "vector",
+          "top_k",
+          "min_score"
+        ],
+        "properties": {
+          "vendor": {
+            "type": "string",
+            "description": "The vendor name"
+          },
+          "uri": {
+            "type": "string",
+            "description": "The endpoint of the vector store"
+          },
+          "api_key": {
+            "type": "string",
+            "description": "The API key"
+          },
+          "vector": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "description": "The vector item"
+            }
+          },
+          "top_k": {
+            "type": "integer",
+            "description": "The maximum number of documents to return"
+          },
+          "min_score": {
             "type": "number",
-            "description": "The vector item"
+            "description": "Only return documents whose scores are greater than or equal to this score"
           }
-        },
-        "top_k": {
-          "type": "integer",
-          "description": "The maximum number of documents to return"
-        },
-        "min_score": {
-          "type": "number",
-          "description": "Only return documents whose scores are greater than or equal to this score"
         }
       },
-      "required": [
-        "vendor",
-        "uri",
-        "api_key",
-        "vector",
-        "top_k",
-        "min_score"
-      ]
-    },
-    "output": {
-      "type": "object",
-      "properties": {
-        "similarities": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "text": {
-                "type": "string"
-              },
-              "vector": {
-                "type": "array",
-                "items": {
-                  "type": "number",
-                  "description": "The vector item"
-                }
-              },
-              "metadata": {
-                "type": "object",
-                "properties": {
-                  "source_id": {
-                    "type": "string"
+      "output": {
+        "type": "object",
+        "properties": {
+          "similarities": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "vector": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "description": "The vector item"
                   }
+                },
+                "metadata": {
+                  "type": "object",
+                  "properties": {
+                    "source_id": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "extra": {
+                  "type": "string"
+                },
+                "score": {
+                  "type": "number"
                 }
-              },
-              "extra": {
-                "type": "string"
-              },
-              "score": {
-                "type": "number"
               }
             }
+          },
+          "error": {
+            "type": "string",
+            "description": "The error message"
           }
-        },
-        "error": {
-          "type": "string",
-          "description": "The error message"
         }
       }
-    }
-  },
-  "input": {
+    },
     "tasks": [
       {
         "name": "query_documents",

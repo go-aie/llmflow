@@ -2,53 +2,53 @@
   "name": "llm",
   "type": "serial",
   "description": "Get a response from an LLM",
-  "schema": {
-    "input": {
-      "type": "object",
-      "properties": {
-        "model": {
-          "type": "string",
-          "description": "The model name"
-        },
-        "uri": {
-          "type": "string",
-          "description": "The model endpoint"
-        },
-        "api_key": {
-          "type": "string",
-          "description": "The API key"
-        },
-        "temperature": {
-          "type": "number",
-          "description": "What sampling temperature to use, between 0 and 2"
-        },
-        "prompt": {
-          "type": "string",
-          "description": "The prompt to generate completions for"
+  "input": {
+    "schema": {
+      "input": {
+        "type": "object",
+        "required": [
+          "model",
+          "uri",
+          "api_key",
+          "prompt"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "The model name"
+          },
+          "uri": {
+            "type": "string",
+            "description": "The model endpoint"
+          },
+          "api_key": {
+            "type": "string",
+            "description": "The API key"
+          },
+          "temperature": {
+            "type": "number",
+            "description": "What sampling temperature to use, between 0 and 2"
+          },
+          "prompt": {
+            "type": "string",
+            "description": "The prompt to generate completions for"
+          }
         }
       },
-      "required": [
-        "model",
-        "uri",
-        "api_key",
-        "prompt"
-      ]
-    },
-    "output": {
-      "type": "object",
-      "properties": {
-        "response": {
-          "type": "string",
-          "description": "The response message"
-        },
-        "error": {
-          "type": "string",
-          "description": "The error message"
+      "output": {
+        "type": "object",
+        "properties": {
+          "response": {
+            "type": "string",
+            "description": "The response message"
+          },
+          "error": {
+            "type": "string",
+            "description": "The error message"
+          }
         }
       }
-    }
-  },
-  "input": {
+    },
     "tasks": [
       {
         "name": "chat",

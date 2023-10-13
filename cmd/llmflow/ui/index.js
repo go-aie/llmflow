@@ -947,7 +947,7 @@ async function loadWorkflow() {
 
 	let workflow = JSON.parse(await this.file.text())
 	workflowName = workflow.name
-	workflowSchema = JSON.stringify(workflow.schema, null, 2)
+	workflowSchema = JSON.stringify(workflow.input.schema, null, 2)
 
 	let defs = []
 	for (let step of workflow.input.tasks) {
@@ -1108,8 +1108,8 @@ function getDefinitions() {
 	return {
 		type: 'serial',
 		name: workflowName,
-		schema: JSON.parse(workflowSchema),
 		input: {
+			schema: JSON.parse(workflowSchema),
 			tasks: defs
 		}
 	}

@@ -2,40 +2,40 @@
   "name": "vectorstore_delete",
   "type": "serial",
   "description": "Perform a DELETE action on a vector store",
-  "schema": {
-    "input": {
-      "type": "object",
-      "properties": {
-        "vendor": {
-          "type": "string",
-          "description": "The vendor name"
-        },
-        "uri": {
-          "type": "string",
-          "description": "The endpoint of the vector store"
-        },
-        "api_key": {
-          "type": "string",
-          "description": "The API key"
+  "input": {
+    "schema": {
+      "input": {
+        "type": "object",
+        "required": [
+          "vendor",
+          "uri",
+          "api_key"
+        ],
+        "properties": {
+          "vendor": {
+            "type": "string",
+            "description": "The vendor name"
+          },
+          "uri": {
+            "type": "string",
+            "description": "The endpoint of the vector store"
+          },
+          "api_key": {
+            "type": "string",
+            "description": "The API key"
+          }
         }
       },
-      "required": [
-        "vendor",
-        "uri",
-        "api_key"
-      ]
-    },
-    "output": {
-      "type": "object",
-      "properties": {
-        "error": {
-          "type": "string",
-          "description": "The error message"
+      "output": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "The error message"
+          }
         }
       }
-    }
-  },
-  "input": {
+    },
     "tasks": [
       {
         "name": "delete_documents",

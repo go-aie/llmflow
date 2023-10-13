@@ -64,7 +64,7 @@ func (lf *LLMFlow) Execute(ctx context.Context, name string, input map[string]an
 	def := &orchestrator.TaskDefinition{
 		Type: builtin.TypeCall,
 		InputTemplate: orchestrator.InputTemplate{
-			"loader": "user",
+			"loader": "user", // Load tasks from the "user" namespace.
 			"task":   name,
 			"input":  input,
 		},
@@ -90,7 +90,7 @@ func main() {
 	llmflow := NewLLMFlow()
 	httpapp.MountRouter(r, "/api", api.NewHTTPRouter(llmflow, httpcodec.NewDefaultCodecs(nil)))
 
-	// Register user-defined tasks.
+	// Register user-defined tasks into the "user" namespace.
 	builtin.LoaderRegistry.MustRegister("user", llmflow)
 
 	// Serve static files
