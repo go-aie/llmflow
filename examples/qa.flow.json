@@ -34,7 +34,7 @@
         "type": "call",
         "name": "Calculate_Embedding",
         "input": {
-          "loader": "system",
+          "loader": "llmflow",
           "task": "embedding",
           "input": {
             "model": "rocketqa-query",
@@ -50,7 +50,7 @@
         "type": "call",
         "name": "Query_Documents",
         "input": {
-          "loader": "system",
+          "loader": "llmflow",
           "task": "vectorstore_query",
           "input": {
             "vendor": "memory",
@@ -98,7 +98,7 @@
                   "type": "call",
                   "name": "Ask_LLM",
                   "input": {
-                    "loader": "system",
+                    "loader": "llmflow",
                     "task": "llm",
                     "input": {
                       "model": "chatglm",

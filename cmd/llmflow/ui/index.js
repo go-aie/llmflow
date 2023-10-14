@@ -1078,7 +1078,7 @@ function wrapCallTask(t) {
 		type: 'call',
 		name: t.name,
 		input: {
-			loader: 'system',
+			loader: 'llmflow',
 			task: t.type,
 			input: t.input
 		}

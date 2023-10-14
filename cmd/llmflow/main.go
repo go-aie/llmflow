@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"embed"
+	"fmt"
 	"io/fs"
 	"log"
 	"net/http"
@@ -12,7 +13,7 @@ import (
 	"github.com/RussellLuo/kun/pkg/httpcodec"
 	"github.com/RussellLuo/orchestrator"
 	"github.com/RussellLuo/orchestrator/builtin"
-	_ "github.com/go-aie/llmflow"
+	"github.com/go-aie/llmflow"
 	"github.com/go-aie/llmflow/cmd/llmflow/api"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -69,6 +70,9 @@ func (lf *LLMFlow) Execute(ctx context.Context, name string, input map[string]an
 			"input":  input,
 		},
 	}
+	fmt.Printf("orchestrator task schemas: %#v\n", builtin.TaskSchemas)
+	fmt.Printf("llmflow task schemas: %#v\n", llmflow.TaskSchemas)
+	fmt.Printf("llmflow flow schemas: %#v\n", llmflow.FlowSchemas)
 	call, err := orchestrator.Construct(orchestrator.NewConstructDecoder(orchestrator.GlobalRegistry), def)
 	if err != nil {
 		log.Fatalf("failed to construct flow[%s]: %v\n", name, err)

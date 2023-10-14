@@ -85,7 +85,7 @@
         "name": "attach_vectors_to_documents",
         "type": "call",
         "input": {
-          "loader": "system",
+          "loader": "llmflow",
           "task": "code",
           "input": {
             "code": "def _(ctx):\n    for i, doc in enumerate(ctx.input.documents):\n        doc.vector = ctx.input.vectors[i]\n    return ctx.input.documents",
