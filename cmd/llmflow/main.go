@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"embed"
-	"fmt"
 	"io/fs"
 	"log"
 	"net/http"
@@ -61,6 +60,29 @@ func (lf *LLMFlow) Load(name string) (map[string]any, error) {
 	return lf.definitions[name], nil
 }
 
+func (lf *LLMFlow) GetSchemas(ctx context.Context) (map[string]any, error) {
+	userFlowSchemas := make(map[string]map[string]any)
+	lf.mu.RLock()
+	for name, def := range lf.definitions {
+		userFlowSchemas[name] = llmflow.MustExtractFlowSchema(def)
+	}
+	lf.mu.RUnlock()
+
+	schemas := map[string]any{
+		"builtin": map[string]any{
+			"task": builtin.TaskSchemas,
+		},
+		"llmflow": map[string]any{
+			"task": llmflow.TaskSchemas,
+			"flow": llmflow.FlowSchemas,
+		},
+		"user": map[string]any{
+			"flow": userFlowSchemas,
+		},
+	}
+	return schemas, nil
+}
+
 func (lf *LLMFlow) Execute(ctx context.Context, name string, input map[string]any) (output map[string]any, err error) {
 	def := &orchestrator.TaskDefinition{
 		Type: builtin.TypeCall,
@@ -70,9 +92,6 @@ func (lf *LLMFlow) Execute(ctx context.Context, name string, input map[string]an
 			"input":  input,
 		},
 	}
-	fmt.Printf("orchestrator task schemas: %#v\n", builtin.TaskSchemas)
-	fmt.Printf("llmflow task schemas: %#v\n", llmflow.TaskSchemas)
-	fmt.Printf("llmflow flow schemas: %#v\n", llmflow.FlowSchemas)
 	call, err := orchestrator.Construct(orchestrator.NewConstructDecoder(orchestrator.GlobalRegistry), def)
 	if err != nil {
 		log.Fatalf("failed to construct flow[%s]: %v\n", name, err)
@@ -94,7 +113,7 @@ func main() {
 	llmflow := NewLLMFlow()
 	httpapp.MountRouter(r, "/api", api.NewHTTPRouter(llmflow, httpcodec.NewDefaultCodecs(nil)))
 
-	// Register user-defined tasks into the "user" namespace.
+	// Register user-defined tasks into the "user" namespace. Now these flows can be used by a `Call` task.
 	builtin.LoaderRegistry.MustRegister("user", llmflow)
 
 	// Serve static files

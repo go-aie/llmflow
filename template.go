@@ -30,6 +30,7 @@ func MustRegisterTemplate(r orchestrator.Registry) {
 	})
 }
 
+// Template is a leaf task that is used to render a template by applying given arguments.
 type Template struct {
 	def *orchestrator.TaskDefinition
 

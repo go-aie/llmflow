@@ -130,6 +130,47 @@ func (c *HTTPClient) Execute(ctx context.Context, name string, input map[string]
 	return respBody.Output, nil
 }
 
+func (c *HTTPClient) GetSchemas(ctx context.Context) (schemas map[string]any, err error) {
+	codec := c.codecs.EncodeDecoder("GetSchemas")
+
+	path := "/schemas"
+	u := &url.URL{
+		Scheme: c.scheme,
+		Host:   c.host,
+		Path:   c.pathPrefix + path,
+	}
+
+	_req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	for _, v := range codec.EncodeRequestParam("__", nil) {
+		_req.Header.Add("Authorization", v)
+	}
+
+	_resp, err := c.httpClient.Do(_req)
+	if err != nil {
+		return nil, err
+	}
+	defer _resp.Body.Close()
+
+	if _resp.StatusCode < http.StatusOK || _resp.StatusCode > http.StatusNoContent {
+		var respErr error
+		err := codec.DecodeFailureResponse(_resp.Body, &respErr)
+		if err == nil {
+			err = respErr
+		}
+		return nil, err
+	}
+
+	respBody := &GetSchemasResponse{}
+	err = codec.DecodeSuccessResponse(_resp.Body, respBody.Body())
+	if err != nil {
+		return nil, err
+	}
+	return respBody.Schemas, nil
+}
+
 func (c *HTTPClient) GetTask(ctx context.Context, name string) (definition map[string]any, err error) {
 	codec := c.codecs.EncodeDecoder("GetTask")
 

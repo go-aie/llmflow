@@ -243,349 +243,90 @@ const configuration = {
 	controlBar: true,
 };
 
-const schema = {
-	"decision": {
-		input: {
-			type: 'object',
-			properties: {
-				expression: {
-					"type": "string"
-				}
-			},
-			required: [
-				'expression'
-			]
+const allSchemas = await loadSchemas()
+
+async function loadSchemas() {
+	const response = await fetch('/api/schemas', {
+		method: 'GET',
+		headers: {
+			'Accept': 'application/json',
+			'Content-Type': 'application/json'
 		}
-	},
-	"terminate": {
-		input: {
-			type: 'object',
-			properties: {
-				output: {}
-			},
-			required: [
-				'output'
-			]
-		}
-	},
-	"loop": {},
-	"iterate": {
-		input: {
-			type: 'object',
-			properties: {
-				type: {
-					"type": "string",
-					"enum": ["list", "map", "range"]
-				},
-				value: {}
-			},
-			required: [
-				'type',
-				'value'
-			]
-		}
-	},
-	"embedding": {
-		input: {
-			type: 'object',
-			properties: {
-				model: {
-					"type": "string"
-				},
-				uri: {
-					"type": "string"
-				},
-				api_key: {
-					"type": "string"
-				},
-				texts: {
-					"type": "array",
-					"items": {
-						"type": "string",
-						"description": "The text to embed"
-					}
-				}
-			},
-			required: [
-				'model',
-				'uri',
-				'api_key',
-				'texts'
-			]
-		}
-	},
-    "vectorstore_upsert": {
-		input: {
-		  "type": "object",
-		  "properties": {
-			"vendor": {
-			  "type": "string",
-			},
-			"uri": {
-			  "type": "string",
-			},
-			"api_key": {
-			  "type": "string",
-			},
-			"vectors": {
-			  "type": "array",
-			  "items": {
-				"type": "array",
-				"items": {
-				  "type": "number",
-				}
-			  }
-			},
-			"documents": {
-			  "type": "array",
-			  "items": {
-				"type": "object",
-				"properties": {
-				  "id": {
-					"type": "string"
-				  },
-				  "text": {
-					"type": "string"
-				  },
-				  "vector": {
-					"type": "array",
-					"items": {
-					  "type": "number",
-					}
-				  },
-				  "metadata": {
+	})
+	if (!response.ok) {
+		throw new Error(`HTTP error! Status: ${response.status}`)
+	}
+	const data = await response.json()
+	return data['schemas']
+}
+
+function getSchemaByType(type) {
+	// return schema[type]
+
+	switch (type) {
+		case 'decision':
+			return {
+				"input": {
 					"type": "object",
+					"required": [
+						"expression"
+					],
 					"properties": {
-					  "source_id": {
-						"type": "string"
-					  }
-					}
-				  },
-				  "extra": {
-					"type": "string"
-				  }
-				}
-			  }
-			}
-		  },
-		  "required": [
-			"vendor",
-			"uri",
-			"api_key",
-			"vectors",
-			"documents"
-		  ]
-      }
-    },
-	"vectorstore_query": {
-		input: {
-			type: 'object',
-			properties: {
-				vendor: {
-					"type": "string"
-				},
-				uri: {
-					"type": "string"
-				},
-				api_key: {
-					"type": "string"
-				},
-				vector: {
-				  "type": "array",
-				  "items": {
-					"type": "number",
-				  }
-				},
-				top_k: {
-				  "type": "integer",
-				},
-				min_score: {
-				  "type": "number",
-				}
-			},
-			required: [
-				'vendor',
-				'uri',
-				'api_key',
-				'vector',
-				'top_k',
-				'min_score'
-			]
-		}
-	},
-	"vectorstore_delete": {
-		"input": {
-		  "type": "object",
-		  "properties": {
-			"vendor": {
-			  "type": "string",
-			  "description": "The vendor name"
-			},
-			"uri": {
-			  "type": "string",
-			  "description": "The endpoint of the vector store"
-			},
-			"api_key": {
-			  "type": "string",
-			  "description": "The API key"
-			}
-		  },
-		  "required": [
-			"vendor",
-			"uri",
-			"api_key"
-		  ]
-		}
-	},
-	"template": {
-		input: {
-			type: 'object',
-			properties: {
-				template: {
-					"type": "string"
-				},
-				args: {
-					"type": "object",
-					"description": "The argument values",
-					"patternProperties": {
-						"^.*$": {}
-					}
-				}
-			},
-			required: [
-				'template',
-				'args'
-			]
-		}
-	},
-	"llm": {
-		input: {
-			type: 'object',
-			properties: {
-				model: {
-					"type": "string"
-				},
-				uri: {
-					"type": "string"
-				},
-				api_key: {
-					"type": "string"
-				},
-				prompt: {
-					"type": "string"
-				},
-				temperature: {
-					"type": "number"
-				}
-			},
-			required: [
-				'model',
-				'uri',
-				'api_key',
-				'prompt',
-				'temperature'
-			]
-		}
-	},
-	"http": {
-		"input": {
-		"type": "object",
-		"properties": {
-			"method": {
-				"type": "string",
-				"enum": ["POST", "GET", "PUT", "PATCH", "DELETE"]
-			},
-			"uri": {
-				"type": "string",
-			},
-			"header": {
-				"type": "object",
-				"patternProperties": {
-					"^.*$": {
-						"type": "array",
-						"items": {
+						"expression": {
 							"type": "string"
 						}
 					}
-				}
-			},
-			"body": {
-				"type": "object",
-				"patternProperties": {
-					"^.*$": {}
-				}
-			}
-		},
-		"required": [
-			"method",
-			"uri",
-		]
-		},
-		"output": {
-			"type": "object",
-			"properties": {
-				"status": {
-					"type": "integer",
 				},
-				"header": {
+				"output": {
 					"type": "object",
 					"patternProperties": {
-						"^.*$": {
-							"type": "array",
-							"items": {
-								"type": "string"
-							}
-						}
-					}
-				},
-				"body": {
-					"type": "object",
-					"patternProperties": {
-						"^.*$": {}
+					  "^.*$": {}
 					}
 				}
 			}
-		}
-	},
-	"code": {
-		"input": {
-		"type": "object",
-		"properties": {
-			"code": {
-				"type": "string",
-			},
-			"ctx": {
-				"type": "object",
-				"patternProperties": {
-					"^.*$": {}
+		case 'loop':
+			return {
+				"input": {},
+				"output": {
+					"type": "object",
+					"patternProperties": {
+					  "^.*$": {}
+					}
 				}
 			}
-		},
-		"required": [
-			"code",
-			"ctx"
-		]
-		},
-		"output": {
-			"type": "object",
-			"properties": {
-				"result": {},
-				"error": {
-					"type": "string",
+	}
+
+	// Get the schema according to the type.
+	//
+	// Currently, We assume that `type` is globally unique
+	// regardless of the namespace and category.
+	for (const [namespace, schemas] of Object.entries(allSchemas)) {
+		for (const category of ['task', 'flow']) {
+			const subSchemas = schemas[category]
+			if (subSchemas !== undefined) {
+				const schema = subSchemas[type]
+				if (schema !== undefined) {
+					return schema
 				}
 			}
 		}
 	}
 }
 
-const customTasks = [
-	"code",
-	"llm",
-	"embedding",
-	"vectorstore_upsert",
-	"vectorstore_query",
-	"vectorstore_delete"
-]
+function getFlowNamespaceByType(type) {
+	for (const [namespace, schemas] of Object.entries(allSchemas)) {
+		const flowSchemas = schemas['flow']
+		if (flowSchemas !== undefined) {
+			const schema = flowSchemas[type]
+			if (schema !== undefined) {
+				// This is indeed a flow, return the namespace to which it belongs.
+				return namespace
+			}
+		}
+	}
+	// This is not a flow, return an empty namespace.
+	return ''
+}
 
 function renderForm(ui, schema) {
 	const Form = JSONSchemaForm.default;
@@ -701,7 +442,7 @@ function otherStepEditorProvider(step, editorContext) {
 
 	let lastElem = null;
 
-	const stepSchema = schema[step.type]
+	const stepSchema = getSchemaByType(step.type)
 	const required = stepSchema.input.required
 
 	for (const [stepName, stepValue] of Object.entries(step.properties)) {
@@ -766,16 +507,18 @@ function otherStepEditorProvider(step, editorContext) {
 }
 
 function getInputType(schema, name) {
-	if (schema.input.properties[name] === undefined) {
-		return ''
+	if (schema.input.properties === undefined) {
+		// No schema found, we assume it's of type string.
+		return 'string'
+	}
+	const inputSchema = schema.input.properties[name]
+	if (inputSchema === undefined) {
+		// No schema found, we assume it's of type string.
+		return 'string'
 	}
 
-	const schemaType = schema.input.properties[name].type
-	const enumOptions = schema.input.properties[name].enum
-	console.log('schemaType...', schemaType)
-
 	let inputType = '';
-	switch (schemaType) {
+	switch (inputSchema.type) {
 		case 'string':
 			inputType = 'text'
 			if (name === 'api_key') {
@@ -784,13 +527,13 @@ function getInputType(schema, name) {
 			if (['template', 'code'].includes(name)) {
 				inputType = 'textarea'
 			}
-			if (enumOptions instanceof Array) {
+			if (inputSchema.enum instanceof Array) {
 				inputType = 'option'
 			}
 			break;
 		case 'integer':
 		case 'number':
-			inputType = schemaType
+			inputType = inputSchema.type
 			break;
 		default:
 			// undefined, array, object
@@ -874,7 +617,7 @@ function loadTaskFromStep(step) {
 		name: step.name,
 		componentType: 'task',
 		properties: {...step.input},
-		schema: schema[step.type]
+		schema: getSchemaByType(step.type)
 	}
 
 	switch (step.type) {
@@ -1057,7 +800,7 @@ function getDefFromStep(step) {
 
 
 	for (const [name, value] of Object.entries(def.input)) {
-		if (getInputType(schema[def.type], name) === 'json' && def.input[name] !== '') {
+		if (getInputType(getSchemaByType(def.type), name) === 'json' && def.input[name] !== '') {
 			// JSON string => JSON object
 			console.log('name', name, 'value', value)
 			def.input[name] = JSON.parse(value);
@@ -1070,7 +813,8 @@ function getDefFromStep(step) {
 }
 
 function wrapCallTask(t) {
-	if (!(customTasks.includes(t.type))) {
+	const namespace = getFlowNamespaceByType(t.type)
+	if (namespace === '') {
 		return t
 	}
 
@@ -1078,7 +822,7 @@ function wrapCallTask(t) {
 		type: 'call',
 		name: t.name,
 		input: {
-			loader: 'llmflow',
+			loader: namespace,
 			task: t.type,
 			input: t.input
 		}

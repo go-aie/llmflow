@@ -98,6 +98,18 @@ paths:
           schema:
             $ref: "#/definitions/ExecuteRequestBody"
       %s
+  /schemas:
+    get:
+      description: ""
+      summary: ""
+      operationId: "GetSchemas"
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          type: string
+          description: ""
+      %s
 `
 )
 
@@ -107,6 +119,7 @@ func getResponses(schema oas2.Schema) []oas2.OASResponses {
 		oas2.GetOASResponses(schema, "GetTask", 200, &GetTaskResponse{}),
 		oas2.GetOASResponses(schema, "UpsertTask", 200, &UpsertTaskResponse{}),
 		oas2.GetOASResponses(schema, "Execute", 200, &ExecuteResponse{}),
+		oas2.GetOASResponses(schema, "GetSchemas", 200, &GetSchemasResponse{}),
 	}
 }
 
@@ -120,6 +133,8 @@ func getDefinitions(schema oas2.Schema) map[string]oas2.Definition {
 		Input map[string]any `json:"input"`
 	}{}))
 	oas2.AddResponseDefinitions(defs, schema, "Execute", 200, (&ExecuteResponse{}).Body())
+
+	oas2.AddResponseDefinitions(defs, schema, "GetSchemas", 200, (&GetSchemasResponse{}).Body())
 
 	oas2.AddResponseDefinitions(defs, schema, "GetTask", 200, (&GetTaskResponse{}).Body())
 

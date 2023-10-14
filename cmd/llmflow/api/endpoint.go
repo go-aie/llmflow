@@ -85,6 +85,29 @@ func MakeEndpointOfExecute(s Service) endpoint.Endpoint {
 	}
 }
 
+type GetSchemasResponse struct {
+	Schemas map[string]any `json:"schemas"`
+	Err     error          `json:"-"`
+}
+
+func (r *GetSchemasResponse) Body() interface{} { return r }
+
+// Failed implements endpoint.Failer.
+func (r *GetSchemasResponse) Failed() error { return r.Err }
+
+// MakeEndpointOfGetSchemas creates the endpoint for s.GetSchemas.
+func MakeEndpointOfGetSchemas(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		schemas, err := s.GetSchemas(
+			ctx,
+		)
+		return &GetSchemasResponse{
+			Schemas: schemas,
+			Err:     err,
+		}, nil
+	}
+}
+
 type GetTaskRequest struct {
 	Name string `json:"-"`
 }

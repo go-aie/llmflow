@@ -52,6 +52,20 @@ func NewHTTPRouter(svc Service, codecs httpcodec.Codecs, opts ...httpoption.Opti
 		),
 	)
 
+	codec = codecs.EncodeDecoder("GetSchemas")
+	validator = options.RequestValidator("GetSchemas")
+	r.Method(
+		"GET", "/schemas",
+		kithttp.NewServer(
+			MakeEndpointOfGetSchemas(svc),
+			decodeGetSchemasRequest(codec, validator),
+			httpcodec.MakeResponseEncoder(codec, 200),
+			append(kitOptions,
+				kithttp.ServerErrorEncoder(httpcodec.MakeErrorEncoder(codec)),
+			)...,
+		),
+	)
+
 	codec = codecs.EncodeDecoder("GetTask")
 	validator = options.RequestValidator("GetTask")
 	r.Method(
@@ -123,6 +137,17 @@ func decodeExecuteRequest(codec httpcodec.Codec, validator httpoption.Validator)
 		}
 
 		return &_req, nil
+	}
+}
+
+func decodeGetSchemasRequest(codec httpcodec.Codec, validator httpoption.Validator) kithttp.DecodeRequestFunc {
+	return func(_ context.Context, r *http.Request) (interface{}, error) {
+		__ := r.Header.Values("Authorization")
+		if err := codec.DecodeRequestParam("__", __, nil); err != nil {
+			return nil, err
+		}
+
+		return nil, nil
 	}
 }
 

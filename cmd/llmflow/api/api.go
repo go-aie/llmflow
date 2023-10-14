@@ -19,6 +19,10 @@ type Service interface {
 	//kun:param __ in=header name=Authorization required=true
 	GetTask(ctx context.Context, name string) (definition map[string]any, err error)
 
+	//kun:op GET /schemas
+	//kun:param __ in=header name=Authorization required=true
+	GetSchemas(ctx context.Context) (schemas map[string]any, err error)
+
 	//kun:op POST /
 	//kun:param __ in=header name=Authorization required=true
 	//kun:success body=output

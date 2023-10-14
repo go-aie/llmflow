@@ -1,34 +1,29 @@
 {
-  "name": "template",
-  "type": "template",
-  "description": "Render a template by applying given arguments",
-  "schema": {
-    "input": {
-      "type": "object",
-      "required": [
-        "template"
-      ],
-      "properties": {
-        "template": {
-          "type": "string",
-          "description": "The template string"
-        },
-        "args": {
-          "type": "object",
-          "description": "The argument values",
-          "patternProperties": {
-            "^.*$": {}
-          }
+  "input": {
+    "type": "object",
+    "required": [
+      "template"
+    ],
+    "properties": {
+      "template": {
+        "type": "string",
+        "description": "The template string"
+      },
+      "args": {
+        "type": "object",
+        "description": "The argument values",
+        "patternProperties": {
+          "^.*$": {}
         }
       }
-    },
-    "output": {
-      "type": "object",
-      "properties": {
-        "result": {
-          "type": "string",
-          "description": "The rendering result"
-        }
+    }
+  },
+  "output": {
+    "type": "object",
+    "properties": {
+      "result": {
+        "type": "string",
+        "description": "The rendering result"
       }
     }
   }
