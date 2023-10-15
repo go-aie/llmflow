@@ -1,6 +1,6 @@
 # LLMFlow
 
-[![Go Reference](https://pkg.go.dev/badge/go-aie/llmflow/vulndb.svg)][2]
+[![Go Reference](https://pkg.go.dev/badge/go-aie/llmflow/vulndb.svg)][1]
 
 Orchestration engine & UI for your customized LLM flow.
 
@@ -14,7 +14,7 @@ go install github.com/go-aie/llmflow/cmd/llmflow@latest
 
 ## Run
 
-1. Run [OneAI][1].
+1. Run [OneAI][2].
 
 2. Run [Python Code Server](cmd/llmflow/pycode).
 
@@ -25,28 +25,29 @@ go install github.com/go-aie/llmflow/cmd/llmflow@latest
     ```
    
 
-## System Tasks
+## Tasks & Flows
 
-Defined in JSON:
+In addition to [Orchestrator's built-in tasks][3], LLMFlow defines the following tasks and flows:
 
-- [LLM](llm.json)
-- [Embedding](embedding.json)
-- [Code](code.json)
-- [VectorStore_Upsert](vectorstore_upsert.json)
-- [VectorStore_Query](vectorstore_query.json)
-- [VectorStore_Delete](vectorstore_delete.json)
+   - Tasks
+      + [Template](template.go)
+      + [Loader](loader.go)
+      + [Splitter](splitter.go)
 
-Defined in Go:
-
-- [Template](template.go)
-- [Loader](loader.go)
-- [Splitter](splitter.go)
+   - Flows
+      + [LLM](llm.flow.json)
+      + [Embedding](embedding.flow.json)
+      + [Code](code.flow.json)
+      + [VectorStore_Upsert](vectorstore_upsert.flow.json)
+      + [VectorStore_Query](vectorstore_query.flow.json)
+      + [VectorStore_Delete](vectorstore_delete.flow.json)
 
 
 ## Documentation
 
-Check out the [documentation][2].
+Check out the [documentation][1].
 
 
-[1]: https://github.com/go-aie/oneai
-[2]: https://pkg.go.dev/github.com/go-aie/llmflow
+[1]: https://pkg.go.dev/github.com/go-aie/llmflow
+[2]: https://github.com/go-aie/oneai
+[3]: https://github.com/RussellLuo/orchestrator#task
