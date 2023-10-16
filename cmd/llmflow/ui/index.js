@@ -2,248 +2,12 @@
 let workflowName = ''
 let workflowSchema = '{}'
 let workflowResult = undefined
+let workflowAsTool = false
 
 import { JSONEditor } from './svelte-jsoneditor/vanilla.js'
 
-const configuration = {
-	toolbox: {
-		isCollapsed: true,
-		groups: [
-			{
-				name: 'Operators',
-				steps: [
-					{
-						componentType: 'switch',
-						type: 'decision',
-						name: 'Switch',
-						properties: {
-							expression: ''
-						},
-						branches: {
-							'default': []
-						}
-					},
-					{
-						componentType: 'task',
-						type: 'terminate',
-						name: 'Return',
-						properties: {
-							output: ''
-						}
-					},
-					{
-						componentType: 'container',
-						type: 'loop',
-						name: 'Loop',
-						properties: {
-						},
-						sequence: []
-					},
-					{
-						componentType: 'task',
-						type: 'iterate',
-						name: 'Iterate',
-						properties: {
-							type: 'list',
-							value: ''
-						}
-					}
-				]
-			},
-			{
-				name: 'Embeddings',
-				steps: [
-					{
-						componentType: 'task',
-						type: 'embedding',
-						name: 'Embedding',
-						properties: {
-							model: "",
-							uri: "",
-							api_key: "",
-							texts: ""
-						}
-					}
-				]
-			},
-			{
-				name: 'Vector Stores',
-				steps: [
-					{
-						componentType: 'task',
-						type: 'vectorstore_upsert',
-						name: 'VectorStore_Upsert',
-						properties: {
-							vendor: "",
-							uri: "",
-							api_key: "",
-							vectors: [],
-							documents: []
-						}
-					},
-					{
-						componentType: 'task',
-						type: 'vectorstore_query',
-						name: 'VectorStore_Query',
-						properties: {
-							vendor: "",
-							uri: "",
-							api_key: "",
-							vector: [],
-							top_k: 0,
-							min_score: 0
-						}
-					},
-					{
-						componentType: 'task',
-						type: 'vectorstore_delete',
-						name: 'VectorStore_Delete',
-						properties: {
-							vendor: "",
-							uri: "",
-							api_key: ""
-						}
-					},
-				]
-			},
-			{
-				name: 'Prompts',
-				steps: [
-					{
-						componentType: 'task',
-						type: 'template',
-						name: 'Prompt',
-						properties: {
-							template: "",
-							args: ""
-						}
-					}
-				]
-			},
-			{
-				name: 'LLMs',
-				steps: [
-					{
-						componentType: 'task',
-						type: 'llm',
-						name: 'LLM',
-						properties: {
-							model: "",
-							uri: "",
-							api_key: "",
-							prompt: "",
-							temperature: 0,
-						}
-					}
-				]
-			},
-			{
-				name: 'Tools',
-				steps: [
-					{
-						componentType: 'task',
-						type: 'http',
-						name: 'HTTP',
-						properties: {
-							method: '',
-							uri: '',
-							header: '',
-							body: ''
-						}
-					},
-					{
-						componentType: 'task',
-						type: 'code',
-						name: 'Code',
-						properties: {
-							code: "",
-							ctx: ""
-						}
-					}
-				]
-			}
-		]
-	},
-
-	steps: {
-		iconUrlProvider: componentType => {
-			const icons = {
-				switch: './assets/icon-if.svg',
-				container: './assets/icon-loop.svg',
-				task: './assets/icon-task.svg'
-			}
-			return componentType in icons ? icons[componentType] : './assets/icon-task.svg';
-		}
-	},
-
-	editors: {
-		globalEditorProvider: () => {
-			const editor = document.createElement('div')
-			appendTitle(editor, 'Workflow')
-
-			const we = document.createElement('div')  // Workflow Editor
-			const ui = document.createElement('div')  // User Interface
-			editor.appendChild(we)
-			editor.appendChild(ui)
-
-			var inputForm
-
-			// Build Workflow Editor
-			const labelName = document.createElement('h3')
-			labelName.innerText = 'Name'
-			we.appendChild(labelName)
-
-			const input = createInputElement('text', workflowName, value => {
-				workflowName = value
-			})
-			we.appendChild(input)
-
-			const labelSchema = document.createElement('h3')
-			labelSchema.innerText = 'Schema'
-			we.appendChild(labelSchema)
-
-			const schemaEditor = createJSONEditor(workflowSchema, (update) => {
-				workflowSchema = update.text
-				console.log('workflowSchema', update)
-				// Re-render the inputForm.
-				renderForm(inputForm, JSON.parse(workflowSchema).input)
-			})
-			we.appendChild(schemaEditor)
-
-			// Build User Interface
-			const labelInput = document.createElement('h3')
-			labelInput.innerText = 'Input'
-			ui.appendChild(labelInput)
-
-			inputForm = document.createElement('div')
-			ui.appendChild(inputForm)
-			renderForm(inputForm, JSON.parse(workflowSchema).input)
-
-			const labelOutput = document.createElement('h3')
-			labelOutput.innerText = 'Output'
-			ui.appendChild(labelOutput)
-
-			workflowResult = createJSONEditor('', (update) => {}, true)
-			ui.appendChild(workflowResult)
-
-			return editor
-		},
-
-		stepEditorProvider: (step, editorContext) => {
-			switch (step.componentType) {
-				case 'switch':
-					return switchStepEditorProvider(step, editorContext);
-				default:
-					let {editor, _} = otherStepEditorProvider(step, editorContext);
-					return editor;
-			}
-		}
-	},
-
-	controlBar: true,
-};
-
 const allSchemas = await loadSchemas()
+let allStepLabels = {}
 
 async function loadSchemas() {
 	const response = await fetch('/api/schemas', {
@@ -258,6 +22,169 @@ async function loadSchemas() {
 	}
 	const data = await response.json()
 	return data['schemas']
+}
+
+async function loadTools() {
+	const response = await fetch('/api/tools', {
+		method: 'GET',
+		headers: {
+			'Accept': 'application/json',
+			'Content-Type': 'application/json'
+		}
+	})
+	if (!response.ok) {
+		throw new Error(`HTTP error! Status: ${response.status}`)
+	}
+	const data = await response.json()
+	return {
+		'groupNames': data['groups'],
+		'tools': data['tools']
+	}
+}
+
+async function loadConfiguration() {
+	const {groupNames, tools} = await loadTools()
+
+	let groups = []
+	for (const groupName of groupNames) {
+		let steps = []
+		for (const tool of tools[groupName]) {
+			let step = {
+				componentType: 'task',
+				type: tool.type,
+				name: tool.name,
+				properties: getEmptyPropertiesByType(tool.type)
+			}
+			switch (tool.type) {
+				case 'decision':
+					step.componentType = 'switch'
+					step.branches = {
+						'default': []
+					}
+					break
+				case 'loop':
+					step.componentType = 'container'
+					step.sequence = []
+					break
+			}
+			steps.push(step)
+
+			allStepLabels[tool.type] = tool.name
+
+			// Set the tool flag to true if the current flow has been registered as a tool.
+			if (step.type === workflowName.toLowerCase()) {
+				workflowAsTool = true
+			}
+		}
+		groups.push({
+			name: groupName,
+			steps: steps,
+		})
+	}
+	console.log(groups)
+
+	return {
+		toolbox: {
+			isCollapsed: true,
+			groups: groups
+		},
+
+		steps: {
+			iconUrlProvider: componentType => {
+				const icons = {
+					switch: './assets/icon-if.svg',
+					container: './assets/icon-loop.svg',
+					task: './assets/icon-task.svg'
+				}
+				return componentType in icons ? icons[componentType] : './assets/icon-task.svg';
+			},
+			canInsertStep: (step, targetSequence) => {
+				if (step.type === workflowName.toLowerCase()) {
+					alert(`Can not insert the custom flow "${workflowName}" into itself!`)
+					return false
+				}
+				return true
+			}
+		},
+
+		editors: {
+			globalEditorProvider: (definition, globalContext) => {
+				const editor = document.createElement('div')
+				appendTitle(editor, 'Flow')
+
+				const we = document.createElement('div')  // Workflow Editor
+				const ui = document.createElement('div')  // User Interface
+				editor.appendChild(we)
+				editor.appendChild(ui)
+
+				var inputForm
+
+				// Build Workflow Editor
+				const labelName = document.createElement('h3')
+				labelName.innerText = 'Name'
+				we.appendChild(labelName)
+
+				const input = createInputElement('text', workflowName, value => {
+					workflowName = value
+				})
+				we.appendChild(input)
+
+				// Add "set as a tool" flag.
+				const asToolValue = createInputElement('boolean', workflowAsTool, value => {
+					workflowAsTool = value
+
+					//globalContext.notifyPropertiesChanged()
+				}, 'input', '5%')
+				we.appendChild(asToolValue)
+
+				const asToolSpan = document.createElement('span')
+				asToolSpan.innerText = 'Set as a tool'
+				we.appendChild(asToolSpan)
+
+				const labelSchema = document.createElement('h3')
+				labelSchema.innerText = 'Schema'
+				we.appendChild(labelSchema)
+
+				const schemaEditor = createJSONEditor(workflowSchema, (update) => {
+					workflowSchema = update.text
+					console.log('workflowSchema', update)
+					// Re-render the inputForm.
+					renderForm(inputForm, JSON.parse(workflowSchema).input)
+				})
+				we.appendChild(schemaEditor)
+
+				// Build User Interface
+				const labelInput = document.createElement('h3')
+				labelInput.innerText = 'Input'
+				ui.appendChild(labelInput)
+
+				inputForm = document.createElement('div')
+				ui.appendChild(inputForm)
+				renderForm(inputForm, JSON.parse(workflowSchema).input)
+
+				const labelOutput = document.createElement('h3')
+				labelOutput.innerText = 'Output'
+				ui.appendChild(labelOutput)
+
+				workflowResult = createJSONEditor('', (update) => {}, true)
+				ui.appendChild(workflowResult)
+
+				return editor
+			},
+
+			stepEditorProvider: (step, editorContext) => {
+				switch (step.componentType) {
+					case 'switch':
+						return switchStepEditorProvider(step, editorContext);
+					default:
+						let {editor, _} = otherStepEditorProvider(step, editorContext);
+						return editor;
+				}
+			}
+		},
+
+		controlBar: true,
+	}
 }
 
 function getSchemaByType(type) {
@@ -326,6 +253,38 @@ function getFlowNamespaceByType(type) {
 	}
 	// This is not a flow, return an empty namespace.
 	return ''
+}
+
+function getEmptyPropertiesByType(type) {
+	const schema = getSchemaByType(type)
+	if (schema.input.properties == undefined) {
+		return {}
+	}
+
+	let emptyProperties = {}
+	for (const [name, spec] of Object.entries(schema.input.properties)) {
+		let emptyValue = null;
+		switch (spec.type) {
+			case 'string':
+				emptyValue = ''
+				break
+			case 'number':
+			case 'integer':
+				emptyValue = 0
+				break
+			case 'boolean':
+				emptyValue = false
+				break
+			default:
+				// null/undefined, array, object
+				//
+				// These complex types are treated as a JSON string.
+				emptyValue = ''
+				break
+		}
+		emptyProperties[name] = emptyValue
+	}
+	return emptyProperties
 }
 
 function renderForm(ui, schema) {
@@ -405,26 +364,9 @@ function switchStepEditorProvider(step, editorContext) {
 	return editor
 }
 
-function getStepLabel(type) {
-	switch (type) {
-		case 'decision':
-			return 'Switch'
-		case 'terminate':
-			return 'Return'
-		case 'template':
-			return 'Prompt'
-		case 'llm':
-			return 'LLM'
-		case 'http':
-			return 'HTTP'
-		default:
-			return titleCase(type)
-	}
-}
-
 function otherStepEditorProvider(step, editorContext) {
 	const editor = document.createElement('div');
-	appendTitle(editor, getStepLabel(step.type));
+	appendTitle(editor, allStepLabels[step.type]);
 
 	appendTextField(editor, 'Name', step.name,
 		v => {
@@ -531,12 +473,13 @@ function getInputType(schema, name) {
 				inputType = 'option'
 			}
 			break;
-		case 'integer':
 		case 'number':
+		case 'integer':
+		case 'boolean':
 			inputType = inputSchema.type
 			break;
 		default:
-			// undefined, array, object
+			// null/undefined, array, object
 			inputType = 'json'
 	}
 	return inputType
@@ -588,7 +531,7 @@ const startDefinition = {
 };
 
 const placeholder = document.getElementById('designer');
-//var designer = sequentialWorkflowDesigner.Designer.create(placeholder, startDefinition, configuration);
+//var designer = sequentialWorkflowDesigner.Designer.create(placeholder, startDefinition, await loadConfiguration());
 var designer;
 
 function appendTitle(parent, text) {
@@ -683,8 +626,14 @@ function loadTaskFromStep(step) {
 }
 
 async function loadWorkflow() {
-	console.log("loading...")
-	const [handle] = await window.showOpenFilePicker();
+	const [handle] = await window.showOpenFilePicker({
+		types: [{
+			accept: {
+				"application/json": [".json"]
+			}
+		}],
+		excludeAcceptAllOption: true
+	});
 	this.handle = handle;
 	this.file = await handle.getFile();
 
@@ -702,7 +651,7 @@ async function loadWorkflow() {
 		properties: {}
 	};
 
-	designer = sequentialWorkflowDesigner.Designer.create(placeholder, definition, configuration);
+	designer = sequentialWorkflowDesigner.Designer.create(placeholder, definition, await loadConfiguration());
 
 	document.getElementById('save').disabled = false;
 	//document.getElementById('run').disabled = false;
@@ -720,9 +669,9 @@ async function saveWorkflow() {
 }
 
 function titleCase(str) {
-  return str.split('_').map(function(word) {
-    return (word.charAt(0).toUpperCase() + word.slice(1));
-  }).join('_');
+	return str.split('_').map(function(word) {
+		return (word.charAt(0).toUpperCase() + word.slice(1));
+	}).join('_');
 }
 
 function getDefFromStep(step) {
@@ -862,6 +811,39 @@ function getDefinitions() {
 async function runWorkflow(form) {
 	const task = getDefinitions();
 	console.log('task', JSON.stringify(task));
+
+	// Upsert tool if required.
+	const group = 'Tools'
+	const flowName = workflowName.toLowerCase()
+	if (workflowAsTool) {
+		await fetch('/api/tools/' + group, {
+			method: 'PUT',
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({typ: flowName, tool: {type: flowName, name: titleCase(flowName)}})
+		})
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error(`HTTP error! Status: ${response.status}`);
+				}
+			});
+	} else {
+		await fetch('/api/tools/' + group, {
+			method: 'DELETE',
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({typ: flowName})
+		})
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error(`HTTP error! Status: ${response.status}`);
+				}
+			});
+	}
 
 	// Upsert task.
 	await fetch('/api/tasks/' + workflowName, {

@@ -73,6 +73,58 @@ func (c *HTTPClient) DeleteTask(ctx context.Context, name string) (err error) {
 	return nil
 }
 
+func (c *HTTPClient) DeleteTool(ctx context.Context, group string, typ string) (err error) {
+	codec := c.codecs.EncodeDecoder("DeleteTool")
+
+	path := fmt.Sprintf("/tools/%s",
+		codec.EncodeRequestParam("group", group)[0],
+	)
+	u := &url.URL{
+		Scheme: c.scheme,
+		Host:   c.host,
+		Path:   c.pathPrefix + path,
+	}
+
+	reqBody := struct {
+		Typ string `json:"typ"`
+	}{
+		Typ: typ,
+	}
+	reqBodyReader, headers, err := codec.EncodeRequestBody(&reqBody)
+	if err != nil {
+		return err
+	}
+
+	_req, err := http.NewRequestWithContext(ctx, "DELETE", u.String(), reqBodyReader)
+	if err != nil {
+		return err
+	}
+
+	for k, v := range headers {
+		_req.Header.Set(k, v)
+	}
+	for _, v := range codec.EncodeRequestParam("__", nil) {
+		_req.Header.Add("Authorization", v)
+	}
+
+	_resp, err := c.httpClient.Do(_req)
+	if err != nil {
+		return err
+	}
+	defer _resp.Body.Close()
+
+	if _resp.StatusCode < http.StatusOK || _resp.StatusCode > http.StatusNoContent {
+		var respErr error
+		err := codec.DecodeFailureResponse(_resp.Body, &respErr)
+		if err == nil {
+			err = respErr
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (c *HTTPClient) Execute(ctx context.Context, name string, input map[string]any) (output map[string]any, err error) {
 	codec := c.codecs.EncodeDecoder("Execute")
 
@@ -214,6 +266,47 @@ func (c *HTTPClient) GetTask(ctx context.Context, name string) (definition map[s
 	return respBody.Definition, nil
 }
 
+func (c *HTTPClient) GetTools(ctx context.Context) (groups []string, tools map[string][]Tool, err error) {
+	codec := c.codecs.EncodeDecoder("GetTools")
+
+	path := "/tools"
+	u := &url.URL{
+		Scheme: c.scheme,
+		Host:   c.host,
+		Path:   c.pathPrefix + path,
+	}
+
+	_req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
+	if err != nil {
+		return nil, nil, err
+	}
+	for _, v := range codec.EncodeRequestParam("__", nil) {
+		_req.Header.Add("Authorization", v)
+	}
+
+	_resp, err := c.httpClient.Do(_req)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer _resp.Body.Close()
+
+	if _resp.StatusCode < http.StatusOK || _resp.StatusCode > http.StatusNoContent {
+		var respErr error
+		err := codec.DecodeFailureResponse(_resp.Body, &respErr)
+		if err == nil {
+			err = respErr
+		}
+		return nil, nil, err
+	}
+
+	respBody := &GetToolsResponse{}
+	err = codec.DecodeSuccessResponse(_resp.Body, respBody.Body())
+	if err != nil {
+		return nil, nil, err
+	}
+	return respBody.Groups, respBody.Tools, nil
+}
+
 func (c *HTTPClient) UpsertTask(ctx context.Context, name string, definition map[string]any) (err error) {
 	codec := c.codecs.EncodeDecoder("UpsertTask")
 
@@ -230,6 +323,60 @@ func (c *HTTPClient) UpsertTask(ctx context.Context, name string, definition map
 		Definition map[string]any `json:"definition"`
 	}{
 		Definition: definition,
+	}
+	reqBodyReader, headers, err := codec.EncodeRequestBody(&reqBody)
+	if err != nil {
+		return err
+	}
+
+	_req, err := http.NewRequestWithContext(ctx, "PUT", u.String(), reqBodyReader)
+	if err != nil {
+		return err
+	}
+
+	for k, v := range headers {
+		_req.Header.Set(k, v)
+	}
+	for _, v := range codec.EncodeRequestParam("__", nil) {
+		_req.Header.Add("Authorization", v)
+	}
+
+	_resp, err := c.httpClient.Do(_req)
+	if err != nil {
+		return err
+	}
+	defer _resp.Body.Close()
+
+	if _resp.StatusCode < http.StatusOK || _resp.StatusCode > http.StatusNoContent {
+		var respErr error
+		err := codec.DecodeFailureResponse(_resp.Body, &respErr)
+		if err == nil {
+			err = respErr
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (c *HTTPClient) UpsertTool(ctx context.Context, group string, typ string, tool Tool) (err error) {
+	codec := c.codecs.EncodeDecoder("UpsertTool")
+
+	path := fmt.Sprintf("/tools/%s",
+		codec.EncodeRequestParam("group", group)[0],
+	)
+	u := &url.URL{
+		Scheme: c.scheme,
+		Host:   c.host,
+		Path:   c.pathPrefix + path,
+	}
+
+	reqBody := struct {
+		Typ  string `json:"typ"`
+		Tool Tool   `json:"tool"`
+	}{
+		Typ:  typ,
+		Tool: tool,
 	}
 	reqBodyReader, headers, err := codec.EncodeRequestBody(&reqBody)
 	if err != nil {

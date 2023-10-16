@@ -17,20 +17,118 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
+
+	"golang.org/x/exp/slices"
 )
 
 //go:embed ui
 var staticFiles embed.FS
 
 type LLMFlow struct {
+	groups []string
+	tools  map[string][]api.Tool
+
 	definitions map[string]map[string]any
 	mu          sync.RWMutex
 }
 
 func NewLLMFlow() *LLMFlow {
 	return &LLMFlow{
+		groups: []string{"Operators", "Embeddings", "Vector Stores", "Prompts", "LLMs", "Tools"},
+		tools: map[string][]api.Tool{
+			"Operators": {
+				{
+					Type: "decision",
+					Name: "Switch",
+				},
+				{
+					Type: "terminate",
+					Name: "Return",
+				},
+				{
+					Type: "loop",
+					Name: "Loop",
+				},
+				{
+					Type: "iterate",
+					Name: "Iterate",
+				},
+			},
+			"Embeddings": {
+				{
+					Type: "embedding",
+					Name: "Embedding",
+				},
+			},
+			"Vector Stores": {
+				{
+					Type: "vectorstore_upsert",
+					Name: "VectorStore_Upsert",
+				},
+				{
+					Type: "vectorstore_query",
+					Name: "VectorStore_Query",
+				},
+				{
+					Type: "vectorstore_delete",
+					Name: "VectorStore_Delete",
+				},
+			},
+			"Prompts": {
+				{
+					Type: "template",
+					Name: "Prompt",
+				},
+			},
+			"LLMs": {
+				{
+					Type: "llm",
+					Name: "LLM",
+				},
+			},
+			"Tools": {
+				{
+					Type: "http",
+					Name: "HTTP",
+				},
+				{
+					Type: "code",
+					Name: "Code",
+				},
+			},
+		},
 		definitions: make(map[string]map[string]any),
 	}
+}
+
+func (lf *LLMFlow) GetTools(ctx context.Context) (groups []string, tools map[string][]api.Tool, err error) {
+	lf.mu.RLock()
+	defer lf.mu.RUnlock()
+	return lf.groups, lf.tools, nil
+}
+
+func (lf *LLMFlow) UpsertTool(ctx context.Context, group, typ string, tool api.Tool) (err error) {
+	lf.mu.Lock()
+	defer lf.mu.Unlock()
+
+	lf.tools[group] = append(lf.tools[group], tool)
+	return nil
+}
+
+func (lf *LLMFlow) DeleteTool(ctx context.Context, group, typ string) (err error) {
+	lf.mu.Lock()
+	defer lf.mu.Unlock()
+
+	tools, ok := lf.tools[group]
+	if ok {
+		for i, t := range tools {
+			if t.Type == typ {
+				lf.tools[group] = slices.Delete(tools, i, i+1)
+				break
+			}
+		}
+	}
+	return nil
 }
 
 func (lf *LLMFlow) UpsertTask(ctx context.Context, name string, definition map[string]any) error {

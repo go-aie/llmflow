@@ -38,6 +38,20 @@ func NewHTTPRouter(svc Service, codecs httpcodec.Codecs, opts ...httpoption.Opti
 		),
 	)
 
+	codec = codecs.EncodeDecoder("DeleteTool")
+	validator = options.RequestValidator("DeleteTool")
+	r.Method(
+		"DELETE", "/tools/{group}",
+		kithttp.NewServer(
+			MakeEndpointOfDeleteTool(svc),
+			decodeDeleteToolRequest(codec, validator),
+			httpcodec.MakeResponseEncoder(codec, 200),
+			append(kitOptions,
+				kithttp.ServerErrorEncoder(httpcodec.MakeErrorEncoder(codec)),
+			)...,
+		),
+	)
+
 	codec = codecs.EncodeDecoder("Execute")
 	validator = options.RequestValidator("Execute")
 	r.Method(
@@ -80,6 +94,20 @@ func NewHTTPRouter(svc Service, codecs httpcodec.Codecs, opts ...httpoption.Opti
 		),
 	)
 
+	codec = codecs.EncodeDecoder("GetTools")
+	validator = options.RequestValidator("GetTools")
+	r.Method(
+		"GET", "/tools",
+		kithttp.NewServer(
+			MakeEndpointOfGetTools(svc),
+			decodeGetToolsRequest(codec, validator),
+			httpcodec.MakeResponseEncoder(codec, 200),
+			append(kitOptions,
+				kithttp.ServerErrorEncoder(httpcodec.MakeErrorEncoder(codec)),
+			)...,
+		),
+	)
+
 	codec = codecs.EncodeDecoder("UpsertTask")
 	validator = options.RequestValidator("UpsertTask")
 	r.Method(
@@ -87,6 +115,20 @@ func NewHTTPRouter(svc Service, codecs httpcodec.Codecs, opts ...httpoption.Opti
 		kithttp.NewServer(
 			MakeEndpointOfUpsertTask(svc),
 			decodeUpsertTaskRequest(codec, validator),
+			httpcodec.MakeResponseEncoder(codec, 200),
+			append(kitOptions,
+				kithttp.ServerErrorEncoder(httpcodec.MakeErrorEncoder(codec)),
+			)...,
+		),
+	)
+
+	codec = codecs.EncodeDecoder("UpsertTool")
+	validator = options.RequestValidator("UpsertTool")
+	r.Method(
+		"PUT", "/tools/{group}",
+		kithttp.NewServer(
+			MakeEndpointOfUpsertTool(svc),
+			decodeUpsertToolRequest(codec, validator),
 			httpcodec.MakeResponseEncoder(codec, 200),
 			append(kitOptions,
 				kithttp.ServerErrorEncoder(httpcodec.MakeErrorEncoder(codec)),
@@ -103,6 +145,32 @@ func decodeDeleteTaskRequest(codec httpcodec.Codec, validator httpoption.Validat
 
 		name := []string{chi.URLParam(r, "name")}
 		if err := codec.DecodeRequestParam("name", name, &_req.Name); err != nil {
+			return nil, err
+		}
+
+		__ := r.Header.Values("Authorization")
+		if err := codec.DecodeRequestParam("__", __, nil); err != nil {
+			return nil, err
+		}
+
+		if err := validator.Validate(&_req); err != nil {
+			return nil, err
+		}
+
+		return &_req, nil
+	}
+}
+
+func decodeDeleteToolRequest(codec httpcodec.Codec, validator httpoption.Validator) kithttp.DecodeRequestFunc {
+	return func(_ context.Context, r *http.Request) (interface{}, error) {
+		var _req DeleteToolRequest
+
+		if err := codec.DecodeRequestBody(r, &_req); err != nil {
+			return nil, err
+		}
+
+		group := []string{chi.URLParam(r, "group")}
+		if err := codec.DecodeRequestParam("group", group, &_req.Group); err != nil {
 			return nil, err
 		}
 
@@ -173,6 +241,17 @@ func decodeGetTaskRequest(codec httpcodec.Codec, validator httpoption.Validator)
 	}
 }
 
+func decodeGetToolsRequest(codec httpcodec.Codec, validator httpoption.Validator) kithttp.DecodeRequestFunc {
+	return func(_ context.Context, r *http.Request) (interface{}, error) {
+		__ := r.Header.Values("Authorization")
+		if err := codec.DecodeRequestParam("__", __, nil); err != nil {
+			return nil, err
+		}
+
+		return nil, nil
+	}
+}
+
 func decodeUpsertTaskRequest(codec httpcodec.Codec, validator httpoption.Validator) kithttp.DecodeRequestFunc {
 	return func(_ context.Context, r *http.Request) (interface{}, error) {
 		var _req UpsertTaskRequest
@@ -183,6 +262,32 @@ func decodeUpsertTaskRequest(codec httpcodec.Codec, validator httpoption.Validat
 
 		name := []string{chi.URLParam(r, "name")}
 		if err := codec.DecodeRequestParam("name", name, &_req.Name); err != nil {
+			return nil, err
+		}
+
+		__ := r.Header.Values("Authorization")
+		if err := codec.DecodeRequestParam("__", __, nil); err != nil {
+			return nil, err
+		}
+
+		if err := validator.Validate(&_req); err != nil {
+			return nil, err
+		}
+
+		return &_req, nil
+	}
+}
+
+func decodeUpsertToolRequest(codec httpcodec.Codec, validator httpoption.Validator) kithttp.DecodeRequestFunc {
+	return func(_ context.Context, r *http.Request) (interface{}, error) {
+		var _req UpsertToolRequest
+
+		if err := codec.DecodeRequestBody(r, &_req); err != nil {
+			return nil, err
+		}
+
+		group := []string{chi.URLParam(r, "group")}
+		if err := codec.DecodeRequestParam("group", group, &_req.Group); err != nil {
 			return nil, err
 		}
 

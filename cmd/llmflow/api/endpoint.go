@@ -46,6 +46,43 @@ func MakeEndpointOfDeleteTask(s Service) endpoint.Endpoint {
 	}
 }
 
+type DeleteToolRequest struct {
+	Group string `json:"-"`
+	Typ   string `json:"typ"`
+}
+
+// ValidateDeleteToolRequest creates a validator for DeleteToolRequest.
+func ValidateDeleteToolRequest(newSchema func(*DeleteToolRequest) validating.Schema) httpoption.Validator {
+	return httpoption.FuncValidator(func(value interface{}) error {
+		req := value.(*DeleteToolRequest)
+		return httpoption.Validate(newSchema(req))
+	})
+}
+
+type DeleteToolResponse struct {
+	Err error `json:"-"`
+}
+
+func (r *DeleteToolResponse) Body() interface{} { return r }
+
+// Failed implements endpoint.Failer.
+func (r *DeleteToolResponse) Failed() error { return r.Err }
+
+// MakeEndpointOfDeleteTool creates the endpoint for s.DeleteTool.
+func MakeEndpointOfDeleteTool(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*DeleteToolRequest)
+		err := s.DeleteTool(
+			ctx,
+			req.Group,
+			req.Typ,
+		)
+		return &DeleteToolResponse{
+			Err: err,
+		}, nil
+	}
+}
+
 type ExecuteRequest struct {
 	Name  string         `json:"name"`
 	Input map[string]any `json:"input"`
@@ -145,6 +182,31 @@ func MakeEndpointOfGetTask(s Service) endpoint.Endpoint {
 	}
 }
 
+type GetToolsResponse struct {
+	Groups []string          `json:"groups"`
+	Tools  map[string][]Tool `json:"tools"`
+	Err    error             `json:"-"`
+}
+
+func (r *GetToolsResponse) Body() interface{} { return r }
+
+// Failed implements endpoint.Failer.
+func (r *GetToolsResponse) Failed() error { return r.Err }
+
+// MakeEndpointOfGetTools creates the endpoint for s.GetTools.
+func MakeEndpointOfGetTools(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		groups, tools, err := s.GetTools(
+			ctx,
+		)
+		return &GetToolsResponse{
+			Groups: groups,
+			Tools:  tools,
+			Err:    err,
+		}, nil
+	}
+}
+
 type UpsertTaskRequest struct {
 	Name       string         `json:"-"`
 	Definition map[string]any `json:"definition"`
@@ -177,6 +239,45 @@ func MakeEndpointOfUpsertTask(s Service) endpoint.Endpoint {
 			req.Definition,
 		)
 		return &UpsertTaskResponse{
+			Err: err,
+		}, nil
+	}
+}
+
+type UpsertToolRequest struct {
+	Group string `json:"-"`
+	Typ   string `json:"typ"`
+	Tool  Tool   `json:"tool"`
+}
+
+// ValidateUpsertToolRequest creates a validator for UpsertToolRequest.
+func ValidateUpsertToolRequest(newSchema func(*UpsertToolRequest) validating.Schema) httpoption.Validator {
+	return httpoption.FuncValidator(func(value interface{}) error {
+		req := value.(*UpsertToolRequest)
+		return httpoption.Validate(newSchema(req))
+	})
+}
+
+type UpsertToolResponse struct {
+	Err error `json:"-"`
+}
+
+func (r *UpsertToolResponse) Body() interface{} { return r }
+
+// Failed implements endpoint.Failer.
+func (r *UpsertToolResponse) Failed() error { return r.Err }
+
+// MakeEndpointOfUpsertTool creates the endpoint for s.UpsertTool.
+func MakeEndpointOfUpsertTool(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*UpsertToolRequest)
+		err := s.UpsertTool(
+			ctx,
+			req.Group,
+			req.Typ,
+			req.Tool,
+		)
+		return &UpsertToolResponse{
 			Err: err,
 		}, nil
 	}

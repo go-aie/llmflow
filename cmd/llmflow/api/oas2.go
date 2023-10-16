@@ -82,6 +82,47 @@ paths:
           schema:
             $ref: "#/definitions/UpsertTaskRequestBody"
       %s
+  /tools/{group}:
+    delete:
+      description: ""
+      summary: ""
+      operationId: "DeleteTool"
+      parameters:
+        - name: group
+          in: path
+          required: true
+          type: string
+          description: ""
+        - name: Authorization
+          in: header
+          required: true
+          type: string
+          description: ""
+        - name: body
+          in: body
+          schema:
+            $ref: "#/definitions/DeleteToolRequestBody"
+      %s
+    put:
+      description: ""
+      summary: ""
+      operationId: "UpsertTool"
+      parameters:
+        - name: group
+          in: path
+          required: true
+          type: string
+          description: ""
+        - name: Authorization
+          in: header
+          required: true
+          type: string
+          description: ""
+        - name: body
+          in: body
+          schema:
+            $ref: "#/definitions/UpsertToolRequestBody"
+      %s
   /:
     post:
       description: ""
@@ -110,6 +151,18 @@ paths:
           type: string
           description: ""
       %s
+  /tools:
+    get:
+      description: ""
+      summary: ""
+      operationId: "GetTools"
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          type: string
+          description: ""
+      %s
 `
 )
 
@@ -118,8 +171,11 @@ func getResponses(schema oas2.Schema) []oas2.OASResponses {
 		oas2.GetOASResponses(schema, "DeleteTask", 200, &DeleteTaskResponse{}),
 		oas2.GetOASResponses(schema, "GetTask", 200, &GetTaskResponse{}),
 		oas2.GetOASResponses(schema, "UpsertTask", 200, &UpsertTaskResponse{}),
+		oas2.GetOASResponses(schema, "DeleteTool", 200, &DeleteToolResponse{}),
+		oas2.GetOASResponses(schema, "UpsertTool", 200, &UpsertToolResponse{}),
 		oas2.GetOASResponses(schema, "Execute", 200, &ExecuteResponse{}),
 		oas2.GetOASResponses(schema, "GetSchemas", 200, &GetSchemasResponse{}),
+		oas2.GetOASResponses(schema, "GetTools", 200, &GetToolsResponse{}),
 	}
 }
 
@@ -127,6 +183,11 @@ func getDefinitions(schema oas2.Schema) map[string]oas2.Definition {
 	defs := make(map[string]oas2.Definition)
 
 	oas2.AddResponseDefinitions(defs, schema, "DeleteTask", 200, (&DeleteTaskResponse{}).Body())
+
+	oas2.AddDefinition(defs, "DeleteToolRequestBody", reflect.ValueOf(&struct {
+		Typ string `json:"typ"`
+	}{}))
+	oas2.AddResponseDefinitions(defs, schema, "DeleteTool", 200, (&DeleteToolResponse{}).Body())
 
 	oas2.AddDefinition(defs, "ExecuteRequestBody", reflect.ValueOf(&struct {
 		Name  string         `json:"name"`
@@ -138,10 +199,18 @@ func getDefinitions(schema oas2.Schema) map[string]oas2.Definition {
 
 	oas2.AddResponseDefinitions(defs, schema, "GetTask", 200, (&GetTaskResponse{}).Body())
 
+	oas2.AddResponseDefinitions(defs, schema, "GetTools", 200, (&GetToolsResponse{}).Body())
+
 	oas2.AddDefinition(defs, "UpsertTaskRequestBody", reflect.ValueOf(&struct {
 		Definition map[string]any `json:"definition"`
 	}{}))
 	oas2.AddResponseDefinitions(defs, schema, "UpsertTask", 200, (&UpsertTaskResponse{}).Body())
+
+	oas2.AddDefinition(defs, "UpsertToolRequestBody", reflect.ValueOf(&struct {
+		Typ  string `json:"typ"`
+		Tool Tool   `json:"tool"`
+	}{}))
+	oas2.AddResponseDefinitions(defs, schema, "UpsertTool", 200, (&UpsertToolResponse{}).Body())
 
 	return defs
 }

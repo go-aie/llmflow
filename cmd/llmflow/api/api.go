@@ -7,6 +7,18 @@ import (
 //go:generate kungen ./api.go Service
 
 type Service interface {
+	//kun:op GET /tools
+	//kun:param __ in=header name=Authorization required=true
+	GetTools(ctx context.Context) (groups []string, tools map[string][]Tool, err error)
+
+	//kun:op PUT /tools/{group}
+	//kun:param __ in=header name=Authorization required=true
+	UpsertTool(ctx context.Context, group, typ string, tool Tool) (err error)
+
+	//kun:op DELETE /tools/{group}
+	//kun:param __ in=header name=Authorization required=true
+	DeleteTool(ctx context.Context, group, typ string) (err error)
+
 	//kun:op PUT /tasks/{name}
 	//kun:param __ in=header name=Authorization required=true
 	UpsertTask(ctx context.Context, name string, definition map[string]any) (err error)
@@ -27,4 +39,9 @@ type Service interface {
 	//kun:param __ in=header name=Authorization required=true
 	//kun:success body=output
 	Execute(ctx context.Context, name string, input map[string]any) (output map[string]any, err error)
+}
+
+type Tool struct {
+	Type  string `json:"type"`
+	Name  string `json:"name"`
 }
