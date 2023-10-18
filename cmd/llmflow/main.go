@@ -181,20 +181,12 @@ func (lf *LLMFlow) GetSchemas(ctx context.Context) (map[string]any, error) {
 	return schemas, nil
 }
 
-func (lf *LLMFlow) Execute(ctx context.Context, name string, input map[string]any) (output map[string]any, err error) {
-	def := &orchestrator.TaskDefinition{
-		Type: builtin.TypeCall,
-		InputTemplate: orchestrator.InputTemplate{
-			"loader": "user", // Load tasks from the "user" namespace.
-			"task":   name,
-			"input":  input,
-		},
-	}
-	call, err := orchestrator.Construct(orchestrator.NewConstructDecoder(orchestrator.GlobalRegistry), def)
-	if err != nil {
-		log.Fatalf("failed to construct flow[%s]: %v\n", name, err)
-	}
-	return call.Execute(ctx, orchestrator.NewInput(nil))
+func (lf *LLMFlow) RunTask(ctx context.Context, name string, input map[string]any) (map[string]any, error) {
+	return builtin.CallFlow(ctx, "user", name, input)
+}
+
+func (lf *LLMFlow) TestTask(ctx context.Context, name string, input map[string]any) (orchestrator.Event, error) {
+	return builtin.TraceFlow(ctx, "user", name, input), nil
 }
 
 func main() {

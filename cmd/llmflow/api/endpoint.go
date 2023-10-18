@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/RussellLuo/kun/pkg/httpoption"
+	"github.com/RussellLuo/orchestrator"
 	"github.com/RussellLuo/validating/v3"
 	"github.com/go-kit/kit/endpoint"
 )
@@ -79,45 +80,6 @@ func MakeEndpointOfDeleteTool(s Service) endpoint.Endpoint {
 		)
 		return &DeleteToolResponse{
 			Err: err,
-		}, nil
-	}
-}
-
-type ExecuteRequest struct {
-	Name  string         `json:"name"`
-	Input map[string]any `json:"input"`
-}
-
-// ValidateExecuteRequest creates a validator for ExecuteRequest.
-func ValidateExecuteRequest(newSchema func(*ExecuteRequest) validating.Schema) httpoption.Validator {
-	return httpoption.FuncValidator(func(value interface{}) error {
-		req := value.(*ExecuteRequest)
-		return httpoption.Validate(newSchema(req))
-	})
-}
-
-type ExecuteResponse struct {
-	Output map[string]any `json:"output"`
-	Err    error          `json:"-"`
-}
-
-func (r *ExecuteResponse) Body() interface{} { return &r.Output }
-
-// Failed implements endpoint.Failer.
-func (r *ExecuteResponse) Failed() error { return r.Err }
-
-// MakeEndpointOfExecute creates the endpoint for s.Execute.
-func MakeEndpointOfExecute(s Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(*ExecuteRequest)
-		output, err := s.Execute(
-			ctx,
-			req.Name,
-			req.Input,
-		)
-		return &ExecuteResponse{
-			Output: output,
-			Err:    err,
 		}, nil
 	}
 }
@@ -203,6 +165,84 @@ func MakeEndpointOfGetTools(s Service) endpoint.Endpoint {
 			Groups: groups,
 			Tools:  tools,
 			Err:    err,
+		}, nil
+	}
+}
+
+type RunTaskRequest struct {
+	Name  string         `json:"-"`
+	Input map[string]any `json:"input"`
+}
+
+// ValidateRunTaskRequest creates a validator for RunTaskRequest.
+func ValidateRunTaskRequest(newSchema func(*RunTaskRequest) validating.Schema) httpoption.Validator {
+	return httpoption.FuncValidator(func(value interface{}) error {
+		req := value.(*RunTaskRequest)
+		return httpoption.Validate(newSchema(req))
+	})
+}
+
+type RunTaskResponse struct {
+	Output map[string]any `json:"output"`
+	Err    error          `json:"-"`
+}
+
+func (r *RunTaskResponse) Body() interface{} { return &r.Output }
+
+// Failed implements endpoint.Failer.
+func (r *RunTaskResponse) Failed() error { return r.Err }
+
+// MakeEndpointOfRunTask creates the endpoint for s.RunTask.
+func MakeEndpointOfRunTask(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*RunTaskRequest)
+		output, err := s.RunTask(
+			ctx,
+			req.Name,
+			req.Input,
+		)
+		return &RunTaskResponse{
+			Output: output,
+			Err:    err,
+		}, nil
+	}
+}
+
+type TestTaskRequest struct {
+	Name  string         `json:"-"`
+	Input map[string]any `json:"input"`
+}
+
+// ValidateTestTaskRequest creates a validator for TestTaskRequest.
+func ValidateTestTaskRequest(newSchema func(*TestTaskRequest) validating.Schema) httpoption.Validator {
+	return httpoption.FuncValidator(func(value interface{}) error {
+		req := value.(*TestTaskRequest)
+		return httpoption.Validate(newSchema(req))
+	})
+}
+
+type TestTaskResponse struct {
+	Event orchestrator.Event `json:"event"`
+	Err   error              `json:"-"`
+}
+
+func (r *TestTaskResponse) Body() interface{} { return &r.Event }
+
+// Failed implements endpoint.Failer.
+func (r *TestTaskResponse) Failed() error { return r.Err }
+
+// MakeEndpointOfTestTask creates the endpoint for s.TestTask.
+func MakeEndpointOfTestTask(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*TestTaskRequest)
+		event, err := s.TestTask(
+			ctx,
+			req.Name,
+			req.Input,
+		)
+		return &TestTaskResponse{
+			Event: event,
+			Err:   err,
 		}, nil
 	}
 }

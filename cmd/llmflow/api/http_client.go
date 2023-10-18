@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/RussellLuo/kun/pkg/httpcodec"
+	"github.com/RussellLuo/orchestrator"
 )
 
 type HTTPClient struct {
@@ -123,63 +124,6 @@ func (c *HTTPClient) DeleteTool(ctx context.Context, group string, typ string) (
 	}
 
 	return nil
-}
-
-func (c *HTTPClient) Execute(ctx context.Context, name string, input map[string]any) (output map[string]any, err error) {
-	codec := c.codecs.EncodeDecoder("Execute")
-
-	path := "/"
-	u := &url.URL{
-		Scheme: c.scheme,
-		Host:   c.host,
-		Path:   c.pathPrefix + path,
-	}
-
-	reqBody := struct {
-		Name  string         `json:"name"`
-		Input map[string]any `json:"input"`
-	}{
-		Name:  name,
-		Input: input,
-	}
-	reqBodyReader, headers, err := codec.EncodeRequestBody(&reqBody)
-	if err != nil {
-		return nil, err
-	}
-
-	_req, err := http.NewRequestWithContext(ctx, "POST", u.String(), reqBodyReader)
-	if err != nil {
-		return nil, err
-	}
-
-	for k, v := range headers {
-		_req.Header.Set(k, v)
-	}
-	for _, v := range codec.EncodeRequestParam("__", nil) {
-		_req.Header.Add("Authorization", v)
-	}
-
-	_resp, err := c.httpClient.Do(_req)
-	if err != nil {
-		return nil, err
-	}
-	defer _resp.Body.Close()
-
-	if _resp.StatusCode < http.StatusOK || _resp.StatusCode > http.StatusNoContent {
-		var respErr error
-		err := codec.DecodeFailureResponse(_resp.Body, &respErr)
-		if err == nil {
-			err = respErr
-		}
-		return nil, err
-	}
-
-	respBody := &ExecuteResponse{}
-	err = codec.DecodeSuccessResponse(_resp.Body, respBody.Body())
-	if err != nil {
-		return nil, err
-	}
-	return respBody.Output, nil
 }
 
 func (c *HTTPClient) GetSchemas(ctx context.Context) (schemas map[string]any, err error) {
@@ -305,6 +249,120 @@ func (c *HTTPClient) GetTools(ctx context.Context) (groups []string, tools map[s
 		return nil, nil, err
 	}
 	return respBody.Groups, respBody.Tools, nil
+}
+
+func (c *HTTPClient) RunTask(ctx context.Context, name string, input map[string]any) (output map[string]any, err error) {
+	codec := c.codecs.EncodeDecoder("RunTask")
+
+	path := fmt.Sprintf("/tasks/%s:run",
+		codec.EncodeRequestParam("name", name)[0],
+	)
+	u := &url.URL{
+		Scheme: c.scheme,
+		Host:   c.host,
+		Path:   c.pathPrefix + path,
+	}
+
+	reqBody := struct {
+		Input map[string]any `json:"input"`
+	}{
+		Input: input,
+	}
+	reqBodyReader, headers, err := codec.EncodeRequestBody(&reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	_req, err := http.NewRequestWithContext(ctx, "POST", u.String(), reqBodyReader)
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range headers {
+		_req.Header.Set(k, v)
+	}
+	for _, v := range codec.EncodeRequestParam("__", nil) {
+		_req.Header.Add("Authorization", v)
+	}
+
+	_resp, err := c.httpClient.Do(_req)
+	if err != nil {
+		return nil, err
+	}
+	defer _resp.Body.Close()
+
+	if _resp.StatusCode < http.StatusOK || _resp.StatusCode > http.StatusNoContent {
+		var respErr error
+		err := codec.DecodeFailureResponse(_resp.Body, &respErr)
+		if err == nil {
+			err = respErr
+		}
+		return nil, err
+	}
+
+	respBody := &RunTaskResponse{}
+	err = codec.DecodeSuccessResponse(_resp.Body, respBody.Body())
+	if err != nil {
+		return nil, err
+	}
+	return respBody.Output, nil
+}
+
+func (c *HTTPClient) TestTask(ctx context.Context, name string, input map[string]any) (event orchestrator.Event, err error) {
+	codec := c.codecs.EncodeDecoder("TestTask")
+
+	path := fmt.Sprintf("/tasks/%s:test",
+		codec.EncodeRequestParam("name", name)[0],
+	)
+	u := &url.URL{
+		Scheme: c.scheme,
+		Host:   c.host,
+		Path:   c.pathPrefix + path,
+	}
+
+	reqBody := struct {
+		Input map[string]any `json:"input"`
+	}{
+		Input: input,
+	}
+	reqBodyReader, headers, err := codec.EncodeRequestBody(&reqBody)
+	if err != nil {
+		return orchestrator.Event{}, err
+	}
+
+	_req, err := http.NewRequestWithContext(ctx, "POST", u.String(), reqBodyReader)
+	if err != nil {
+		return orchestrator.Event{}, err
+	}
+
+	for k, v := range headers {
+		_req.Header.Set(k, v)
+	}
+	for _, v := range codec.EncodeRequestParam("__", nil) {
+		_req.Header.Add("Authorization", v)
+	}
+
+	_resp, err := c.httpClient.Do(_req)
+	if err != nil {
+		return orchestrator.Event{}, err
+	}
+	defer _resp.Body.Close()
+
+	if _resp.StatusCode < http.StatusOK || _resp.StatusCode > http.StatusNoContent {
+		var respErr error
+		err := codec.DecodeFailureResponse(_resp.Body, &respErr)
+		if err == nil {
+			err = respErr
+		}
+		return orchestrator.Event{}, err
+	}
+
+	respBody := &TestTaskResponse{}
+	err = codec.DecodeSuccessResponse(_resp.Body, respBody.Body())
+	if err != nil {
+		return orchestrator.Event{}, err
+	}
+	return respBody.Event, nil
 }
 
 func (c *HTTPClient) UpsertTask(ctx context.Context, name string, definition map[string]any) (err error) {

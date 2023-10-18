@@ -816,7 +816,7 @@ async function runWorkflow(form) {
 	const group = 'Tools'
 	const flowName = workflowName.toLowerCase()
 	if (workflowAsTool) {
-		await fetch('/api/tools/' + group, {
+		await fetch(`/api/tools/${group}`, {
 			method: 'PUT',
 			headers: {
 				'Accept': 'application/json',
@@ -830,7 +830,7 @@ async function runWorkflow(form) {
 				}
 			});
 	} else {
-		await fetch('/api/tools/' + group, {
+		await fetch(`/api/tools/${group}`, {
 			method: 'DELETE',
 			headers: {
 				'Accept': 'application/json',
@@ -846,7 +846,7 @@ async function runWorkflow(form) {
 	}
 
 	// Upsert task.
-	await fetch('/api/tasks/' + workflowName, {
+	await fetch(`/api/tasks/${workflowName}`, {
 		method: 'PUT',
 		headers: {
 			'Accept': 'application/json',
@@ -862,7 +862,7 @@ async function runWorkflow(form) {
 		});
 
 	// Execute task.
-	await fetch('/api', {
+	await fetch(`/api/tasks/${workflowName}:test`, {
 		method: 'POST',
 		headers: {
 			'Accept': 'application/json',
