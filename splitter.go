@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/RussellLuo/orchestrator"
-	"github.com/RussellLuo/structool"
 )
 
 const TypeSplitter = "splitter"
@@ -15,12 +14,12 @@ func init() {
 	MustRegisterSplitter(orchestrator.GlobalRegistry)
 }
 
-func MustRegisterSplitter(r orchestrator.Registry) {
+func MustRegisterSplitter(r *orchestrator.Registry) {
 	r.MustRegister(&orchestrator.TaskFactory{
 		Type: TypeSplitter,
-		Constructor: func(decoder *structool.Codec, def *orchestrator.TaskDefinition) (orchestrator.Task, error) {
+		Constructor: func(def *orchestrator.TaskDefinition) (orchestrator.Task, error) {
 			s := &Splitter{def: def}
-			if err := decoder.Decode(def.InputTemplate, &s.Input); err != nil {
+			if err := r.Decode(def.InputTemplate, &s.Input); err != nil {
 				return nil, err
 			}
 			if len(s.Input.SplitChars) == 0 {

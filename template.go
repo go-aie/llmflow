@@ -8,7 +8,6 @@ import (
 	"text/template"
 
 	"github.com/RussellLuo/orchestrator"
-	"github.com/RussellLuo/structool"
 )
 
 const TypeTemplate = "template"
@@ -17,12 +16,12 @@ func init() {
 	MustRegisterTemplate(orchestrator.GlobalRegistry)
 }
 
-func MustRegisterTemplate(r orchestrator.Registry) {
+func MustRegisterTemplate(r *orchestrator.Registry) {
 	r.MustRegister(&orchestrator.TaskFactory{
 		Type: TypeTemplate,
-		Constructor: func(decoder *structool.Codec, def *orchestrator.TaskDefinition) (orchestrator.Task, error) {
+		Constructor: func(def *orchestrator.TaskDefinition) (orchestrator.Task, error) {
 			t := &Template{def: def}
-			if err := decoder.Decode(def.InputTemplate, &t.Input); err != nil {
+			if err := r.Decode(def.InputTemplate, &t.Input); err != nil {
 				return nil, err
 			}
 			return t, nil

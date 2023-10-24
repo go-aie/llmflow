@@ -10,7 +10,6 @@ import (
 
 	"github.com/RussellLuo/orchestrator"
 	"github.com/RussellLuo/orchestrator/builtin"
-	"github.com/RussellLuo/structool"
 	"github.com/go-openapi/jsonpointer"
 )
 
@@ -22,12 +21,12 @@ func init() {
 	MustRegisterTextLoader(orchestrator.GlobalRegistry)
 }
 
-func MustRegisterJSONLinesLoader(r orchestrator.Registry) {
+func MustRegisterJSONLinesLoader(r *orchestrator.Registry) {
 	r.MustRegister(&orchestrator.TaskFactory{
 		Type: TypeJSONLinesLoader,
-		Constructor: func(decoder *structool.Codec, def *orchestrator.TaskDefinition) (orchestrator.Task, error) {
+		Constructor: func(def *orchestrator.TaskDefinition) (orchestrator.Task, error) {
 			l := &JSONLinesLoader{def: def}
-			if err := decoder.Decode(def.InputTemplate, &l.Input); err != nil {
+			if err := r.Decode(def.InputTemplate, &l.Input); err != nil {
 				return nil, err
 			}
 			return l, nil
@@ -35,12 +34,12 @@ func MustRegisterJSONLinesLoader(r orchestrator.Registry) {
 	})
 }
 
-func MustRegisterTextLoader(r orchestrator.Registry) {
+func MustRegisterTextLoader(r *orchestrator.Registry) {
 	r.MustRegister(&orchestrator.TaskFactory{
 		Type: TypeTextLoader,
-		Constructor: func(decoder *structool.Codec, def *orchestrator.TaskDefinition) (orchestrator.Task, error) {
+		Constructor: func(def *orchestrator.TaskDefinition) (orchestrator.Task, error) {
 			l := &TextLoader{def: def}
-			if err := decoder.Decode(def.InputTemplate, &l.Input); err != nil {
+			if err := r.Decode(def.InputTemplate, &l.Input); err != nil {
 				return nil, err
 			}
 			return l, nil

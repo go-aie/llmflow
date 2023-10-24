@@ -186,7 +186,7 @@ func (lf *LLMFlow) RunTask(ctx context.Context, name string, input map[string]an
 }
 
 func (lf *LLMFlow) TestTask(ctx context.Context, name string, input map[string]any) (orchestrator.Event, error) {
-	return builtin.TraceFlow(ctx, "user", name, input), nil
+	return builtin.TraceFlow(ctx, "user", name, input)
 }
 
 func main() {

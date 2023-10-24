@@ -9,6 +9,8 @@ github.com/RussellLuo/orchestrator v0.0.0-20231014034150-f7e57ce8f98e h1:vUP+lJN
 github.com/RussellLuo/orchestrator v0.0.0-20231014034150-f7e57ce8f98e/go.mod h1:l+hAL26nk778fM0dcVw8R1oQT5eZMv3XP2IVDjQTUPo=
 github.com/RussellLuo/orchestrator v0.0.0-20231018075159-d12020cb764c h1:CwUG4RTfoxy/EPD8cJJP9xC2dhA9lMoMBw9JHSn2ssY=
 github.com/RussellLuo/orchestrator v0.0.0-20231018075159-d12020cb764c/go.mod h1:l+hAL26nk778fM0dcVw8R1oQT5eZMv3XP2IVDjQTUPo=
+github.com/RussellLuo/orchestrator v0.0.0-20231024142618-1e49b83107c4 h1:uBZeSiBMtdK0ZeTpwvzLkEX7M77SBDW8NDbGTGncpDA=
+github.com/RussellLuo/orchestrator v0.0.0-20231024142618-1e49b83107c4/go.mod h1:l+hAL26nk778fM0dcVw8R1oQT5eZMv3XP2IVDjQTUPo=
 github.com/RussellLuo/structool v0.0.0-20230915010420-41b17257d885 h1:zJHKc/aA6OtUwJEMKpKYyOzZvl7DBBT72sCzOUk7H6M=
 github.com/RussellLuo/structool v0.0.0-20230915010420-41b17257d885/go.mod h1:WcYzut1H8YR15z6U3TUijLb+QAhTO2esip1854Aiyes=
 github.com/RussellLuo/structs v1.2.0 h1:rLR+opKsDCfDUwHCYG2mvFi1xUvYcWSt9kwns4e8OkU=
