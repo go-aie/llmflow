@@ -34,7 +34,7 @@
           "task": "embedding",
           "input": {
             "model": "rocketqa-query",
-            "uri": "http://127.0.0.1:8088/embeddings",
+            "uri": "http://127.0.0.1:8080/embeddings",
             "api_key": "123",
             "texts": [
               "${input.query}"
@@ -50,7 +50,7 @@
           "task": "vectorstore_query",
           "input": {
             "vendor": "memory",
-            "uri": "http://127.0.0.1:8088/vector/query",
+            "uri": "http://127.0.0.1:8080/vector/query",
             "api_key": "123",
             "vector": "${calculate_embedding.embeddings[0]}",
             "top_k": 3,
@@ -98,7 +98,7 @@
                     "task": "llm",
                     "input": {
                       "model": "chatglm",
-                      "uri": "http://127.0.0.1:8088/chat/completions",
+                      "uri": "http://127.0.0.1:8080/chat/completions",
                       "api_key": "123",
                       "prompt": "${build_prompt.result}",
                       "temperature": 0

@@ -44,7 +44,7 @@
           "task": "llm",
           "input": {
             "model": "chatglm",
-            "uri": "http://127.0.0.1:8088/chat/completions",
+            "uri": "http://127.0.0.1:8080/chat/completions",
             "api_key": "123",
             "prompt": "${build_prompt.result}",
             "temperature": 0

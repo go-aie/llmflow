@@ -92,7 +92,7 @@
             "name": "failure",
             "type": "raise",
             "input": {
-              "error": "${chat.body.error}"
+              "error": "${chat.body.error.message}"
             }
           }
         }
