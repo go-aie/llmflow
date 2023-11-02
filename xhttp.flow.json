@@ -1,0 +1,113 @@
+{
+  "name": "xhttp",
+  "type": "serial",
+  "description": "xHTTP behaves like the built-in HTTP but always raises an error if encountered a failure response.",
+  "input": {
+    "schema": {
+      "input": {
+        "type": "object",
+        "required": [
+          "method",
+          "uri"
+        ],
+        "properties": {
+          "method": {
+            "type": "string",
+            "description": "The HTTP request method.",
+            "enum": ["POST", "GET", "PUT", "PATCH", "DELETE"]
+          },
+          "uri": {
+            "type": "string",
+            "description": "The HTTP request URI."
+          },
+          "header": {
+            "type": "object",
+            "description": "The HTTP request headers.",
+            "patternProperties": {
+              "^.*$": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "body": {
+            "type": "object",
+            "description": "The HTTP request body.",
+            "patternProperties": {
+              "^.*$": {}
+            }
+          },
+          "success_code": {
+            "type": "integer",
+            "description": "The expected status code that indicates a successful HTTP response.",
+            "minimum": 100,
+            "exclusiveMaximum": 400,
+            "default": 200
+          }
+        }
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer"
+          },
+          "header": {
+            "type": "object",
+            "patternProperties": {
+              "^.*$": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "body": {
+            "type": "object",
+            "patternProperties": {
+              "^.*$": {}
+            }
+          }
+        }
+      }
+    },
+    "tasks": [
+      {
+        "name": "http",
+        "type": "http",
+        "input": {
+          "method": "${input.method}",
+          "uri": "${input.uri}",
+          "header": "#{input.header ?? nil}",
+          "body": "#{input.body ?? nil}"
+        }
+      },
+      {
+        "name": "success",
+        "type": "decision",
+        "input": {
+          "expression": "#{input.success_code == nil ? string(http.status == 200) : string(http.status == input.success_code)}",
+          "cases": {
+            "true": {
+              "name": "yes",
+              "type": "terminate",
+              "input": {
+                "output": "${http}"
+              }
+            }
+          },
+          "default": {
+            "name": "no",
+            "type": "raise",
+            "input": {
+              "error": "#{toJSON(http.body)}"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

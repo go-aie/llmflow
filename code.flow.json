@@ -42,9 +42,6 @@
           "header": {
             "Authorization": [
               "#{\"Bearer \" + getenv(\"CODE_API_KEY\")}"
-            ],
-            "Content-Type": [
-              "application/json"
             ]
           },
           "body": {

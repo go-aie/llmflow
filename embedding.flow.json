@@ -60,9 +60,6 @@
           "header": {
             "Authorization": [
               "#{\"Bearer \" + input.api_key}"
-            ],
-            "Content-Type": [
-              "application/json"
             ]
           },
           "body": {

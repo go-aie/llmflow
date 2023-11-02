@@ -3,7 +3,7 @@ module github.com/go-aie/llmflow
 go 1.20
 
 require (
-	github.com/RussellLuo/orchestrator v0.0.0-20231102074027-03f5a9773834
+	github.com/RussellLuo/orchestrator v0.0.0-20231102150110-fca96376cd57
 	github.com/go-openapi/jsonpointer v0.20.0
 )
 

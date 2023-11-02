@@ -30,17 +30,19 @@ go install github.com/go-aie/llmflow/cmd/llmflow@latest
 In addition to [Orchestrator's built-in tasks][3], LLMFlow defines the following tasks and flows:
 
    - Tasks
-      + [Template](template.go)
-      + [Loader](loader.go)
+      + [JSONLinesLoader](loader.go#L50-L181)
       + [Splitter](splitter.go)
+      + [Template](template.go)
+      + [TextLoader](loader.go#L183-L239)
 
    - Flows
-      + [LLM](llm.flow.json)
-      + [Embedding](embedding.flow.json)
       + [Code](code.flow.json)
-      + [VectorStore_Upsert](vectorstore_upsert.flow.json)
-      + [VectorStore_Query](vectorstore_query.flow.json)
+      + [Embedding](embedding.flow.json)
+      + [LLM](llm.flow.json)
       + [VectorStore_Delete](vectorstore_delete.flow.json)
+      + [VectorStore_Query](vectorstore_query.flow.json)
+      + [VectorStore_Upsert](vectorstore_upsert.flow.json)
+      + [xHTTP](xhttp.flow.json)
 
 
 ## Examples

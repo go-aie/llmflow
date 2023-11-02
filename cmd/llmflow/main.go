@@ -110,6 +110,10 @@ func NewLLMFlow() *LLMFlow {
 					Name: "HTTP",
 				},
 				{
+					Type: "xhttp",
+					Name: "xHTTP",
+				},
+				{
 					Type: "code",
 					Name: "Code",
 				},
