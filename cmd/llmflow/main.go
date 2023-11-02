@@ -84,6 +84,10 @@ func NewLLMFlow() *LLMFlow {
 					Name: "TextLoader",
 				},
 				{
+					Type: "jsonlines_loader",
+					Name: "JSONLinesLoader",
+				},
+				{
 					Type: "splitter",
 					Name: "Splitter",
 				},

@@ -1,6 +1,6 @@
 {
+  "name": "faq_query",
   "type": "serial",
-  "name": "Retrieval_QA",
   "input": {
     "schema": {
       "input": {
@@ -21,24 +21,20 @@
           "response": {
             "type": "string",
             "description": "The response message"
-          },
-          "error": {
-            "type": "string",
-            "description": "The error message"
           }
         }
       }
     },
     "tasks": [
       {
+        "name": "calculate_embedding",
         "type": "call",
-        "name": "Calculate_Embedding",
         "input": {
           "loader": "llmflow",
           "task": "embedding",
           "input": {
             "model": "rocketqa-query",
-            "uri": "http://127.0.0.1:8080/embeddings",
+            "uri": "http://127.0.0.1:8088/embeddings",
             "api_key": "123",
             "texts": [
               "${input.query}"
@@ -47,30 +43,30 @@
         }
       },
       {
+        "name": "query_documents",
         "type": "call",
-        "name": "Query_Documents",
         "input": {
           "loader": "llmflow",
           "task": "vectorstore_query",
           "input": {
             "vendor": "memory",
-            "uri": "http://127.0.0.1:8080/vector/query",
+            "uri": "http://127.0.0.1:8088/vector/query",
             "api_key": "123",
-            "vector": "${Calculate_Embedding.embeddings[0]}",
+            "vector": "${calculate_embedding.embeddings[0]}",
             "top_k": 3,
             "min_score": 0.7
           }
         }
       },
       {
-        "type": "decision",
         "name": "similar_documents",
+        "type": "decision",
         "input": {
-          "expression": "#{string(len(Query_Documents.similarities))}",
+          "expression": "#{string(len(query_documents.similarities))}",
           "cases": {
             "0": {
               "type": "terminate",
-              "name": "Return",
+              "name": "sorry",
               "input": {
                 "output": {
                   "response": "对不起，我不知道"
@@ -79,32 +75,32 @@
             }
           },
           "default": {
-            "type": "serial",
             "name": "switch",
+            "type": "serial",
             "input": {
               "tasks": [
                 {
+                  "name": "build_prompt",
                   "type": "template",
-                  "name": "Build_Prompt",
                   "input": {
-                    "template": "Answer the question using the provided context.\n            \nContext:\n{{- range $.documents}}\n* {{.text}}\n{{- end}}\n\nQ:{{$.query}}\nA:",
+                    "template": "Answer the question using the provided context.\n            \nContext:\n{{- range $.documents}}\n{{- $extra := jsonUnmarshal .extra}}\nQ: {{.text}}\nA: {{$extra.答}}\n{{- end}}\n\nQ: {{$.query}}\nA:",
                     "args": {
                       "query": "${input.query}",
-                      "documents": "${Query_Documents.similarities}"
+                      "documents": "${query_documents.similarities}"
                     }
                   }
                 },
                 {
+                  "name": "ask_llm",
                   "type": "call",
-                  "name": "Ask_LLM",
                   "input": {
                     "loader": "llmflow",
                     "task": "llm",
                     "input": {
                       "model": "chatglm",
-                      "uri": "http://127.0.0.1:8080/chat/completions",
+                      "uri": "http://127.0.0.1:8088/chat/completions",
                       "api_key": "123",
-                      "prompt": "${Build_Prompt.result}",
+                      "prompt": "${build_prompt.result}",
                       "temperature": 0
                     }
                   }

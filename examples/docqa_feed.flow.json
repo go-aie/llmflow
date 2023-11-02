@@ -1,0 +1,65 @@
+{
+  "name": "docqa_feed",
+  "type": "serial",
+  "timeout": "20s",
+  "input": {
+    "schema": {
+      "input": {
+      },
+      "output": {
+      }
+    },
+    "tasks": [
+      {
+        "name": "load_documents",
+        "type": "text_loader",
+        "input": {
+          "filename": "../../examples/百度百科介绍文档.txt"
+        }
+      },
+      {
+        "name": "split_documents",
+        "type": "splitter",
+        "input": {
+          "documents": "${load_documents.documents}",
+          "split_chars": [
+            "\n",
+            "。",
+            "！",
+            "？"
+          ],
+          "chunk_size": 50
+        }
+      },
+      {
+        "name": "calculate_embeddings",
+        "type": "call",
+        "input": {
+          "loader": "llmflow",
+          "task": "embedding",
+          "input": {
+            "model": "rocketqa-document",
+            "uri": "http://127.0.0.1:8088/embeddings",
+            "api_key": "123",
+            "texts": "${split_documents.documents[*].text}"
+          }
+        }
+      },
+      {
+        "name": "upsert_documents",
+        "type": "call",
+        "input": {
+          "loader": "llmflow",
+          "task": "vectorstore_upsert",
+          "input": {
+            "vendor": "memory",
+            "uri": "http://127.0.0.1:8088/vector/upsert",
+            "api_key": "123",
+            "vectors": "${calculate_embeddings.embeddings}",
+            "documents": "${split_documents.documents}"
+          }
+        }
+      }
+    ]
+  }
+}

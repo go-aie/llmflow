@@ -1,0 +1,67 @@
+{
+  "name": "fqa_feed",
+  "type": "serial",
+  "timeout": "20s",
+  "input": {
+    "schema": {
+      "input": {
+      },
+      "output": {
+      }
+    },
+    "tasks": [
+      {
+        "name": "loop",
+        "type": "loop",
+        "input": {
+          "iterator": {
+            "name": "load_documents",
+            "type": "jsonlines_loader",
+            "input": {
+              "filename": "../../examples/百度百科常见问题.jsonl",
+              "pointer": "/问",
+              "batch_size": 2
+            }
+          },
+          "body": {
+            "name": "calculate_and_upsert",
+            "type": "serial",
+            "input": {
+              "tasks": [
+                {
+                  "name": "calculate_embeddings",
+                  "type": "call",
+                  "input": {
+                    "loader": "llmflow",
+                    "task": "embedding",
+                    "input": {
+                      "model": "rocketqa-document",
+                      "uri": "http://127.0.0.1:8088/embeddings",
+                      "api_key": "123",
+                      "texts": "${load_documents.documents[*].text}"
+                    }
+                  }
+                },
+                {
+                  "name": "upsert_documents",
+                  "type": "call",
+                  "input": {
+                    "loader": "llmflow",
+                    "task": "vectorstore_upsert",
+                    "input": {
+                      "vendor": "memory",
+                      "uri": "http://127.0.0.1:8088/vector/upsert",
+                      "api_key": "123",
+                      "vectors": "${calculate_embeddings.embeddings}",
+                      "documents": "${load_documents.documents}"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

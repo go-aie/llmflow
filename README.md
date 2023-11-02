@@ -23,7 +23,7 @@ go install github.com/go-aie/llmflow/cmd/llmflow@latest
     ```bash
     CODE_API_ENDPOINT=http://127.0.0.1:5000/exec llmflow
     ```
-   
+
 
 ## Tasks & Flows
 
@@ -41,6 +41,11 @@ In addition to [Orchestrator's built-in tasks][3], LLMFlow defines the following
       + [VectorStore_Upsert](vectorstore_upsert.flow.json)
       + [VectorStore_Query](vectorstore_query.flow.json)
       + [VectorStore_Delete](vectorstore_delete.flow.json)
+
+
+## Examples
+
+See [examples](examples).
 
 
 ## Documentation

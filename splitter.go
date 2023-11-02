@@ -23,7 +23,7 @@ func MustRegisterSplitter(r *orchestrator.Registry) {
 				return nil, err
 			}
 			if len(s.Input.SplitChars) == 0 {
-				s.Input.SplitChars = []rune{'\n', '。', '！', '？'}
+				s.Input.SplitChars = []string{"\n", "。", "！", "？"}
 			}
 			return s, nil
 		},
@@ -35,7 +35,7 @@ type Splitter struct {
 
 	Input struct {
 		Documents  orchestrator.Expr[[]*Document] `json:"documents"`
-		SplitChars []rune                         `json:"spilt_chars"`
+		SplitChars []string                       `json:"split_chars"`
 		ChunkSize  int                            `json:"chunk_size"`
 	}
 }
@@ -88,9 +88,11 @@ func (s *Splitter) Execute(ctx context.Context, input orchestrator.Input) (orche
 
 func (s *Splitter) split(text string) []string {
 	parts := strings.FieldsFunc(text, func(r rune) bool {
-		for _, c := range s.Input.SplitChars {
-			if c == r {
-				return true
+		for _, char := range s.Input.SplitChars {
+			for _, c := range []rune(char) {
+				if c == r {
+					return true
+				}
 			}
 		}
 		return false

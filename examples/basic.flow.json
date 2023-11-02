@@ -1,0 +1,56 @@
+{
+  "name": "basic",
+  "type": "serial",
+  "input": {
+    "schema": {
+      "input": {
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The user's query."
+          }
+        }
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "response": {
+            "type": "string",
+            "description": "The assistant's response."
+          }
+        }
+      }
+    },
+    "tasks": [
+      {
+        "name": "build_prompt",
+        "type": "template",
+        "input": {
+          "template": "What is a good name for a company that makes {{$.product}}?",
+          "args": {
+            "product": "${input.query}"
+          }
+        }
+      },
+      {
+        "name": "ask_llm",
+        "type": "call",
+        "input": {
+          "loader": "llmflow",
+          "task": "llm",
+          "input": {
+            "model": "chatglm",
+            "uri": "http://127.0.0.1:8088/chat/completions",
+            "api_key": "123",
+            "prompt": "${build_prompt.result}",
+            "temperature": 0
+          }
+        }
+      }
+    ]
+  }
+}
