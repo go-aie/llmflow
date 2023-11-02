@@ -186,7 +186,6 @@ type TextLoader struct {
 	Input struct {
 		ID       string `json:"id"`
 		Filename string `json:"filename"`
-		Pointer  string `json:"pointer"`
 	}
 }
 

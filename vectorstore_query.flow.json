@@ -81,10 +81,6 @@
                 }
               }
             }
-          },
-          "error": {
-            "type": "string",
-            "description": "The error message"
           }
         }
       }
@@ -123,19 +119,16 @@
               "type": "terminate",
               "input": {
                 "output": {
-                  "similarities": "${query_documents.body.similarities}",
-                  "error": ""
+                  "similarities": "${query_documents.body.similarities}"
                 }
               }
             }
           },
           "default": {
             "name": "failure",
-            "type": "terminate",
+            "type": "raise",
             "input": {
-              "output": {
-                "error": "${query_documents.body.error.message}"
-              }
+              "error": "${query_documents.body.error.message}"
             }
           }
         }

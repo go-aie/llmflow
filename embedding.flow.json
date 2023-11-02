@@ -46,10 +46,6 @@
                 "description": "The embedding item"
               }
             }
-          },
-          "error": {
-            "type": "string",
-            "description": "The error message"
           }
         }
       }
@@ -93,11 +89,9 @@
           },
           "default": {
             "name": "failure",
-            "type": "terminate",
+            "type": "raise",
             "input": {
-              "output": {
-                "error": "${embed.body.error.message}"
-              }
+              "error": "${embed.body.error.message}"
             }
           }
         }

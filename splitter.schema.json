@@ -1,0 +1,83 @@
+{
+  "input": {
+    "type": "object",
+    "required": [
+      "documents"
+    ],
+    "properties": {
+      "documents": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "vector": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "description": "The vector item"
+              }
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "source_id": {
+                  "type": "string"
+                }
+              }
+            },
+            "extra": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "chunk_size": {
+        "type": "integer",
+        "description": "The maximum size of each chunk."
+      }
+    }
+  },
+  "output": {
+    "type": "object",
+    "properties": {
+      "documents": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "vector": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "description": "The vector item"
+              }
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "source_id": {
+                  "type": "string"
+                }
+              }
+            },
+            "extra": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

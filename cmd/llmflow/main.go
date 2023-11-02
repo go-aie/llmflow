@@ -34,7 +34,7 @@ type LLMFlow struct {
 
 func NewLLMFlow() *LLMFlow {
 	return &LLMFlow{
-		groups: []string{"Operators", "Embeddings", "Vector Stores", "Prompts", "LLMs", "Tools"},
+		groups: []string{"Operators", "Embeddings", "Vector Stores", "Documents", "Prompts", "LLMs", "Tools"},
 		tools: map[string][]api.Tool{
 			"Operators": {
 				{
@@ -44,6 +44,10 @@ func NewLLMFlow() *LLMFlow {
 				{
 					Type: "terminate",
 					Name: "Return",
+				},
+				{
+					Type: "raise",
+					Name: "Raise",
 				},
 				{
 					Type: "loop",
@@ -72,6 +76,16 @@ func NewLLMFlow() *LLMFlow {
 				{
 					Type: "vectorstore_delete",
 					Name: "VectorStore_Delete",
+				},
+			},
+			"Documents": {
+				{
+					Type: "text_loader",
+					Name: "TextLoader",
+				},
+				{
+					Type: "splitter",
+					Name: "Splitter",
 				},
 			},
 			"Prompts": {

@@ -27,13 +27,6 @@
         }
       },
       "output": {
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "string",
-            "description": "The error message"
-          }
-        }
       }
     },
     "tasks": [
@@ -67,18 +60,15 @@
               "type": "terminate",
               "input": {
                 "output": {
-                  "error": ""
                 }
               }
             }
           },
           "default": {
             "name": "failure",
-            "type": "terminate",
+            "type": "raise",
             "input": {
-              "output": {
-                "error": "${delete_documents.body.error.message}"
-              }
+              "error": "${delete_documents.body.error.message}"
             }
           }
         }

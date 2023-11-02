@@ -71,13 +71,6 @@
         }
       },
       "output": {
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "string",
-            "description": "The error message"
-          }
-        }
       }
     },
     "tasks": [
@@ -94,74 +87,45 @@
         }
       },
       {
-        "name": "has_error",
+        "name": "upsert_documents",
+        "type": "http",
+        "input": {
+          "method": "POST",
+          "uri": "${input.uri}",
+          "header": {
+            "Authorization": [
+              "#{\"Bearer \" + input.api_key}"
+            ],
+            "Content-Type": [
+              "application/json"
+            ]
+          },
+          "body": {
+            "vendor": "${input.vendor}",
+            "documents": "${attach_vectors_to_documents.result}"
+          }
+        }
+      },
+      {
+        "name": "status",
         "type": "decision",
         "input": {
-          "expression": "#{string(attach_vectors_to_documents.error != \"\")}",
+          "expression": "#{string(upsert_documents.status)}",
           "cases": {
-            "true": {
-              "name": "failure",
+            "200": {
+              "name": "success",
               "type": "terminate",
               "input": {
                 "output": {
-                  "error": "${attach_vectors_to_documents.error}"
                 }
               }
             }
           },
           "default": {
-            "name": "x",
-            "type": "serial",
+            "name": "failure",
+            "type": "raise",
             "input": {
-              "tasks": [
-                {
-                  "name": "upsert_documents",
-                  "type": "http",
-                  "input": {
-                    "method": "POST",
-                    "uri": "${input.uri}",
-                    "header": {
-                      "Authorization": [
-                        "#{\"Bearer \" + input.api_key}"
-                      ],
-                      "Content-Type": [
-                        "application/json"
-                      ]
-                    },
-                    "body": {
-                      "vendor": "${input.vendor}",
-                      "documents": "${attach_vectors_to_documents.result}"
-                    }
-                  }
-                },
-                {
-                  "name": "status",
-                  "type": "decision",
-                  "input": {
-                    "expression": "#{string(upsert_documents.status)}",
-                    "cases": {
-                      "200": {
-                        "name": "success",
-                        "type": "terminate",
-                        "input": {
-                          "output": {
-                            "error": ""
-                          }
-                        }
-                      }
-                    },
-                    "default": {
-                      "name": "failure",
-                      "type": "terminate",
-                      "input": {
-                        "output": {
-                          "error": "${upsert_documents.body.error.message}"
-                        }
-                      }
-                    }
-                  }
-                }
-              ]
+              "error": "${upsert_documents.body.error.message}"
             }
           }
         }

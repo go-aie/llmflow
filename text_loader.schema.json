@@ -1,0 +1,55 @@
+{
+  "input": {
+    "type": "object",
+    "required": [
+      "filename"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "description": "The document ID."
+      },
+      "filename": {
+        "type": "string",
+        "description": "The path to the file."
+      }
+    }
+  },
+  "output": {
+    "type": "object",
+    "properties": {
+      "documents": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "vector": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "description": "The vector item"
+              }
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "source_id": {
+                  "type": "string"
+                }
+              }
+            },
+            "extra": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

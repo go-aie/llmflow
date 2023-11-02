@@ -28,11 +28,7 @@
         "type": "object",
         "description": "The execution result",
         "properties": {
-          "result": {},
-          "error": {
-            "type": "string",
-            "description": "The error message"
-          }
+          "result": {}
         }
       }
     },
@@ -68,7 +64,6 @@
               "type": "terminate",
               "input": {
                 "output": {
-                  "error": "",
                   "result": "${exec.body.result}"
                 }
               }
@@ -76,11 +71,9 @@
           },
           "default": {
             "name": "failure",
-            "type": "terminate",
+            "type": "raise",
             "input": {
-              "output": {
-                "error": "${exec.body.error}"
-              }
+              "error": "${exec.body.error}"
             }
           }
         }

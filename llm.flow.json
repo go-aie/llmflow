@@ -41,10 +41,6 @@
           "response": {
             "type": "string",
             "description": "The response message"
-          },
-          "error": {
-            "type": "string",
-            "description": "The error message"
           }
         }
       }
@@ -94,11 +90,9 @@
           },
           "default": {
             "name": "failure",
-            "type": "terminate",
+            "type": "raise",
             "input": {
-              "output": {
-                "error": "${chat.body.error.message}"
-              }
+              "error": "${chat.body.error}"
             }
           }
         }
