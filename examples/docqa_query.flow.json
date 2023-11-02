@@ -11,7 +11,7 @@
         "properties": {
           "query": {
             "type": "string",
-            "description": "The user's query"
+            "description": "The user's query."
           }
         }
       },
@@ -20,7 +20,7 @@
         "properties": {
           "response": {
             "type": "string",
-            "description": "The response message"
+            "description": "The assistant's response."
           }
         }
       }
@@ -69,7 +69,7 @@
               "name": "sorry",
               "input": {
                 "output": {
-                  "response": "对不起，我不知道"
+                  "response": "对不起，我不知道。"
                 }
               }
             }
