@@ -65,8 +65,8 @@
           "expression": "#{string(len(query_documents.similarities))}",
           "cases": {
             "0": {
-              "type": "terminate",
               "name": "sorry",
+              "type": "terminate",
               "input": {
                 "output": {
                   "response": "对不起，我不知道。"
@@ -75,15 +75,15 @@
             }
           },
           "default": {
-            "name": "switch",
             "type": "serial",
+            "name": "switch",
             "input": {
               "tasks": [
                 {
                   "name": "build_prompt",
                   "type": "template",
                   "input": {
-                    "template": "Answer the question using the provided context.\n            \nContext:\n{{- range $.documents}}\n* {{.text}}\n{{- end}}\n\nQ:{{$.query}}\nA:",
+                    "template": "Answer the question using the provided context.\n            \nContext:\n{{- range $.documents}}\n* {{.text}}\n{{- end}}\n\nQ: {{$.query}}\nA:",
                     "args": {
                       "query": "${input.query}",
                       "documents": "${query_documents.similarities}"

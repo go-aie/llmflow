@@ -1,0 +1,77 @@
+{
+  "name": "tableqa",
+  "type": "serial",
+  "input": {
+    "schema": {
+      "input": {
+        "type": "object",
+        "required": [
+          "file",
+          "query"
+        ],
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "data-url",
+            "description": "The PDF file."
+          },
+          "query": {
+            "type": "string",
+            "description": "The user's query."
+          }
+        }
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "response": {
+            "type": "string",
+            "description": "The assistant's response."
+          }
+        }
+      }
+    },
+    "tasks": [
+      {
+        "name": "parse_tables",
+        "type": "call",
+        "input": {
+          "loader": "llmflow",
+          "task": "xhttp",
+          "input": {
+            "method": "POST",
+            "uri": "http://127.0.0.1:8081/tables",
+            "body": {
+              "file": "${input.file}"
+            }
+          }
+        }
+      },
+      {
+        "name": "ask_tableqa",
+        "type": "call",
+        "input": {
+          "loader": "llmflow",
+          "task": "xhttp",
+          "input": {
+            "method": "POST",
+            "uri": "http://127.0.0.1:8081/ask",
+            "body": {
+              "tables": "${parse_tables.body.tables}",
+              "question": "${input.query}"
+            }
+          }
+        }
+      },
+      {
+        "name": "return_answer",
+        "type": "terminate",
+        "input": {
+          "output": {
+            "response": "${ask_tableqa.body.answer}"
+          }
+        }
+      }
+    ]
+  }
+}

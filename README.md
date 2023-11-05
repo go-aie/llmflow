@@ -47,7 +47,17 @@ In addition to [Orchestrator's built-in tasks][3], LLMFlow defines the following
 
 ## Examples
 
-See [examples](examples).
+- [Basic](examples/basic.flow.json)
+- Document Question Answering
+    + [Feed](examples/docqa_feed.flow.json)
+    + [Query](examples/docqa_query.flow.json)
+- FAQ-Based Question Answering
+    + [Feed](examples/faq_feed.flow.json)
+    + [Query](examples/faq_query.flow.json)
+- [Table Question Answering](examples/tableqa.flow.json) (requires [TableQA][4])
+- Table & Document Question Answering (requires [TableQA][4])
+    + [Feed](examples/tableqa_docqa_feed.flow.json)
+    + [Query](examples/tableqa_docqa_query.flow.json)
 
 
 ## Documentation
@@ -58,3 +68,4 @@ Check out the [documentation][1].
 [1]: https://pkg.go.dev/github.com/go-aie/llmflow
 [2]: https://github.com/go-aie/oneai
 [3]: https://github.com/RussellLuo/orchestrator#task
+[4]: https://github.com/go-aie/tableqa

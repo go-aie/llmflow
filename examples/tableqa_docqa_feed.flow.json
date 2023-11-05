@@ -1,0 +1,80 @@
+{
+  "name": "docqa_feed",
+  "type": "serial",
+  "input": {
+    "schema": {
+      "input": {
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "data-url",
+            "description": "The PDF file."
+          }
+        }
+      },
+      "output": {}
+    },
+    "tasks": [
+      {
+        "name": "parse_text",
+        "type": "call",
+        "input": {
+          "loader": "llmflow",
+          "task": "xhttp",
+          "input": {
+            "method": "POST",
+            "uri": "http://127.0.0.1:8081/texts",
+            "body": {
+              "file": "${input.file}"
+            }
+          }
+        }
+      },
+      {
+        "name": "make_documents",
+        "type": "call",
+        "input": {
+          "loader": "llmflow",
+          "task": "code",
+          "input": {
+            "code": "def _(ctx):\n    return [dict(\n        id=\"doc\",\n        text=ctx.parse_text.body.text,\n        metadata=dict(source_id=\"doc\")\n    )]",
+            "ctx": "${*}"
+          }
+        }
+      },
+      {
+        "name": "calculate_embeddings",
+        "type": "call",
+        "input": {
+          "loader": "llmflow",
+          "task": "embedding",
+          "input": {
+            "model": "rocketqa-document",
+            "uri": "http://127.0.0.1:8080/embeddings",
+            "api_key": "123",
+            "texts": "${make_documents.result[*].text}"
+          }
+        }
+      },
+      {
+        "name": "upsert_documents",
+        "type": "call",
+        "input": {
+          "loader": "llmflow",
+          "task": "vectorstore_upsert",
+          "input": {
+            "vendor": "memory",
+            "uri": "http://127.0.0.1:8080/vector/upsert",
+            "api_key": "123",
+            "vectors": "${calculate_embeddings.embeddings}",
+            "documents": "${make_documents.result}"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -100,7 +100,7 @@ async function loadConfiguration() {
 			},
 			canInsertStep: (step, targetSequence) => {
 				if (step.type === workflowName.toLowerCase()) {
-					alert(`Can not insert the custom flow "${workflowName}" into itself!`)
+					alert(`Can not insert the flow "${workflowName}" into itself!`)
 					return false
 				}
 				return true
@@ -188,8 +188,6 @@ async function loadConfiguration() {
 }
 
 function getSchemaByType(type) {
-	// return schema[type]
-
 	switch (type) {
 		case 'decision':
 			return {
@@ -237,6 +235,13 @@ function getSchemaByType(type) {
 				}
 			}
 		}
+	}
+
+	alert(`Found no schema for the flow "${type}"!`)
+
+	return {
+		"input": {},
+		"output": {}
 	}
 }
 
@@ -676,8 +681,8 @@ function titleCase(str) {
 
 function getDefFromStep(step) {
 	let def = {
-		type: step.type,
 		name: step.name,
+		type: step.type,
 		input: {...step.properties}
 	}
 
@@ -768,8 +773,8 @@ function wrapCallTask(t) {
 	}
 
 	return {
-		type: 'call',
 		name: t.name,
+		type: 'call',
 		input: {
 			loader: namespace,
 			task: t.type,
@@ -799,8 +804,8 @@ function getDefinitions() {
 	}
 
 	return {
-		type: 'serial',
 		name: workflowName,
+		type: 'serial',
 		input: {
 			schema: JSON.parse(workflowSchema),
 			tasks: defs
@@ -809,8 +814,8 @@ function getDefinitions() {
 }
 
 async function runWorkflow(form) {
-	const task = getDefinitions();
-	console.log('task', JSON.stringify(task));
+	const task = getDefinitions()
+	//console.log('task', JSON.stringify(task))
 
 	// Upsert tool if required.
 	const group = 'Tools'

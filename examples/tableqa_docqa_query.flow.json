@@ -1,0 +1,78 @@
+{
+  "name": "tableqa_docqa_query",
+  "type": "serial",
+  "input": {
+    "schema": {
+      "input": {
+        "type": "object",
+        "required": [
+          "file",
+          "query"
+        ],
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "data-url",
+            "description": "The PDF file."
+          },
+          "query": {
+            "type": "string",
+            "description": "The user's query."
+          }
+        }
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "response": {
+            "type": "string",
+            "description": "The assistant's response."
+          }
+        }
+      }
+    },
+    "tasks": [
+      {
+        "type": "call",
+        "name": "tableqa",
+        "input": {
+          "loader": "user",
+          "task": "tableqa",
+          "input": {
+            "file": "${input.file}",
+            "query": "${input.query}"
+          }
+        }
+      },
+      {
+        "name": "answer",
+        "type": "decision",
+        "input": {
+          "expression": "${tableqa.response}",
+          "cases": {
+            "未找到相关答案": {
+              "type": "call",
+              "name": "docqa_query",
+              "input": {
+                "loader": "user",
+                "task": "docqa_query",
+                "input": {
+                  "query": "${input.query}"
+                }
+              }
+            }
+          },
+          "default": {
+            "name": "return",
+            "type": "terminate",
+            "input": {
+              "output": {
+                "response": "${tableqa.response}"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}
