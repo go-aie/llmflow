@@ -1,6 +1,7 @@
 {
   "name": "tableqa",
   "type": "serial",
+  "description": "Table Question Answering flow.",
   "input": {
     "schema": {
       "input": {

@@ -1,6 +1,7 @@
 {
   "name": "fqa_feed",
   "type": "serial",
+  "description": "FAQ-based Question Answering feed flow.",
   "timeout": "20s",
   "input": {
     "schema": {

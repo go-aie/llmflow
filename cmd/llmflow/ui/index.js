@@ -1,12 +1,14 @@
 
 let workflowName = ''
+let workflowDescription = ''
 let workflowSchema = '{}'
 let workflowResult = undefined
+let workflowDefinitions = undefined
 let workflowAsTool = false
 
 import { JSONEditor } from './svelte-jsoneditor/vanilla.js'
 
-const allSchemas = await loadSchemas()
+let allSchemas = await loadSchemas()
 let allStepLabels = {}
 
 async function loadSchemas() {
@@ -81,7 +83,7 @@ async function loadConfiguration() {
 			steps: steps,
 		})
 	}
-	console.log(groups)
+	//console.log(groups)
 
 	return {
 		toolbox: {
@@ -120,6 +122,7 @@ async function loadConfiguration() {
 				var inputForm
 
 				// Build Workflow Editor
+				// 1. Name
 				const labelName = document.createElement('h3')
 				labelName.innerText = 'Name'
 				we.appendChild(labelName)
@@ -129,18 +132,17 @@ async function loadConfiguration() {
 				})
 				we.appendChild(input)
 
-				// Add "set as a tool" flag.
-				const asToolValue = createInputElement('boolean', workflowAsTool, value => {
-					workflowAsTool = value
+				// 2. Description
+				const labelDescription = document.createElement('h3')
+				labelDescription.innerText = 'Description'
+				we.appendChild(labelDescription)
 
-					//globalContext.notifyPropertiesChanged()
-				}, 'input', '5%')
-				we.appendChild(asToolValue)
+				const description = createInputElement('text', workflowDescription, value => {
+					workflowDescription = value
+				})
+				we.appendChild(description)
 
-				const asToolSpan = document.createElement('span')
-				asToolSpan.innerText = 'Set as a tool'
-				we.appendChild(asToolSpan)
-
+				// 3. Schema
 				const labelSchema = document.createElement('h3')
 				labelSchema.innerText = 'Schema'
 				we.appendChild(labelSchema)
@@ -153,7 +155,7 @@ async function loadConfiguration() {
 				})
 				we.appendChild(schemaEditor)
 
-				// Build User Interface
+				// 4. Input
 				const labelInput = document.createElement('h3')
 				labelInput.innerText = 'Input'
 				ui.appendChild(labelInput)
@@ -162,6 +164,7 @@ async function loadConfiguration() {
 				ui.appendChild(inputForm)
 				renderForm(inputForm, JSON.parse(workflowSchema).input)
 
+				// 5. Output
 				const labelOutput = document.createElement('h3')
 				labelOutput.innerText = 'Output'
 				ui.appendChild(labelOutput)
@@ -536,8 +539,7 @@ const startDefinition = {
 };
 
 const placeholder = document.getElementById('designer');
-//var designer = sequentialWorkflowDesigner.Designer.create(placeholder, startDefinition, await loadConfiguration());
-var designer;
+let designer;
 
 function appendTitle(parent, text) {
 	const title = document.createElement('h2');
@@ -631,6 +633,8 @@ function loadTaskFromStep(step) {
 }
 
 async function loadWorkflow() {
+	workflowAsTool = false
+
 	const [handle] = await window.showOpenFilePicker({
 		types: [{
 			accept: {
@@ -651,15 +655,27 @@ async function loadWorkflow() {
 		defs.push(loadTaskFromStep(step));
 	}
 
+	workflowDescription = workflow.description
+	workflowDefinitions = defs
+	await initDesigner(workflowDefinitions)
+
+	document.getElementById('save').disabled = false;
+	document.getElementById('register').disabled = false;
+	document.getElementById('register').innerText = workflowAsTool ? 'Unregister' : 'Register';
+	//document.getElementById('run').disabled = false;
+}
+
+async function initDesigner(defs) {
+	if (designer) {
+		designer.destroy()
+	}
+
 	const definition = {
 		sequence: defs,
 		properties: {}
-	};
+	}
 
-	designer = sequentialWorkflowDesigner.Designer.create(placeholder, definition, await loadConfiguration());
-
-	document.getElementById('save').disabled = false;
-	//document.getElementById('run').disabled = false;
+	designer = sequentialWorkflowDesigner.Designer.create(placeholder, definition, await loadConfiguration())
 }
 
 async function saveWorkflow() {
@@ -813,14 +829,37 @@ function getDefinitions() {
 	}
 }
 
-async function runWorkflow(form) {
+async function upsertTask() {
 	const task = getDefinitions()
 	//console.log('task', JSON.stringify(task))
 
-	// Upsert tool if required.
+	await fetch(`/api/tasks/${workflowName}`, {
+		method: 'PUT',
+		headers: {
+			'Accept': 'application/json',
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({definition: task})
+	})
+}
+
+async function deleteTask() {
+	await fetch(`/api/tasks/${workflowName}`, {
+		method: 'DELETE',
+		headers: {
+			'Accept': 'application/json',
+			'Content-Type': 'application/json'
+		}
+	})
+}
+
+async function registerTool() {
 	const group = 'Tools'
 	const flowName = workflowName.toLowerCase()
-	if (workflowAsTool) {
+
+	if (this.innerText === 'Register') {
+		upsertTask()
+
 		await fetch(`/api/tools/${group}`, {
 			method: 'PUT',
 			headers: {
@@ -834,7 +873,12 @@ async function runWorkflow(form) {
 					throw new Error(`HTTP error! Status: ${response.status}`);
 				}
 			});
+
+		this.innerText = 'Unregister'
+
 	} else {
+		deleteTask()
+
 		await fetch(`/api/tools/${group}`, {
 			method: 'DELETE',
 			headers: {
@@ -848,23 +892,19 @@ async function runWorkflow(form) {
 					throw new Error(`HTTP error! Status: ${response.status}`);
 				}
 			});
+
+		this.innerText = 'Register'
 	}
 
-	// Upsert task.
-	await fetch(`/api/tasks/${workflowName}`, {
-		method: 'PUT',
-		headers: {
-			'Accept': 'application/json',
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({definition: task})
-	})
-		.then((response) => {
-			if (!response.ok) {
-				throw new Error(`HTTP error! Status: ${response.status}`);
-			}
-			console.log(JSON.stringify(response.json()));
-		});
+	// Refresh schemas since some tool have been just registered/unregistered.
+	allSchemas = await loadSchemas()
+
+	// Re-init the designer.
+	await initDesigner(workflowDefinitions)
+}
+
+async function runWorkflow(form) {
+	upsertTask()
 
 	// Execute task.
 	await fetch(`/api/tasks/${workflowName}:test`, {
@@ -955,4 +995,5 @@ function addMessage(msgType, msgContent) {
 
 document.getElementById('load').addEventListener('click', loadWorkflow);
 document.getElementById('save').addEventListener('click', saveWorkflow);
+document.getElementById('register').addEventListener('click', registerTool);
 document.getElementById('submit-button').addEventListener('click', runWorkflowInChatBot);

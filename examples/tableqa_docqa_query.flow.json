@@ -1,6 +1,7 @@
 {
   "name": "tableqa_docqa_query",
   "type": "serial",
+  "description": "Table & Document Question Answering query flow.",
   "input": {
     "schema": {
       "input": {

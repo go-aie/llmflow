@@ -1,6 +1,7 @@
 {
   "name": "faq_query",
   "type": "serial",
+  "description": "FAQ-based Question Answering query flow.",
   "input": {
     "schema": {
       "input": {

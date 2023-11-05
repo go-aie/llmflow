@@ -1,6 +1,7 @@
 {
   "name": "tableqa_docqa_feed",
   "type": "serial",
+  "description": "Table & Document Question Answering feed flow.",
   "input": {
     "schema": {
       "input": {

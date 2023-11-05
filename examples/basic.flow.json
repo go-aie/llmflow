@@ -1,6 +1,7 @@
 {
   "name": "basic",
   "type": "serial",
+  "description": "Basic flow.",
   "input": {
     "schema": {
       "input": {

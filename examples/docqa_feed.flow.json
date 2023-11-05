@@ -1,6 +1,7 @@
 {
   "name": "docqa_feed",
   "type": "serial",
+  "description": "Document Question Answering feed flow.",
   "timeout": "20s",
   "input": {
     "schema": {
