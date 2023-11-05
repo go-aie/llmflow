@@ -34,8 +34,8 @@
     },
     "tasks": [
       {
-        "type": "call",
         "name": "tableqa",
+        "type": "call",
         "input": {
           "loader": "user",
           "task": "tableqa",
@@ -52,8 +52,8 @@
           "expression": "${tableqa.response}",
           "cases": {
             "未找到相关答案": {
-              "type": "call",
               "name": "docqa_query",
+              "type": "call",
               "input": {
                 "loader": "user",
                 "task": "docqa_query",

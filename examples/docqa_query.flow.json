@@ -76,8 +76,8 @@
             }
           },
           "default": {
-            "type": "serial",
             "name": "switch",
+            "type": "serial",
             "input": {
               "tasks": [
                 {

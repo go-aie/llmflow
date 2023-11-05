@@ -2,13 +2,10 @@
   "name": "fqa_feed",
   "type": "serial",
   "description": "FAQ-based Question Answering feed flow.",
-  "timeout": "20s",
   "input": {
     "schema": {
-      "input": {
-      },
-      "output": {
-      }
+      "input": {},
+      "output": {}
     },
     "tasks": [
       {
@@ -25,7 +22,7 @@
             }
           },
           "body": {
-            "name": "calculate_and_upsert",
+            "name": "loop",
             "type": "serial",
             "input": {
               "tasks": [

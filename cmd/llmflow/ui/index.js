@@ -53,8 +53,8 @@ async function loadConfiguration() {
 		for (const tool of tools[groupName]) {
 			let step = {
 				componentType: 'task',
-				type: tool.type,
 				name: tool.name,
+				type: tool.type,
 				properties: getEmptyPropertiesByType(tool.type)
 			}
 			switch (tool.type) {
@@ -563,8 +563,8 @@ function loadTaskFromStep(step) {
 
 	let s = {
 		id: sequentialWorkflowDesigner.Uid.next(),
-		type: step.type,
 		name: step.name,
+		type: step.type,
 		componentType: 'task',
 		properties: {...step.input},
 		schema: getSchemaByType(step.type)
@@ -721,8 +721,8 @@ function getDefFromStep(step) {
 						def.input.default = tasks[0]
 					} else {
 						def.input.default = {
-							type: 'serial',
 							name: 'switch',
+							type: 'serial',
 							input: {
 								tasks: tasks,
 							}
@@ -733,8 +733,8 @@ function getDefFromStep(step) {
 						def.input.cases[cond] = tasks[0]
 					} else {
 						def.input.cases[cond] = {
-							type: 'serial',
 							name: 'switch',
+							type: 'serial',
 							input: {
 								tasks: tasks,
 							}
@@ -749,8 +749,8 @@ function getDefFromStep(step) {
 			def.input = {
 				iterator: {},
 				body: {
-					type: 'serial',
 					name: 'loop',
+					type: 'serial',
 					input: {
 						tasks: []
 					}
@@ -822,6 +822,7 @@ function getDefinitions() {
 	return {
 		name: workflowName,
 		type: 'serial',
+		description: workflowDescription,
 		input: {
 			schema: JSON.parse(workflowSchema),
 			tasks: defs

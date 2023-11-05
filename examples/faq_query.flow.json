@@ -66,8 +66,8 @@
           "expression": "#{string(len(query_documents.similarities))}",
           "cases": {
             "0": {
-              "type": "terminate",
               "name": "sorry",
+              "type": "terminate",
               "input": {
                 "output": {
                   "response": "对不起，我不知道。"
