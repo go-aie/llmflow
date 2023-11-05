@@ -14,7 +14,7 @@
         "name": "load_documents",
         "type": "text_loader",
         "input": {
-          "filename": "../../examples/百度百科介绍文档.txt"
+          "filename": "../../examples/data/百度百科介绍文档.txt"
         }
       },
       {

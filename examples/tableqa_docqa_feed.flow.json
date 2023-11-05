@@ -1,5 +1,5 @@
 {
-  "name": "docqa_feed",
+  "name": "tableqa_docqa_feed",
   "type": "serial",
   "input": {
     "schema": {
