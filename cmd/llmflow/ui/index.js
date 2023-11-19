@@ -404,7 +404,7 @@ function otherStepEditorProvider(step, editorContext) {
 		container.appendChild(label);
 
 		const inputType = getInputType(stepSchema, stepName)
-		console.log('stepName', stepName, 'inputType', inputType)
+		//console.log('stepName', stepName, 'inputType', inputType)
 
 		if (inputType === 'option') {
 			const select = document.createElement('select');
@@ -445,7 +445,7 @@ function otherStepEditorProvider(step, editorContext) {
 		} else {
 			const input = createInputElement(inputType, stepValue, (value) => {
 				step.properties[stepName] = value;
-				console.log('new properties', step.properties)
+				//console.log('new properties', step.properties)
 			})
 			container.appendChild(input)
 
@@ -521,7 +521,19 @@ function createInputElement(type, value, onChange, eventType='input', width='98%
 			onChange(input.checked)
 		});
 	} else {
-		input.setAttribute('type', type)
+		switch (type) {
+			case 'integer':
+				input.setAttribute('type', 'number')
+				input.setAttribute('step', '1')
+				break
+			case 'number':
+				input.setAttribute('type', 'number')
+				input.setAttribute('step', '0.01')
+				break
+			default:
+				input.setAttribute('type', type)
+		}
+
 		input.style.width = width
 		input.value = value
 		input.oldvalue = value
@@ -623,10 +635,17 @@ function loadTaskFromStep(step) {
 	}
 
 	for (const [name, value] of Object.entries(s.properties)) {
-		if (getInputType(s.schema, name) === 'json') {
+		const inputType = getInputType(s.schema, name)
+		switch (inputType) {
+			case 'number':
+			case 'integer':
+			case 'json':
+				s.properties[name] = convertValue(inputType, 'string', value)
+		}
+		/*if (getInputType(s.schema, name) === 'json') {
 			// JSON object => JSON string
 			s.properties[name] = JSON.stringify(value, null, 2);
-		}
+		}*/
 	}
 
 	return s
@@ -770,16 +789,94 @@ function getDefFromStep(step) {
 
 
 	for (const [name, value] of Object.entries(def.input)) {
-		if (getInputType(getSchemaByType(def.type), name) === 'json' && def.input[name] !== '') {
-			// JSON string => JSON object
-			console.log('name', name, 'value', value)
-			def.input[name] = JSON.parse(value);
+		const inputType = getInputType(getSchemaByType(def.type), name)
+		switch (inputType) {
+			case 'number':
+			case 'integer':
+			case 'json':
+				def.input[name] = convertValue('string', inputType, value)
 		}
+		/*if (getInputType(getSchemaByType(def.type), name) === 'json' && def.input[name] !== '') {
+			// JSON string => JSON object
+			def.input[name] = JSON.parse(value);
+		}*/
 	}
 
 	def = wrapCallTask(def)
 
 	return def;
+}
+
+function convertValue(fromType, toType, originalValue) {
+	switch (fromType) {
+		case 'string':
+			switch (toType) {
+				case 'string':
+					return originalValue
+				case 'number':
+					return originalValue === '' ? 0 : parseFloat(originalValue)
+				case 'integer':
+					return originalValue === '' ? 0 : parseInt(originalValue)
+				case 'boolean':
+					return originalValue === 'true'
+				default:
+					// json
+					return originalValue === '' ? null : JSON.parse(originalValue)
+			}
+
+		case 'number':
+			switch (toType) {
+				case 'string':
+					return originalValue.toString()
+				case 'number':
+					return originalValue
+				case 'integer':
+					return parseInt(originalValue, 10)
+				case 'boolean':
+				default:
+					// json
+					throw new Error('unsupported')
+			}
+
+		case 'integer':
+			switch (toType) {
+				case 'string':
+					return originalValue.toString()
+				case 'integer':
+				case 'number':
+					return originalValue
+				case 'boolean':
+				default:
+					// json
+					throw new Error('unsupported')
+			}
+
+		case 'boolean':
+			switch (toType) {
+				case 'string':
+					return originalValue.toString()
+				case 'boolean':
+					return originalValue
+				case 'number':
+				case 'integer':
+				default:
+					// json
+					throw new Error('unsupported')
+			}
+
+		default:
+			// json
+			switch (toType) {
+				case 'string':
+					return JSON.stringify(originalValue, null, 2)
+				case 'number':
+				case 'integer':
+				case 'boolean':
+				default:
+					// json
+					throw new Error('unsupported')
+			}
+	}
 }
 
 function wrapCallTask(t) {
@@ -924,9 +1021,8 @@ async function runWorkflow(form) {
 				throw new Error(`HTTP error! Status: ${response.status}`);
 			}
 			const result = await response.json();
-			console.log(JSON.stringify(result));
+			//console.log(JSON.stringify(result));
 
-			//alert(JSON.stringify(result))
 			workflowResult.editor.set({
 				text: JSON.stringify(result, null, 2)
 			})
