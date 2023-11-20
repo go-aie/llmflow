@@ -78,19 +78,12 @@ func (l *JSONLinesLoader) String() string {
 }
 
 func (l *JSONLinesLoader) Execute(ctx context.Context, input orchestrator.Input) (orchestrator.Output, error) {
-	iterator := builtin.NewIterator(func(ctx context.Context, ch chan<- builtin.Result) {
-		send := func(output orchestrator.Output, err error) (continue_ bool) {
-			select {
-			case ch <- builtin.Result{Output: output, Err: err}:
-				return true
-			case <-ctx.Done():
-				return false
-			}
-		}
+	iterator := builtin.NewIterator(ctx, func(sender *builtin.IteratorSender) {
+		defer sender.End() // End the iteration
 
 		file, err := os.Open(l.Input.Filename)
 		if err != nil {
-			send(nil, err)
+			sender.Send(nil, err)
 			return
 		}
 		defer file.Close()
@@ -111,18 +104,18 @@ func (l *JSONLinesLoader) Execute(ctx context.Context, input orchestrator.Input)
 			line := scanner.Bytes()
 			var v any
 			if err := json.Unmarshal(line, &v); err != nil {
-				send(nil, err)
+				sender.Send(nil, err)
 				return
 			}
 
 			p, err := jsonpointer.New(l.Input.Pointer)
 			if err != nil {
-				send(nil, err)
+				sender.Send(nil, err)
 				return
 			}
 			result, _, err := p.Get(v)
 			if err != nil {
-				send(nil, err)
+				sender.Send(nil, err)
 				return
 			}
 
@@ -143,18 +136,18 @@ func (l *JSONLinesLoader) Execute(ctx context.Context, input orchestrator.Input)
 					Documents: items,
 				})
 				if err != nil {
-					send(nil, err)
+					sender.Send(nil, err)
 					return
 				}
 
-				if continue_ := send(output.(map[string]any), nil); !continue_ {
+				if continue_ := sender.Send(output.(map[string]any), nil); !continue_ {
 					return
 				}
 			}
 		}
 
 		if err := scanner.Err(); err != nil {
-			send(nil, err)
+			sender.Send(nil, err)
 			return
 		}
 
@@ -167,15 +160,12 @@ func (l *JSONLinesLoader) Execute(ctx context.Context, input orchestrator.Input)
 				Documents: items,
 			})
 			if err != nil {
-				send(nil, err)
+				sender.Send(nil, err)
 				return
 			}
 
-			send(output.(map[string]any), nil)
+			sender.Send(output.(map[string]any), nil)
 		}
-
-		// End the iteration.
-		close(ch)
 	})
 	return orchestrator.Output{"iterator": iterator}, nil
 }
