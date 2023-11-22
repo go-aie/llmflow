@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 
 	"github.com/RussellLuo/orchestrator"
-	"github.com/RussellLuo/orchestrator/builtin"
 	"github.com/go-openapi/jsonpointer"
 )
 
@@ -78,7 +77,7 @@ func (l *JSONLinesLoader) String() string {
 }
 
 func (l *JSONLinesLoader) Execute(ctx context.Context, input orchestrator.Input) (orchestrator.Output, error) {
-	iterator := builtin.NewIterator(ctx, func(sender *builtin.IteratorSender) {
+	iterator := orchestrator.NewIterator(ctx, func(sender *orchestrator.IteratorSender) {
 		defer sender.End() // End the iteration
 
 		file, err := os.Open(l.Input.Filename)

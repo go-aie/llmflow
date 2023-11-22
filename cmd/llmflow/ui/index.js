@@ -1009,7 +1009,7 @@ async function runWorkflow(form) {
 		method: 'POST',
 		headers: {
 			'Accept': 'application/json',
-			'Content-Type': 'application/json'
+			'Content-Type': 'application/json, text/event-stream'
 		},
 		body: JSON.stringify({
 			name: workflowName,

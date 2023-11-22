@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"strconv"
 	"sync"
 
 	"github.com/RussellLuo/kun/pkg/appx/httpapp"
@@ -208,7 +209,29 @@ func (lf *LLMFlow) RunTask(ctx context.Context, name string, input map[string]an
 }
 
 func (lf *LLMFlow) TestTask(ctx context.Context, name string, input map[string]any) (orchestrator.Event, error) {
-	return builtin.TraceFlow(ctx, "user", name, input)
+	event, err := builtin.TraceFlow(ctx, "user", name, input)
+	if err != nil {
+		return orchestrator.Event{}, err
+	}
+
+	// Consume the possible iterator and return the complete output.
+	iter, ok := orchestrator.Output(event.Output).Iterator()
+	if ok {
+		output := make(map[string]any)
+		var i int
+		for result := range iter.Next() {
+			if result.Err != nil {
+				return orchestrator.Event{}, result.Err
+			}
+			// Save the output of the iterator for the current iteration.
+			output[strconv.Itoa(i)] = map[string]any(result.Output)
+			i++
+		}
+		// Replace the original output with the aggregated iterator output.
+		event.Output = output
+	}
+
+	return event, nil
 }
 
 func main() {
@@ -223,7 +246,9 @@ func main() {
 	}))
 
 	llmflow := NewLLMFlow()
-	httpapp.MountRouter(r, "/api", api.NewHTTPRouter(llmflow, httpcodec.NewDefaultCodecs(nil)))
+	httpapp.MountRouter(r, "/api", api.NewHTTPRouter(llmflow, httpcodec.NewDefaultCodecs(nil,
+		httpcodec.Op("RunTask", new(api.EventStream)),
+	)))
 
 	// Register user-defined tasks into the "user" namespace. Now these flows can be used by a `Call` task.
 	builtin.LoaderRegistry.MustRegister("user", llmflow)

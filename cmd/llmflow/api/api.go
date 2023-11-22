@@ -49,6 +49,6 @@ type Service interface {
 }
 
 type Tool struct {
-	Type  string `json:"type"`
-	Name  string `json:"name"`
+	Type string `json:"type"`
+	Name string `json:"name"`
 }
