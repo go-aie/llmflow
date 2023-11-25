@@ -41,7 +41,7 @@
           "uri": "#{getenv(\"CODE_API_ENDPOINT\")}",
           "header": {
             "Authorization": [
-              "#{\"Bearer \" + getenv(\"CODE_API_KEY\")}"
+              "${\"Bearer \" + getenv(\"CODE_API_KEY\")}"
             ]
           },
           "body": {
@@ -54,7 +54,7 @@
         "name": "status",
         "type": "decision",
         "input": {
-          "expression": "#{string(exec.status)}",
+          "expression": "${str(exec.status)}",
           "cases": {
             "200": {
               "name": "success",

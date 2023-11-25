@@ -94,7 +94,7 @@
           "uri": "${input.uri}",
           "header": {
             "Authorization": [
-              "#{\"Bearer \" + input.api_key}"
+              "${\"Bearer \" + input.api_key}"
             ]
           },
           "body": {
@@ -109,7 +109,7 @@
         "name": "status",
         "type": "decision",
         "input": {
-          "expression": "#{string(query_documents.status)}",
+          "expression": "${str(query_documents.status)}",
           "cases": {
             "200": {
               "name": "success",

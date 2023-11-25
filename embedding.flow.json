@@ -59,7 +59,7 @@
           "uri": "${input.uri}",
           "header": {
             "Authorization": [
-              "#{\"Bearer \" + input.api_key}"
+              "${\"Bearer \" + input.api_key}"
             ]
           },
           "body": {
@@ -72,7 +72,7 @@
         "name": "status",
         "type": "decision",
         "input": {
-          "expression": "#{string(embed.status)}",
+          "expression": "${str(embed.status)}",
           "cases": {
             "200": {
               "name": "success",
