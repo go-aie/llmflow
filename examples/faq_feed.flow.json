@@ -36,7 +36,7 @@
                       "model": "rocketqa-document",
                       "uri": "http://127.0.0.1:8080/embeddings",
                       "api_key": "123",
-                      "texts": "${load_documents.documents[*].text}"
+                      "texts": "${[doc.text for doc in load_documents.documents]}"
                     }
                   }
                 },

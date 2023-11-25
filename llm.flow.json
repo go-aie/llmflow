@@ -72,7 +72,7 @@
             "temperature": "${input.temperature}",
             "stream": "${input.stream}"
           },
-          "sse_filter": "${jsonencode({\"response\": jsondecode(data).choices[0].delta})}"
+          "sse_filter": "${jsonencode({\"response\": jsondecode(data).choices[0].delta.content or \"\"})}"
         }
       },
       {

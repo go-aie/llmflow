@@ -16,12 +16,10 @@ go install github.com/go-aie/llmflow/cmd/llmflow@latest
 
 1. Run [OneAI][2].
 
-2. Run [Python Code Server](cmd/llmflow/pycode).
-
-3. Run the orchestration engine:
+2. Run LLMFlow:
 
     ```bash
-    CODE_API_ENDPOINT=http://127.0.0.1:5000/exec llmflow
+    llmflow
     ```
 
 
@@ -36,7 +34,6 @@ In addition to [Orchestrator's built-in tasks][3], LLMFlow defines the following
       + [TextLoader](loader.go#L183-L239)
 
    - Flows
-      + [Code](code.flow.json)
       + [Embedding](embedding.flow.json)
       + [LLM](llm.flow.json)
       + [VectorStore_Delete](vectorstore_delete.flow.json)

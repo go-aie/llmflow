@@ -79,7 +79,7 @@
               "type": "terminate",
               "input": {
                 "output": {
-                  "embeddings": "${embed.body.data[*].embedding}"
+                  "embeddings": "${[d.embedding for d in embed.body.data]}"
                 }
               }
             }

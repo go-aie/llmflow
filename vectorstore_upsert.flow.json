@@ -76,14 +76,9 @@
     "tasks": [
       {
         "name": "attach_vectors_to_documents",
-        "type": "call",
+        "type": "code",
         "input": {
-          "loader": "llmflow",
-          "task": "code",
-          "input": {
-            "code": "def _(ctx):\n    for i, doc in enumerate(ctx.input.documents):\n        doc.vector = ctx.input.vectors[i]\n    return ctx.input.documents",
-            "ctx": "${*}"
-          }
+          "code": "def _(env):\n    for i, doc in enumerate(env.input.documents):\n        doc.vector = env.input.vectors[i]\n    return env.input.documents"
         }
       },
       {
