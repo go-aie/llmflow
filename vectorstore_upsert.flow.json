@@ -115,7 +115,7 @@
           },
           "default": {
             "name": "failure",
-            "type": "raise",
+            "type": "terminate",
             "input": {
               "error": "${upsert_documents.body.error.message}"
             }

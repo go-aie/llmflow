@@ -1,7 +1,7 @@
 {
   "name": "xhttp",
   "type": "serial",
-  "description": "xHTTP behaves like the built-in HTTP but always raises an error if encountered a failure response.",
+  "description": "xHTTP behaves like the built-in HTTP but always causes an error if encountered a failure response.",
   "input": {
     "schema": {
       "input": {
@@ -14,7 +14,13 @@
           "method": {
             "type": "string",
             "description": "The HTTP request method.",
-            "enum": ["POST", "GET", "PUT", "PATCH", "DELETE"]
+            "enum": [
+              "POST",
+              "GET",
+              "PUT",
+              "PATCH",
+              "DELETE"
+            ]
           },
           "uri": {
             "type": "string",
@@ -38,6 +44,10 @@
             "patternProperties": {
               "^.*$": {}
             }
+          },
+          "sse_filter": {
+            "type": "string",
+            "description": "A filter expression for extracting fields from a server-sent event."
           },
           "success_code": {
             "type": "integer",
@@ -79,31 +89,32 @@
         "name": "http",
         "type": "http",
         "input": {
+          "body": "${input.body}",
+          "header": "${input.header}",
           "method": "${input.method}",
-          "uri": "${input.uri}",
-          "header": "#{input.header ?? nil}",
-          "body": "#{input.body ?? nil}"
+          "sse_filter": "${input.sse_filter}",
+          "uri": "${input.uri}"
         }
       },
       {
         "name": "success",
         "type": "decision",
         "input": {
-          "expression": "#{input.success_code == nil ? string(http.status == 200) : string(http.status == input.success_code)}",
+          "expression": "${str(http.status == (input.success_code or 200))}",
           "cases": {
-            "true": {
-              "name": "yes",
+            "True": {
+              "name": "response",
               "type": "terminate",
               "input": {
                 "output": "${http}"
               }
-            }
-          },
-          "default": {
-            "name": "no",
-            "type": "raise",
-            "input": {
-              "error": "#{toJSON(http.body)}"
+            },
+            "False": {
+              "name": "failure",
+              "type": "terminate",
+              "input": {
+                "error": "${jsonencode(http.body)}"
+              }
             }
           }
         }

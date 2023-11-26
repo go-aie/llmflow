@@ -83,7 +83,6 @@ async function loadConfiguration() {
 			steps: steps,
 		})
 	}
-	//console.log(groups)
 
 	return {
 		toolbox: {
@@ -149,7 +148,8 @@ async function loadConfiguration() {
 
 				const schemaEditor = createJSONEditor(workflowSchema, (update) => {
 					workflowSchema = update.text
-					console.log('workflowSchema', update)
+					//console.log('workflowSchema', update)
+
 					// Re-render the inputForm.
 					renderForm(inputForm, JSON.parse(workflowSchema).input)
 				})
@@ -304,7 +304,7 @@ function switchStepEditorProvider(step, editorContext) {
 
 	function createCase(lastElem, step, value) {
 		const input = createInputElement('text', value, (value) => {
-			console.log('change case input from', input.oldvalue, 'to', value);
+			//console.log('change case input from', input.oldvalue, 'to', value);
 
 			let steps = step.branches[input.oldvalue];
 			if (steps === undefined) {
@@ -348,7 +348,7 @@ function switchStepEditorProvider(step, editorContext) {
 
 	// Add cases
 	for (const [name, _] of Object.entries(step.branches)) {
-		console.log('branch name', name);
+		//console.log('branch name', name);
 		createCase(label, step, name);
 	}
 
@@ -637,7 +637,7 @@ function loadTaskFromStep(step) {
 				}
 				s.branches['default'] = steps;
 			}
-			console.log('loadTaskFromStep', step.type, s)
+			//console.log('loadTaskFromStep', step.type, s)
 
 			break
 
@@ -766,7 +766,6 @@ function getDefFromStep(step) {
 	const defaultProperties = getDefaultProperties(schema)
 	// Only set non-default optional values into input.
 	for (const [name, value] of Object.entries(stepProperties)) {
-		console.log('name', name, 'required?', required.includes(name), 'not default?', value !== defaultProperties[name], 'value', value, 'defaultValue', defaultProperties[name])
 		if (required.includes(name) || value !== defaultProperties[name]) {
 			def.input[name] = value
 		}
@@ -1069,7 +1068,7 @@ async function runWorkflowInChatBot() {
 	addMessage('user-message', query);
 
 	const data = getDefinitions();
-	console.log('data', JSON.stringify(data));
+	//console.log('data', JSON.stringify(data));
 
 	// Upsert task.
 	await fetch('/api/tasks/test', {
@@ -1084,7 +1083,7 @@ async function runWorkflowInChatBot() {
 			if (!response.ok) {
 				throw new Error(`HTTP error! Status: ${response.status}`);
 			}
-			console.log(JSON.stringify(response.json()));
+			//console.log(JSON.stringify(response.json()));
 		});
 
 	// Execute task.
@@ -1106,7 +1105,7 @@ async function runWorkflowInChatBot() {
 				throw new Error(`HTTP error! Status: ${response.status}`);
 			}
 			const result = await response.json();
-			console.log(JSON.stringify(result));
+			//console.log(JSON.stringify(result));
 
 			addMessage('chatbot', result['message']);
 		});

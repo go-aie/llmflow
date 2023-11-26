@@ -63,7 +63,7 @@
           },
           "default": {
             "name": "failure",
-            "type": "raise",
+            "type": "terminate",
             "input": {
               "error": "${delete_documents.body.error.message}"
             }

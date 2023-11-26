@@ -54,13 +54,6 @@
         "name": "chat",
         "type": "http",
         "input": {
-          "method": "POST",
-          "uri": "${input.uri}",
-          "header": {
-            "Authorization": [
-              "${\"Bearer \" + input.api_key}"
-            ]
-          },
           "body": {
             "model": "${input.model}",
             "messages": [
@@ -72,7 +65,14 @@
             "temperature": "${input.temperature}",
             "stream": "${input.stream}"
           },
-          "sse_filter": "${jsonencode({\"response\": jsondecode(data).choices[0].delta.content or \"\"})}"
+          "header": {
+            "Authorization": [
+              "${\"Bearer \" + input.api_key}"
+            ]
+          },
+          "method": "POST",
+          "sse_filter": "${jsonencode({\"response\": jsondecode(data).choices[0].delta.content or \"\"})}",
+          "uri": "${input.uri}"
         }
       },
       {
@@ -95,14 +95,14 @@
                         "iterator": "${chat.body}"
                       }
                     }
-                  }
-                },
-                "default": {
-                  "name": "response",
-                  "type": "terminate",
-                  "input": {
-                    "output": {
-                      "response": "${chat.body.choices[0].message.content}"
+                  },
+                  "False": {
+                    "name": "response",
+                    "type": "terminate",
+                    "input": {
+                      "output": {
+                        "response": "${chat.body.choices[0].message.content}"
+                      }
                     }
                   }
                 }
@@ -111,7 +111,7 @@
           },
           "default": {
             "name": "failure",
-            "type": "raise",
+            "type": "terminate",
             "input": {
               "error": "${chat.body.error.message}"
             }

@@ -86,7 +86,7 @@
           },
           "default": {
             "name": "failure",
-            "type": "raise",
+            "type": "terminate",
             "input": {
               "error": "${embed.body.error.message}"
             }
