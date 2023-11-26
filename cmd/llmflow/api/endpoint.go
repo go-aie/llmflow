@@ -12,36 +12,36 @@ import (
 	"github.com/go-kit/kit/endpoint"
 )
 
-type DeleteTaskRequest struct {
+type DeleteFlowRequest struct {
 	Name string `json:"-"`
 }
 
-// ValidateDeleteTaskRequest creates a validator for DeleteTaskRequest.
-func ValidateDeleteTaskRequest(newSchema func(*DeleteTaskRequest) validating.Schema) httpoption.Validator {
+// ValidateDeleteFlowRequest creates a validator for DeleteFlowRequest.
+func ValidateDeleteFlowRequest(newSchema func(*DeleteFlowRequest) validating.Schema) httpoption.Validator {
 	return httpoption.FuncValidator(func(value interface{}) error {
-		req := value.(*DeleteTaskRequest)
+		req := value.(*DeleteFlowRequest)
 		return httpoption.Validate(newSchema(req))
 	})
 }
 
-type DeleteTaskResponse struct {
+type DeleteFlowResponse struct {
 	Err error `json:"-"`
 }
 
-func (r *DeleteTaskResponse) Body() interface{} { return r }
+func (r *DeleteFlowResponse) Body() interface{} { return r }
 
 // Failed implements endpoint.Failer.
-func (r *DeleteTaskResponse) Failed() error { return r.Err }
+func (r *DeleteFlowResponse) Failed() error { return r.Err }
 
-// MakeEndpointOfDeleteTask creates the endpoint for s.DeleteTask.
-func MakeEndpointOfDeleteTask(s Service) endpoint.Endpoint {
+// MakeEndpointOfDeleteFlow creates the endpoint for s.DeleteFlow.
+func MakeEndpointOfDeleteFlow(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(*DeleteTaskRequest)
-		err := s.DeleteTask(
+		req := request.(*DeleteFlowRequest)
+		err := s.DeleteFlow(
 			ctx,
 			req.Name,
 		)
-		return &DeleteTaskResponse{
+		return &DeleteFlowResponse{
 			Err: err,
 		}, nil
 	}
@@ -84,6 +84,43 @@ func MakeEndpointOfDeleteTool(s Service) endpoint.Endpoint {
 	}
 }
 
+type GetFlowRequest struct {
+	Name string `json:"-"`
+}
+
+// ValidateGetFlowRequest creates a validator for GetFlowRequest.
+func ValidateGetFlowRequest(newSchema func(*GetFlowRequest) validating.Schema) httpoption.Validator {
+	return httpoption.FuncValidator(func(value interface{}) error {
+		req := value.(*GetFlowRequest)
+		return httpoption.Validate(newSchema(req))
+	})
+}
+
+type GetFlowResponse struct {
+	Definition map[string]any `json:"definition"`
+	Err        error          `json:"-"`
+}
+
+func (r *GetFlowResponse) Body() interface{} { return r }
+
+// Failed implements endpoint.Failer.
+func (r *GetFlowResponse) Failed() error { return r.Err }
+
+// MakeEndpointOfGetFlow creates the endpoint for s.GetFlow.
+func MakeEndpointOfGetFlow(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*GetFlowRequest)
+		definition, err := s.GetFlow(
+			ctx,
+			req.Name,
+		)
+		return &GetFlowResponse{
+			Definition: definition,
+			Err:        err,
+		}, nil
+	}
+}
+
 type GetSchemasResponse struct {
 	Schemas map[string]any `json:"schemas"`
 	Err     error          `json:"-"`
@@ -103,43 +140,6 @@ func MakeEndpointOfGetSchemas(s Service) endpoint.Endpoint {
 		return &GetSchemasResponse{
 			Schemas: schemas,
 			Err:     err,
-		}, nil
-	}
-}
-
-type GetTaskRequest struct {
-	Name string `json:"-"`
-}
-
-// ValidateGetTaskRequest creates a validator for GetTaskRequest.
-func ValidateGetTaskRequest(newSchema func(*GetTaskRequest) validating.Schema) httpoption.Validator {
-	return httpoption.FuncValidator(func(value interface{}) error {
-		req := value.(*GetTaskRequest)
-		return httpoption.Validate(newSchema(req))
-	})
-}
-
-type GetTaskResponse struct {
-	Definition map[string]any `json:"definition"`
-	Err        error          `json:"-"`
-}
-
-func (r *GetTaskResponse) Body() interface{} { return r }
-
-// Failed implements endpoint.Failer.
-func (r *GetTaskResponse) Failed() error { return r.Err }
-
-// MakeEndpointOfGetTask creates the endpoint for s.GetTask.
-func MakeEndpointOfGetTask(s Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(*GetTaskRequest)
-		definition, err := s.GetTask(
-			ctx,
-			req.Name,
-		)
-		return &GetTaskResponse{
-			Definition: definition,
-			Err:        err,
 		}, nil
 	}
 }
@@ -169,116 +169,116 @@ func MakeEndpointOfGetTools(s Service) endpoint.Endpoint {
 	}
 }
 
-type RunTaskRequest struct {
+type RunFlowRequest struct {
 	Name  string         `json:"-"`
 	Input map[string]any `json:"input"`
 }
 
-// ValidateRunTaskRequest creates a validator for RunTaskRequest.
-func ValidateRunTaskRequest(newSchema func(*RunTaskRequest) validating.Schema) httpoption.Validator {
+// ValidateRunFlowRequest creates a validator for RunFlowRequest.
+func ValidateRunFlowRequest(newSchema func(*RunFlowRequest) validating.Schema) httpoption.Validator {
 	return httpoption.FuncValidator(func(value interface{}) error {
-		req := value.(*RunTaskRequest)
+		req := value.(*RunFlowRequest)
 		return httpoption.Validate(newSchema(req))
 	})
 }
 
-type RunTaskResponse struct {
+type RunFlowResponse struct {
 	Output map[string]any `json:"output"`
 	Err    error          `json:"-"`
 }
 
-func (r *RunTaskResponse) Body() interface{} { return &r.Output }
+func (r *RunFlowResponse) Body() interface{} { return &r.Output }
 
 // Failed implements endpoint.Failer.
-func (r *RunTaskResponse) Failed() error { return r.Err }
+func (r *RunFlowResponse) Failed() error { return r.Err }
 
-// MakeEndpointOfRunTask creates the endpoint for s.RunTask.
-func MakeEndpointOfRunTask(s Service) endpoint.Endpoint {
+// MakeEndpointOfRunFlow creates the endpoint for s.RunFlow.
+func MakeEndpointOfRunFlow(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(*RunTaskRequest)
-		output, err := s.RunTask(
+		req := request.(*RunFlowRequest)
+		output, err := s.RunFlow(
 			ctx,
 			req.Name,
 			req.Input,
 		)
-		return &RunTaskResponse{
+		return &RunFlowResponse{
 			Output: output,
 			Err:    err,
 		}, nil
 	}
 }
 
-type TestTaskRequest struct {
+type TestFlowRequest struct {
 	Name  string         `json:"-"`
 	Input map[string]any `json:"input"`
 }
 
-// ValidateTestTaskRequest creates a validator for TestTaskRequest.
-func ValidateTestTaskRequest(newSchema func(*TestTaskRequest) validating.Schema) httpoption.Validator {
+// ValidateTestFlowRequest creates a validator for TestFlowRequest.
+func ValidateTestFlowRequest(newSchema func(*TestFlowRequest) validating.Schema) httpoption.Validator {
 	return httpoption.FuncValidator(func(value interface{}) error {
-		req := value.(*TestTaskRequest)
+		req := value.(*TestFlowRequest)
 		return httpoption.Validate(newSchema(req))
 	})
 }
 
-type TestTaskResponse struct {
+type TestFlowResponse struct {
 	Event orchestrator.Event `json:"event"`
 	Err   error              `json:"-"`
 }
 
-func (r *TestTaskResponse) Body() interface{} { return &r.Event }
+func (r *TestFlowResponse) Body() interface{} { return &r.Event }
 
 // Failed implements endpoint.Failer.
-func (r *TestTaskResponse) Failed() error { return r.Err }
+func (r *TestFlowResponse) Failed() error { return r.Err }
 
-// MakeEndpointOfTestTask creates the endpoint for s.TestTask.
-func MakeEndpointOfTestTask(s Service) endpoint.Endpoint {
+// MakeEndpointOfTestFlow creates the endpoint for s.TestFlow.
+func MakeEndpointOfTestFlow(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(*TestTaskRequest)
-		event, err := s.TestTask(
+		req := request.(*TestFlowRequest)
+		event, err := s.TestFlow(
 			ctx,
 			req.Name,
 			req.Input,
 		)
-		return &TestTaskResponse{
+		return &TestFlowResponse{
 			Event: event,
 			Err:   err,
 		}, nil
 	}
 }
 
-type UpsertTaskRequest struct {
+type UpsertFlowRequest struct {
 	Name       string         `json:"-"`
 	Definition map[string]any `json:"definition"`
 }
 
-// ValidateUpsertTaskRequest creates a validator for UpsertTaskRequest.
-func ValidateUpsertTaskRequest(newSchema func(*UpsertTaskRequest) validating.Schema) httpoption.Validator {
+// ValidateUpsertFlowRequest creates a validator for UpsertFlowRequest.
+func ValidateUpsertFlowRequest(newSchema func(*UpsertFlowRequest) validating.Schema) httpoption.Validator {
 	return httpoption.FuncValidator(func(value interface{}) error {
-		req := value.(*UpsertTaskRequest)
+		req := value.(*UpsertFlowRequest)
 		return httpoption.Validate(newSchema(req))
 	})
 }
 
-type UpsertTaskResponse struct {
+type UpsertFlowResponse struct {
 	Err error `json:"-"`
 }
 
-func (r *UpsertTaskResponse) Body() interface{} { return r }
+func (r *UpsertFlowResponse) Body() interface{} { return r }
 
 // Failed implements endpoint.Failer.
-func (r *UpsertTaskResponse) Failed() error { return r.Err }
+func (r *UpsertFlowResponse) Failed() error { return r.Err }
 
-// MakeEndpointOfUpsertTask creates the endpoint for s.UpsertTask.
-func MakeEndpointOfUpsertTask(s Service) endpoint.Endpoint {
+// MakeEndpointOfUpsertFlow creates the endpoint for s.UpsertFlow.
+func MakeEndpointOfUpsertFlow(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(*UpsertTaskRequest)
-		err := s.UpsertTask(
+		req := request.(*UpsertFlowRequest)
+		err := s.UpsertFlow(
 			ctx,
 			req.Name,
 			req.Definition,
 		)
-		return &UpsertTaskResponse{
+		return &UpsertFlowResponse{
 			Err: err,
 		}, nil
 	}

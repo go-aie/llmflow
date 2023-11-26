@@ -24,13 +24,13 @@ func NewHTTPRouter(svc Service, codecs httpcodec.Codecs, opts ...httpoption.Opti
 	var validator httpoption.Validator
 	var kitOptions []kithttp.ServerOption
 
-	codec = codecs.EncodeDecoder("DeleteTask")
-	validator = options.RequestValidator("DeleteTask")
+	codec = codecs.EncodeDecoder("DeleteFlow")
+	validator = options.RequestValidator("DeleteFlow")
 	r.Method(
-		"DELETE", "/tasks/{name}",
+		"DELETE", "/flows/{name}",
 		kithttp.NewServer(
-			MakeEndpointOfDeleteTask(svc),
-			decodeDeleteTaskRequest(codec, validator),
+			MakeEndpointOfDeleteFlow(svc),
+			decodeDeleteFlowRequest(codec, validator),
 			httpcodec.MakeResponseEncoder(codec, 200),
 			append(kitOptions,
 				kithttp.ServerErrorEncoder(httpcodec.MakeErrorEncoder(codec)),
@@ -52,13 +52,13 @@ func NewHTTPRouter(svc Service, codecs httpcodec.Codecs, opts ...httpoption.Opti
 		),
 	)
 
-	codec = codecs.EncodeDecoder("GetSchemas")
-	validator = options.RequestValidator("GetSchemas")
+	codec = codecs.EncodeDecoder("GetFlow")
+	validator = options.RequestValidator("GetFlow")
 	r.Method(
-		"GET", "/schemas",
+		"GET", "/flows/{name}",
 		kithttp.NewServer(
-			MakeEndpointOfGetSchemas(svc),
-			decodeGetSchemasRequest(codec, validator),
+			MakeEndpointOfGetFlow(svc),
+			decodeGetFlowRequest(codec, validator),
 			httpcodec.MakeResponseEncoder(codec, 200),
 			append(kitOptions,
 				kithttp.ServerErrorEncoder(httpcodec.MakeErrorEncoder(codec)),
@@ -66,13 +66,13 @@ func NewHTTPRouter(svc Service, codecs httpcodec.Codecs, opts ...httpoption.Opti
 		),
 	)
 
-	codec = codecs.EncodeDecoder("GetTask")
-	validator = options.RequestValidator("GetTask")
+	codec = codecs.EncodeDecoder("GetSchemas")
+	validator = options.RequestValidator("GetSchemas")
 	r.Method(
-		"GET", "/tasks/{name}",
+		"GET", "/schemas",
 		kithttp.NewServer(
-			MakeEndpointOfGetTask(svc),
-			decodeGetTaskRequest(codec, validator),
+			MakeEndpointOfGetSchemas(svc),
+			decodeGetSchemasRequest(codec, validator),
 			httpcodec.MakeResponseEncoder(codec, 200),
 			append(kitOptions,
 				kithttp.ServerErrorEncoder(httpcodec.MakeErrorEncoder(codec)),
@@ -94,13 +94,13 @@ func NewHTTPRouter(svc Service, codecs httpcodec.Codecs, opts ...httpoption.Opti
 		),
 	)
 
-	codec = codecs.EncodeDecoder("RunTask")
-	validator = options.RequestValidator("RunTask")
+	codec = codecs.EncodeDecoder("RunFlow")
+	validator = options.RequestValidator("RunFlow")
 	r.Method(
-		"POST", "/tasks/{name}:run",
+		"POST", "/flows/{name}:run",
 		kithttp.NewServer(
-			MakeEndpointOfRunTask(svc),
-			decodeRunTaskRequest(codec, validator),
+			MakeEndpointOfRunFlow(svc),
+			decodeRunFlowRequest(codec, validator),
 			httpcodec.MakeResponseEncoder(codec, 200),
 			append(kitOptions,
 				kithttp.ServerErrorEncoder(httpcodec.MakeErrorEncoder(codec)),
@@ -108,13 +108,13 @@ func NewHTTPRouter(svc Service, codecs httpcodec.Codecs, opts ...httpoption.Opti
 		),
 	)
 
-	codec = codecs.EncodeDecoder("TestTask")
-	validator = options.RequestValidator("TestTask")
+	codec = codecs.EncodeDecoder("TestFlow")
+	validator = options.RequestValidator("TestFlow")
 	r.Method(
-		"POST", "/tasks/{name}:test",
+		"POST", "/flows/{name}:test",
 		kithttp.NewServer(
-			MakeEndpointOfTestTask(svc),
-			decodeTestTaskRequest(codec, validator),
+			MakeEndpointOfTestFlow(svc),
+			decodeTestFlowRequest(codec, validator),
 			httpcodec.MakeResponseEncoder(codec, 200),
 			append(kitOptions,
 				kithttp.ServerErrorEncoder(httpcodec.MakeErrorEncoder(codec)),
@@ -122,13 +122,13 @@ func NewHTTPRouter(svc Service, codecs httpcodec.Codecs, opts ...httpoption.Opti
 		),
 	)
 
-	codec = codecs.EncodeDecoder("UpsertTask")
-	validator = options.RequestValidator("UpsertTask")
+	codec = codecs.EncodeDecoder("UpsertFlow")
+	validator = options.RequestValidator("UpsertFlow")
 	r.Method(
-		"PUT", "/tasks/{name}",
+		"PUT", "/flows/{name}",
 		kithttp.NewServer(
-			MakeEndpointOfUpsertTask(svc),
-			decodeUpsertTaskRequest(codec, validator),
+			MakeEndpointOfUpsertFlow(svc),
+			decodeUpsertFlowRequest(codec, validator),
 			httpcodec.MakeResponseEncoder(codec, 200),
 			append(kitOptions,
 				kithttp.ServerErrorEncoder(httpcodec.MakeErrorEncoder(codec)),
@@ -153,9 +153,9 @@ func NewHTTPRouter(svc Service, codecs httpcodec.Codecs, opts ...httpoption.Opti
 	return r
 }
 
-func decodeDeleteTaskRequest(codec httpcodec.Codec, validator httpoption.Validator) kithttp.DecodeRequestFunc {
+func decodeDeleteFlowRequest(codec httpcodec.Codec, validator httpoption.Validator) kithttp.DecodeRequestFunc {
 	return func(_ context.Context, r *http.Request) (interface{}, error) {
-		var _req DeleteTaskRequest
+		var _req DeleteFlowRequest
 
 		name := []string{chi.URLParam(r, "name")}
 		if err := codec.DecodeRequestParam("name", name, &_req.Name); err != nil {
@@ -201,20 +201,9 @@ func decodeDeleteToolRequest(codec httpcodec.Codec, validator httpoption.Validat
 	}
 }
 
-func decodeGetSchemasRequest(codec httpcodec.Codec, validator httpoption.Validator) kithttp.DecodeRequestFunc {
+func decodeGetFlowRequest(codec httpcodec.Codec, validator httpoption.Validator) kithttp.DecodeRequestFunc {
 	return func(_ context.Context, r *http.Request) (interface{}, error) {
-		__ := r.Header.Values("Authorization")
-		if err := codec.DecodeRequestParam("__", __, nil); err != nil {
-			return nil, err
-		}
-
-		return nil, nil
-	}
-}
-
-func decodeGetTaskRequest(codec httpcodec.Codec, validator httpoption.Validator) kithttp.DecodeRequestFunc {
-	return func(_ context.Context, r *http.Request) (interface{}, error) {
-		var _req GetTaskRequest
+		var _req GetFlowRequest
 
 		name := []string{chi.URLParam(r, "name")}
 		if err := codec.DecodeRequestParam("name", name, &_req.Name); err != nil {
@@ -231,6 +220,17 @@ func decodeGetTaskRequest(codec httpcodec.Codec, validator httpoption.Validator)
 		}
 
 		return &_req, nil
+	}
+}
+
+func decodeGetSchemasRequest(codec httpcodec.Codec, validator httpoption.Validator) kithttp.DecodeRequestFunc {
+	return func(_ context.Context, r *http.Request) (interface{}, error) {
+		__ := r.Header.Values("Authorization")
+		if err := codec.DecodeRequestParam("__", __, nil); err != nil {
+			return nil, err
+		}
+
+		return nil, nil
 	}
 }
 
@@ -245,11 +245,11 @@ func decodeGetToolsRequest(codec httpcodec.Codec, validator httpoption.Validator
 	}
 }
 
-func decodeRunTaskRequest(codec httpcodec.Codec, validator httpoption.Validator) kithttp.DecodeRequestFunc {
+func decodeRunFlowRequest(codec httpcodec.Codec, validator httpoption.Validator) kithttp.DecodeRequestFunc {
 	return func(_ context.Context, r *http.Request) (interface{}, error) {
-		var _req RunTaskRequest
+		var _req RunFlowRequest
 
-		if err := codec.DecodeRequestBody(r, &_req); err != nil {
+		if err := codec.DecodeRequestBody(r, &_req.Input); err != nil {
 			return nil, err
 		}
 
@@ -271,11 +271,11 @@ func decodeRunTaskRequest(codec httpcodec.Codec, validator httpoption.Validator)
 	}
 }
 
-func decodeTestTaskRequest(codec httpcodec.Codec, validator httpoption.Validator) kithttp.DecodeRequestFunc {
+func decodeTestFlowRequest(codec httpcodec.Codec, validator httpoption.Validator) kithttp.DecodeRequestFunc {
 	return func(_ context.Context, r *http.Request) (interface{}, error) {
-		var _req TestTaskRequest
+		var _req TestFlowRequest
 
-		if err := codec.DecodeRequestBody(r, &_req); err != nil {
+		if err := codec.DecodeRequestBody(r, &_req.Input); err != nil {
 			return nil, err
 		}
 
@@ -297,9 +297,9 @@ func decodeTestTaskRequest(codec httpcodec.Codec, validator httpoption.Validator
 	}
 }
 
-func decodeUpsertTaskRequest(codec httpcodec.Codec, validator httpoption.Validator) kithttp.DecodeRequestFunc {
+func decodeUpsertFlowRequest(codec httpcodec.Codec, validator httpoption.Validator) kithttp.DecodeRequestFunc {
 	return func(_ context.Context, r *http.Request) (interface{}, error) {
-		var _req UpsertTaskRequest
+		var _req UpsertFlowRequest
 
 		if err := codec.DecodeRequestBody(r, &_req); err != nil {
 			return nil, err

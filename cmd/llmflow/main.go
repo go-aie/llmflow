@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"embed"
+	"fmt"
 	"io/fs"
 	"log"
 	"net/http"
@@ -45,10 +46,6 @@ func NewLLMFlow() *LLMFlow {
 				{
 					Type: "terminate",
 					Name: "Return",
-				},
-				{
-					Type: "raise",
-					Name: "Raise",
 				},
 				{
 					Type: "loop",
@@ -154,7 +151,7 @@ func (lf *LLMFlow) DeleteTool(ctx context.Context, group, typ string) (err error
 	return nil
 }
 
-func (lf *LLMFlow) UpsertTask(ctx context.Context, name string, definition map[string]any) error {
+func (lf *LLMFlow) UpsertFlow(ctx context.Context, name string, definition map[string]any) error {
 	lf.mu.Lock()
 	defer lf.mu.Unlock()
 
@@ -162,7 +159,7 @@ func (lf *LLMFlow) UpsertTask(ctx context.Context, name string, definition map[s
 	return nil
 }
 
-func (lf *LLMFlow) DeleteTask(ctx context.Context, name string) error {
+func (lf *LLMFlow) DeleteFlow(ctx context.Context, name string) error {
 	lf.mu.Lock()
 	defer lf.mu.Unlock()
 
@@ -170,7 +167,7 @@ func (lf *LLMFlow) DeleteTask(ctx context.Context, name string) error {
 	return nil
 }
 
-func (lf *LLMFlow) GetTask(ctx context.Context, name string) (map[string]any, error) {
+func (lf *LLMFlow) GetFlow(ctx context.Context, name string) (map[string]any, error) {
 	return lf.Load(name)
 }
 
@@ -178,7 +175,11 @@ func (lf *LLMFlow) Load(name string) (map[string]any, error) {
 	lf.mu.RLock()
 	defer lf.mu.RUnlock()
 
-	return lf.definitions[name], nil
+	def, ok := lf.definitions[name]
+	if !ok {
+		return nil, fmt.Errorf("flow %q not found", name)
+	}
+	return def, nil
 }
 
 func (lf *LLMFlow) GetSchemas(ctx context.Context) (map[string]any, error) {
@@ -204,11 +205,11 @@ func (lf *LLMFlow) GetSchemas(ctx context.Context) (map[string]any, error) {
 	return schemas, nil
 }
 
-func (lf *LLMFlow) RunTask(ctx context.Context, name string, input map[string]any) (map[string]any, error) {
+func (lf *LLMFlow) RunFlow(ctx context.Context, name string, input map[string]any) (map[string]any, error) {
 	return builtin.CallFlow(ctx, "user", name, input)
 }
 
-func (lf *LLMFlow) TestTask(ctx context.Context, name string, input map[string]any) (orchestrator.Event, error) {
+func (lf *LLMFlow) TestFlow(ctx context.Context, name string, input map[string]any) (orchestrator.Event, error) {
 	event, err := builtin.TraceFlow(ctx, "user", name, input)
 	if err != nil {
 		return orchestrator.Event{}, err
@@ -247,10 +248,10 @@ func main() {
 
 	llmflow := NewLLMFlow()
 	httpapp.MountRouter(r, "/api", api.NewHTTPRouter(llmflow, httpcodec.NewDefaultCodecs(nil,
-		httpcodec.Op("RunTask", new(api.EventStream)),
+		httpcodec.Op("RunFlow", new(api.EventStream)),
 	)))
 
-	// Register user-defined tasks into the "user" namespace. Now these flows can be used by a `Call` task.
+	// Register user-defined flows into the "user" namespace. Now these flows can be used by a `Call` task.
 	builtin.LoaderRegistry.MustRegister("user", llmflow)
 
 	// Serve static files

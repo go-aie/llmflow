@@ -29,11 +29,11 @@ produces:
 
 	paths = `
 paths:
-  /tasks/{name}:
+  /flows/{name}:
     delete:
       description: ""
       summary: ""
-      operationId: "DeleteTask"
+      operationId: "DeleteFlow"
       parameters:
         - name: name
           in: path
@@ -49,7 +49,7 @@ paths:
     get:
       description: ""
       summary: ""
-      operationId: "GetTask"
+      operationId: "GetFlow"
       parameters:
         - name: name
           in: path
@@ -65,7 +65,7 @@ paths:
     put:
       description: ""
       summary: ""
-      operationId: "UpsertTask"
+      operationId: "UpsertFlow"
       parameters:
         - name: name
           in: path
@@ -80,7 +80,7 @@ paths:
         - name: body
           in: body
           schema:
-            $ref: "#/definitions/UpsertTaskRequestBody"
+            $ref: "#/definitions/UpsertFlowRequestBody"
       %s
   /tools/{group}:
     delete:
@@ -147,11 +147,11 @@ paths:
           type: string
           description: ""
       %s
-  /tasks/{name}:run:
+  /flows/{name}:run:
     post:
       description: ""
       summary: ""
-      operationId: "RunTask"
+      operationId: "RunFlow"
       parameters:
         - name: name
           in: path
@@ -166,13 +166,13 @@ paths:
         - name: body
           in: body
           schema:
-            $ref: "#/definitions/RunTaskRequestBody"
+            $ref: "#/definitions/RunFlowRequestBody"
       %s
-  /tasks/{name}:test:
+  /flows/{name}:test:
     post:
       description: ""
       summary: ""
-      operationId: "TestTask"
+      operationId: "TestFlow"
       parameters:
         - name: name
           in: path
@@ -187,55 +187,51 @@ paths:
         - name: body
           in: body
           schema:
-            $ref: "#/definitions/TestTaskRequestBody"
+            $ref: "#/definitions/TestFlowRequestBody"
       %s
 `
 )
 
 func getResponses(schema oas2.Schema) []oas2.OASResponses {
 	return []oas2.OASResponses{
-		oas2.GetOASResponses(schema, "DeleteTask", 200, &DeleteTaskResponse{}),
-		oas2.GetOASResponses(schema, "GetTask", 200, &GetTaskResponse{}),
-		oas2.GetOASResponses(schema, "UpsertTask", 200, &UpsertTaskResponse{}),
+		oas2.GetOASResponses(schema, "DeleteFlow", 200, &DeleteFlowResponse{}),
+		oas2.GetOASResponses(schema, "GetFlow", 200, &GetFlowResponse{}),
+		oas2.GetOASResponses(schema, "UpsertFlow", 200, &UpsertFlowResponse{}),
 		oas2.GetOASResponses(schema, "DeleteTool", 200, &DeleteToolResponse{}),
 		oas2.GetOASResponses(schema, "UpsertTool", 200, &UpsertToolResponse{}),
 		oas2.GetOASResponses(schema, "GetSchemas", 200, &GetSchemasResponse{}),
 		oas2.GetOASResponses(schema, "GetTools", 200, &GetToolsResponse{}),
-		oas2.GetOASResponses(schema, "RunTask", 200, &RunTaskResponse{}),
-		oas2.GetOASResponses(schema, "TestTask", 200, &TestTaskResponse{}),
+		oas2.GetOASResponses(schema, "RunFlow", 200, &RunFlowResponse{}),
+		oas2.GetOASResponses(schema, "TestFlow", 200, &TestFlowResponse{}),
 	}
 }
 
 func getDefinitions(schema oas2.Schema) map[string]oas2.Definition {
 	defs := make(map[string]oas2.Definition)
 
-	oas2.AddResponseDefinitions(defs, schema, "DeleteTask", 200, (&DeleteTaskResponse{}).Body())
+	oas2.AddResponseDefinitions(defs, schema, "DeleteFlow", 200, (&DeleteFlowResponse{}).Body())
 
 	oas2.AddDefinition(defs, "DeleteToolRequestBody", reflect.ValueOf(&struct {
 		Typ string `json:"typ"`
 	}{}))
 	oas2.AddResponseDefinitions(defs, schema, "DeleteTool", 200, (&DeleteToolResponse{}).Body())
 
-	oas2.AddResponseDefinitions(defs, schema, "GetSchemas", 200, (&GetSchemasResponse{}).Body())
+	oas2.AddResponseDefinitions(defs, schema, "GetFlow", 200, (&GetFlowResponse{}).Body())
 
-	oas2.AddResponseDefinitions(defs, schema, "GetTask", 200, (&GetTaskResponse{}).Body())
+	oas2.AddResponseDefinitions(defs, schema, "GetSchemas", 200, (&GetSchemasResponse{}).Body())
 
 	oas2.AddResponseDefinitions(defs, schema, "GetTools", 200, (&GetToolsResponse{}).Body())
 
-	oas2.AddDefinition(defs, "RunTaskRequestBody", reflect.ValueOf(&struct {
-		Input map[string]any `json:"input"`
-	}{}))
-	oas2.AddResponseDefinitions(defs, schema, "RunTask", 200, (&RunTaskResponse{}).Body())
+	oas2.AddDefinition(defs, "RunFlowRequestBody", reflect.ValueOf((&RunFlowRequest{}).Input))
+	oas2.AddResponseDefinitions(defs, schema, "RunFlow", 200, (&RunFlowResponse{}).Body())
 
-	oas2.AddDefinition(defs, "TestTaskRequestBody", reflect.ValueOf(&struct {
-		Input map[string]any `json:"input"`
-	}{}))
-	oas2.AddResponseDefinitions(defs, schema, "TestTask", 200, (&TestTaskResponse{}).Body())
+	oas2.AddDefinition(defs, "TestFlowRequestBody", reflect.ValueOf((&TestFlowRequest{}).Input))
+	oas2.AddResponseDefinitions(defs, schema, "TestFlow", 200, (&TestFlowResponse{}).Body())
 
-	oas2.AddDefinition(defs, "UpsertTaskRequestBody", reflect.ValueOf(&struct {
+	oas2.AddDefinition(defs, "UpsertFlowRequestBody", reflect.ValueOf(&struct {
 		Definition map[string]any `json:"definition"`
 	}{}))
-	oas2.AddResponseDefinitions(defs, schema, "UpsertTask", 200, (&UpsertTaskResponse{}).Body())
+	oas2.AddResponseDefinitions(defs, schema, "UpsertFlow", 200, (&UpsertFlowResponse{}).Body())
 
 	oas2.AddDefinition(defs, "UpsertToolRequestBody", reflect.ValueOf(&struct {
 		Typ  string `json:"typ"`

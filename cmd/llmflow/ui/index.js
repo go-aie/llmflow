@@ -591,7 +591,7 @@ function appendTextField(parent, label, startValue, set) {
 	field.addEventListener('input', () => set(input.value));
 }
 
-function loadTaskFromStep(step) {
+function loadFlowFromStep(step) {
 	step = unWrapCallTask(step)
 
 	let s = {
@@ -618,10 +618,10 @@ function loadTaskFromStep(step) {
 				let steps = [];
 				if (caseTask.type === 'serial') {
 					for (let task of caseTask.input.tasks) {
-						steps.push(loadTaskFromStep(task));
+						steps.push(loadFlowFromStep(task));
 					}
 				} else {
-					steps.push(loadTaskFromStep(caseTask));
+					steps.push(loadFlowFromStep(caseTask));
 				}
 				s.branches[cond] = steps;
 			}
@@ -630,14 +630,13 @@ function loadTaskFromStep(step) {
 				let steps = [];
 				if (step.input.default.type === 'serial') {
 					for (let task of step.input.default.input.tasks) {
-						steps.push(loadTaskFromStep(task));
+						steps.push(loadFlowFromStep(task));
 					}
 				} else {
-					steps.push(loadTaskFromStep(step.input.default));
+					steps.push(loadFlowFromStep(step.input.default));
 				}
 				s.branches['default'] = steps;
 			}
-			//console.log('loadTaskFromStep', step.type, s)
 
 			break
 
@@ -647,13 +646,13 @@ function loadTaskFromStep(step) {
 			s.sequence = []
 
 			if (step.input.iterator) {
-				let t = loadTaskFromStep(step.input.iterator);
+				let t = loadFlowFromStep(step.input.iterator);
 				s.sequence.push(t);
 			}
 
 			if (step.input.body) {
 				for (let task of step.input.body.input.tasks) {
-					s.sequence.push(loadTaskFromStep(task));
+					s.sequence.push(loadFlowFromStep(task));
 				}
 			}
 
@@ -694,7 +693,7 @@ async function loadWorkflow() {
 
 	let defs = []
 	for (let step of workflow.input.tasks) {
-		defs.push(loadTaskFromStep(step));
+		defs.push(loadFlowFromStep(step));
 	}
 
 	workflowDescription = workflow.description
@@ -961,22 +960,22 @@ function getDefinitions() {
 	}
 }
 
-async function upsertTask() {
-	const task = getDefinitions()
-	//console.log('task', JSON.stringify(task))
+async function upsertFlow() {
+	const flow = getDefinitions()
+	//console.log('flow', JSON.stringify(flow))
 
-	await fetch(`/api/tasks/${workflowName}`, {
+	await fetch(`/api/flows/${workflowName}`, {
 		method: 'PUT',
 		headers: {
 			'Accept': 'application/json',
 			'Content-Type': 'application/json'
 		},
-		body: JSON.stringify({definition: task})
+		body: JSON.stringify({definition: flow})
 	})
 }
 
-async function deleteTask() {
-	await fetch(`/api/tasks/${workflowName}`, {
+async function deleteFlow() {
+	await fetch(`/api/flows/${workflowName}`, {
 		method: 'DELETE',
 		headers: {
 			'Accept': 'application/json',
@@ -990,7 +989,7 @@ async function registerTool() {
 	const flowName = workflowName.toLowerCase()
 
 	if (this.innerText === 'Register') {
-		upsertTask()
+		await upsertFlow()
 
 		await fetch(`/api/tools/${group}`, {
 			method: 'PUT',
@@ -1009,7 +1008,7 @@ async function registerTool() {
 		this.innerText = 'Unregister'
 
 	} else {
-		deleteTask()
+		await deleteFlow()
 
 		await fetch(`/api/tools/${group}`, {
 			method: 'DELETE',
@@ -1036,19 +1035,18 @@ async function registerTool() {
 }
 
 async function runWorkflow(form) {
-	upsertTask()
+	await upsertFlow()
 
-	// Execute task.
-	await fetch(`/api/tasks/${workflowName}:test`, {
+	let formData = form.formData !== undefined ? form.formData : {}
+
+	// Test flow.
+	await fetch(`/api/flows/${workflowName}:test`, {
 		method: 'POST',
 		headers: {
-			'Accept': 'application/json',
-			'Content-Type': 'application/json, text/event-stream'
+			'Accept': 'application/json, text/event-stream',
+			'Content-Type': 'application/json'
 		},
-		body: JSON.stringify({
-			name: workflowName,
-			input: form.formData,
-		})
+		body: JSON.stringify(formData)
 	})
 		.then(async (response) => {
 			if (!response.ok) {
@@ -1070,8 +1068,8 @@ async function runWorkflowInChatBot() {
 	const data = getDefinitions();
 	//console.log('data', JSON.stringify(data));
 
-	// Upsert task.
-	await fetch('/api/tasks/test', {
+	// Test flow.
+	await fetch('/api/flows/test', {
 		method: 'PUT',
 		headers: {
 			'Accept': 'application/json',
@@ -1086,7 +1084,7 @@ async function runWorkflowInChatBot() {
 			//console.log(JSON.stringify(response.json()));
 		});
 
-	// Execute task.
+	// Execute flow.
 	await fetch('/api', {
 		method: 'POST',
 		headers: {

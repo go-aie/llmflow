@@ -21,31 +21,33 @@ type Service interface {
 	//kun:param __ in=header name=Authorization required=true
 	DeleteTool(ctx context.Context, group, typ string) (err error)
 
-	//kun:op PUT /tasks/{name}
+	//kun:op PUT /flows/{name}
 	//kun:param __ in=header name=Authorization required=true
-	UpsertTask(ctx context.Context, name string, definition map[string]any) (err error)
+	UpsertFlow(ctx context.Context, name string, definition map[string]any) (err error)
 
-	//kun:op DELETE /tasks/{name}
+	//kun:op DELETE /flows/{name}
 	//kun:param __ in=header name=Authorization required=true
-	DeleteTask(ctx context.Context, name string) (err error)
+	DeleteFlow(ctx context.Context, name string) (err error)
 
-	//kun:op GET /tasks/{name}
+	//kun:op GET /flows/{name}
 	//kun:param __ in=header name=Authorization required=true
-	GetTask(ctx context.Context, name string) (definition map[string]any, err error)
+	GetFlow(ctx context.Context, name string) (definition map[string]any, err error)
 
 	//kun:op GET /schemas
 	//kun:param __ in=header name=Authorization required=true
 	GetSchemas(ctx context.Context) (schemas map[string]any, err error)
 
-	//kun:op POST /tasks/{name}:run
+	//kun:op POST /flows/{name}:run
 	//kun:param __ in=header name=Authorization required=true
+	//kun:body input
 	//kun:success body=output
-	RunTask(ctx context.Context, name string, input map[string]any) (output map[string]any, err error)
+	RunFlow(ctx context.Context, name string, input map[string]any) (output map[string]any, err error)
 
-	//kun:op POST /tasks/{name}:test
+	//kun:op POST /flows/{name}:test
 	//kun:param __ in=header name=Authorization required=true
+	//kun:body input
 	//kun:success body=event
-	TestTask(ctx context.Context, name string, input map[string]any) (event orchestrator.Event, err error)
+	TestFlow(ctx context.Context, name string, input map[string]any) (event orchestrator.Event, err error)
 }
 
 type Tool struct {

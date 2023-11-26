@@ -36,10 +36,10 @@ func NewHTTPClient(codecs httpcodec.Codecs, httpClient *http.Client, baseURL str
 	}, nil
 }
 
-func (c *HTTPClient) DeleteTask(ctx context.Context, name string) (err error) {
-	codec := c.codecs.EncodeDecoder("DeleteTask")
+func (c *HTTPClient) DeleteFlow(ctx context.Context, name string) (err error) {
+	codec := c.codecs.EncodeDecoder("DeleteFlow")
 
-	path := fmt.Sprintf("/tasks/%s",
+	path := fmt.Sprintf("/flows/%s",
 		codec.EncodeRequestParam("name", name)[0],
 	)
 	u := &url.URL{
@@ -126,6 +126,49 @@ func (c *HTTPClient) DeleteTool(ctx context.Context, group string, typ string) (
 	return nil
 }
 
+func (c *HTTPClient) GetFlow(ctx context.Context, name string) (definition map[string]any, err error) {
+	codec := c.codecs.EncodeDecoder("GetFlow")
+
+	path := fmt.Sprintf("/flows/%s",
+		codec.EncodeRequestParam("name", name)[0],
+	)
+	u := &url.URL{
+		Scheme: c.scheme,
+		Host:   c.host,
+		Path:   c.pathPrefix + path,
+	}
+
+	_req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	for _, v := range codec.EncodeRequestParam("__", nil) {
+		_req.Header.Add("Authorization", v)
+	}
+
+	_resp, err := c.httpClient.Do(_req)
+	if err != nil {
+		return nil, err
+	}
+	defer _resp.Body.Close()
+
+	if _resp.StatusCode < http.StatusOK || _resp.StatusCode > http.StatusNoContent {
+		var respErr error
+		err := codec.DecodeFailureResponse(_resp.Body, &respErr)
+		if err == nil {
+			err = respErr
+		}
+		return nil, err
+	}
+
+	respBody := &GetFlowResponse{}
+	err = codec.DecodeSuccessResponse(_resp.Body, respBody.Body())
+	if err != nil {
+		return nil, err
+	}
+	return respBody.Definition, nil
+}
+
 func (c *HTTPClient) GetSchemas(ctx context.Context) (schemas map[string]any, err error) {
 	codec := c.codecs.EncodeDecoder("GetSchemas")
 
@@ -165,49 +208,6 @@ func (c *HTTPClient) GetSchemas(ctx context.Context) (schemas map[string]any, er
 		return nil, err
 	}
 	return respBody.Schemas, nil
-}
-
-func (c *HTTPClient) GetTask(ctx context.Context, name string) (definition map[string]any, err error) {
-	codec := c.codecs.EncodeDecoder("GetTask")
-
-	path := fmt.Sprintf("/tasks/%s",
-		codec.EncodeRequestParam("name", name)[0],
-	)
-	u := &url.URL{
-		Scheme: c.scheme,
-		Host:   c.host,
-		Path:   c.pathPrefix + path,
-	}
-
-	_req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-	for _, v := range codec.EncodeRequestParam("__", nil) {
-		_req.Header.Add("Authorization", v)
-	}
-
-	_resp, err := c.httpClient.Do(_req)
-	if err != nil {
-		return nil, err
-	}
-	defer _resp.Body.Close()
-
-	if _resp.StatusCode < http.StatusOK || _resp.StatusCode > http.StatusNoContent {
-		var respErr error
-		err := codec.DecodeFailureResponse(_resp.Body, &respErr)
-		if err == nil {
-			err = respErr
-		}
-		return nil, err
-	}
-
-	respBody := &GetTaskResponse{}
-	err = codec.DecodeSuccessResponse(_resp.Body, respBody.Body())
-	if err != nil {
-		return nil, err
-	}
-	return respBody.Definition, nil
 }
 
 func (c *HTTPClient) GetTools(ctx context.Context) (groups []string, tools map[string][]Tool, err error) {
@@ -251,10 +251,10 @@ func (c *HTTPClient) GetTools(ctx context.Context) (groups []string, tools map[s
 	return respBody.Groups, respBody.Tools, nil
 }
 
-func (c *HTTPClient) RunTask(ctx context.Context, name string, input map[string]any) (output map[string]any, err error) {
-	codec := c.codecs.EncodeDecoder("RunTask")
+func (c *HTTPClient) RunFlow(ctx context.Context, name string, input map[string]any) (output map[string]any, err error) {
+	codec := c.codecs.EncodeDecoder("RunFlow")
 
-	path := fmt.Sprintf("/tasks/%s:run",
+	path := fmt.Sprintf("/flows/%s:run",
 		codec.EncodeRequestParam("name", name)[0],
 	)
 	u := &url.URL{
@@ -263,11 +263,7 @@ func (c *HTTPClient) RunTask(ctx context.Context, name string, input map[string]
 		Path:   c.pathPrefix + path,
 	}
 
-	reqBody := struct {
-		Input map[string]any `json:"input"`
-	}{
-		Input: input,
-	}
+	reqBody := input
 	reqBodyReader, headers, err := codec.EncodeRequestBody(&reqBody)
 	if err != nil {
 		return nil, err
@@ -300,7 +296,7 @@ func (c *HTTPClient) RunTask(ctx context.Context, name string, input map[string]
 		return nil, err
 	}
 
-	respBody := &RunTaskResponse{}
+	respBody := &RunFlowResponse{}
 	err = codec.DecodeSuccessResponse(_resp.Body, respBody.Body())
 	if err != nil {
 		return nil, err
@@ -308,10 +304,10 @@ func (c *HTTPClient) RunTask(ctx context.Context, name string, input map[string]
 	return respBody.Output, nil
 }
 
-func (c *HTTPClient) TestTask(ctx context.Context, name string, input map[string]any) (event orchestrator.Event, err error) {
-	codec := c.codecs.EncodeDecoder("TestTask")
+func (c *HTTPClient) TestFlow(ctx context.Context, name string, input map[string]any) (event orchestrator.Event, err error) {
+	codec := c.codecs.EncodeDecoder("TestFlow")
 
-	path := fmt.Sprintf("/tasks/%s:test",
+	path := fmt.Sprintf("/flows/%s:test",
 		codec.EncodeRequestParam("name", name)[0],
 	)
 	u := &url.URL{
@@ -320,11 +316,7 @@ func (c *HTTPClient) TestTask(ctx context.Context, name string, input map[string
 		Path:   c.pathPrefix + path,
 	}
 
-	reqBody := struct {
-		Input map[string]any `json:"input"`
-	}{
-		Input: input,
-	}
+	reqBody := input
 	reqBodyReader, headers, err := codec.EncodeRequestBody(&reqBody)
 	if err != nil {
 		return orchestrator.Event{}, err
@@ -357,7 +349,7 @@ func (c *HTTPClient) TestTask(ctx context.Context, name string, input map[string
 		return orchestrator.Event{}, err
 	}
 
-	respBody := &TestTaskResponse{}
+	respBody := &TestFlowResponse{}
 	err = codec.DecodeSuccessResponse(_resp.Body, respBody.Body())
 	if err != nil {
 		return orchestrator.Event{}, err
@@ -365,10 +357,10 @@ func (c *HTTPClient) TestTask(ctx context.Context, name string, input map[string
 	return respBody.Event, nil
 }
 
-func (c *HTTPClient) UpsertTask(ctx context.Context, name string, definition map[string]any) (err error) {
-	codec := c.codecs.EncodeDecoder("UpsertTask")
+func (c *HTTPClient) UpsertFlow(ctx context.Context, name string, definition map[string]any) (err error) {
+	codec := c.codecs.EncodeDecoder("UpsertFlow")
 
-	path := fmt.Sprintf("/tasks/%s",
+	path := fmt.Sprintf("/flows/%s",
 		codec.EncodeRequestParam("name", name)[0],
 	)
 	u := &url.URL{
