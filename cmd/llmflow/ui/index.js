@@ -970,7 +970,7 @@ async function upsertFlow() {
 			'Accept': 'application/json',
 			'Content-Type': 'application/json'
 		},
-		body: JSON.stringify({definition: flow})
+		body: JSON.stringify(flow)
 	})
 }
 

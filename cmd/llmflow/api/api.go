@@ -23,6 +23,7 @@ type Service interface {
 
 	//kun:op PUT /flows/{name}
 	//kun:param __ in=header name=Authorization required=true
+	//kun:body definition
 	UpsertFlow(ctx context.Context, name string, definition map[string]any) (err error)
 
 	//kun:op DELETE /flows/{name}

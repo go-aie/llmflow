@@ -228,9 +228,7 @@ func getDefinitions(schema oas2.Schema) map[string]oas2.Definition {
 	oas2.AddDefinition(defs, "TestFlowRequestBody", reflect.ValueOf((&TestFlowRequest{}).Input))
 	oas2.AddResponseDefinitions(defs, schema, "TestFlow", 200, (&TestFlowResponse{}).Body())
 
-	oas2.AddDefinition(defs, "UpsertFlowRequestBody", reflect.ValueOf(&struct {
-		Definition map[string]any `json:"definition"`
-	}{}))
+	oas2.AddDefinition(defs, "UpsertFlowRequestBody", reflect.ValueOf((&UpsertFlowRequest{}).Definition))
 	oas2.AddResponseDefinitions(defs, schema, "UpsertFlow", 200, (&UpsertFlowResponse{}).Body())
 
 	oas2.AddDefinition(defs, "UpsertToolRequestBody", reflect.ValueOf(&struct {

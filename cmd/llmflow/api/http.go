@@ -301,7 +301,7 @@ func decodeUpsertFlowRequest(codec httpcodec.Codec, validator httpoption.Validat
 	return func(_ context.Context, r *http.Request) (interface{}, error) {
 		var _req UpsertFlowRequest
 
-		if err := codec.DecodeRequestBody(r, &_req); err != nil {
+		if err := codec.DecodeRequestBody(r, &_req.Definition); err != nil {
 			return nil, err
 		}
 

@@ -369,11 +369,7 @@ func (c *HTTPClient) UpsertFlow(ctx context.Context, name string, definition map
 		Path:   c.pathPrefix + path,
 	}
 
-	reqBody := struct {
-		Definition map[string]any `json:"definition"`
-	}{
-		Definition: definition,
-	}
+	reqBody := definition
 	reqBodyReader, headers, err := codec.EncodeRequestBody(&reqBody)
 	if err != nil {
 		return err
