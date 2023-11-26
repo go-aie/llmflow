@@ -265,34 +265,17 @@ function getFlowNamespaceByType(type) {
 
 function getEmptyPropertiesByType(type) {
 	const schema = getSchemaByType(type)
-	if (schema.input.properties == undefined) {
-		return {}
-	}
-
-	let emptyProperties = {}
-	for (const [name, spec] of Object.entries(schema.input.properties)) {
-		let emptyValue = null;
-		switch (spec.type) {
-			case 'string':
-				emptyValue = ''
-				break
+	let properties = getDefaultProperties(schema)
+	for (const [name, value] of Object.entries(properties)) {
+		const inputType = getInputType(schema, name)
+		switch (inputType) {
 			case 'number':
 			case 'integer':
-				emptyValue = 0
-				break
-			case 'boolean':
-				emptyValue = false
-				break
-			default:
-				// null/undefined, array, object
-				//
-				// These complex types are treated as a JSON string.
-				emptyValue = ''
-				break
+			case 'json':
+				properties[name] = convertValue(inputType, 'string', value)
 		}
-		emptyProperties[name] = emptyValue
 	}
-	return emptyProperties
+	return properties
 }
 
 function renderForm(ui, schema) {
@@ -493,6 +476,44 @@ function getInputType(schema, name) {
 	return inputType
 }
 
+function getDefaultProperties(schema) {
+	let result = {}
+
+	if (schema.input.properties === undefined) {
+		// No schema found, return empty object.
+		return result
+	}
+
+	const getValue = function(spec) {
+		if (spec.default !== undefined) {
+			return spec.default
+		}
+
+		if (spec.enum instanceof Array && spec.enum.length > 0) {
+			return spec.enum[0]
+		}
+
+		switch (spec.type) {
+			case 'string':
+				return ''
+			case 'number':
+			case 'integer':
+				return 0
+			case 'boolean':
+				return false
+			default:
+				// null/undefined, array, object
+				return null
+		}
+	}
+
+	for (const [name, spec] of Object.entries(schema.input.properties)) {
+		result[name] = getValue(spec)
+	}
+
+	return result
+}
+
 function createJSONEditor(initialValue, onChange, readOnly=false) {
 	const div = document.createElement('div');
 	const jsonEditor = new JSONEditor({
@@ -578,8 +599,13 @@ function loadTaskFromStep(step) {
 		name: step.name,
 		type: step.type,
 		componentType: 'task',
-		properties: {...step.input},
 		schema: getSchemaByType(step.type)
+	}
+
+	s.properties = getDefaultProperties(s.schema)
+	// Overwrite default values with input values.
+	for (const [name, value] of Object.entries(step.input)) {
+		s.properties[name] = value
 	}
 
 	switch (step.type) {
@@ -634,6 +660,7 @@ function loadTaskFromStep(step) {
 			break
 	}
 
+	// Convert task types to ui types.
 	for (const [name, value] of Object.entries(s.properties)) {
 		const inputType = getInputType(s.schema, name)
 		switch (inputType) {
@@ -642,10 +669,6 @@ function loadTaskFromStep(step) {
 			case 'json':
 				s.properties[name] = convertValue(inputType, 'string', value)
 		}
-		/*if (getInputType(s.schema, name) === 'json') {
-			// JSON object => JSON string
-			s.properties[name] = JSON.stringify(value, null, 2);
-		}*/
 	}
 
 	return s
@@ -718,15 +741,42 @@ function getDefFromStep(step) {
 	let def = {
 		name: step.name,
 		type: step.type,
-		input: {...step.properties}
+		input: {}
+	}
+
+	// Copy properties from step.
+	let stepProperties = {}
+	for (const [name, value] of Object.entries(step.properties)) {
+		stepProperties[name] = value
+	}
+
+	// Convert ui types to task types.
+	for (const [name, value] of Object.entries(stepProperties)) {
+		const inputType = getInputType(getSchemaByType(step.type), name)
+		switch (inputType) {
+			case 'number':
+			case 'integer':
+			case 'json':
+				stepProperties[name] = convertValue('string', inputType, value)
+		}
+	}
+
+	const schema = getSchemaByType(step.type)
+	const required = schema.input.required !== undefined ? schema.input.required : []
+	const defaultProperties = getDefaultProperties(schema)
+	// Only set non-default optional values into input.
+	for (const [name, value] of Object.entries(stepProperties)) {
+		console.log('name', name, 'required?', required.includes(name), 'not default?', value !== defaultProperties[name], 'value', value, 'defaultValue', defaultProperties[name])
+		if (required.includes(name) || value !== defaultProperties[name]) {
+			def.input[name] = value
+		}
 	}
 
 	switch (step.type) {
 		case 'decision':
 			def.input = {
-				expression: step.properties.expression,
-				cases: {},
-				default: {},
+				expression: stepProperties.expression,
+				cases: {}
 			}
 
 			for (const [cond, steps] of Object.entries(step.branches)) {
@@ -785,21 +835,6 @@ function getDefFromStep(step) {
 			}
 
 			break
-	}
-
-
-	for (const [name, value] of Object.entries(def.input)) {
-		const inputType = getInputType(getSchemaByType(def.type), name)
-		switch (inputType) {
-			case 'number':
-			case 'integer':
-			case 'json':
-				def.input[name] = convertValue('string', inputType, value)
-		}
-		/*if (getInputType(getSchemaByType(def.type), name) === 'json' && def.input[name] !== '') {
-			// JSON string => JSON object
-			def.input[name] = JSON.parse(value);
-		}*/
 	}
 
 	def = wrapCallTask(def)
@@ -868,7 +903,7 @@ function convertValue(fromType, toType, originalValue) {
 			// json
 			switch (toType) {
 				case 'string':
-					return JSON.stringify(originalValue, null, 2)
+					return originalValue === null ? '' : JSON.stringify(originalValue, null, 2)
 				case 'number':
 				case 'integer':
 				case 'boolean':
