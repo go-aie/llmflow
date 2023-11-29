@@ -13,7 +13,7 @@ var TaskSchemas map[string]map[string]any
 // Schemas for flows defined in llmflow.
 var FlowSchemas map[string]map[string]any
 
-//go:embed *.json
+//go:embed *.json vectorstore/*.json
 var allFS embed.FS
 
 func init() {

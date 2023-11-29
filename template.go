@@ -79,7 +79,6 @@ func (t *Template) Execute(ctx context.Context, input orchestrator.Input) (outpu
 	}
 
 	result := buf.String()
-	//fmt.Printf("prompt: %s", result)
 
 	return orchestrator.Output{
 		"result": result,

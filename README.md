@@ -55,17 +55,17 @@ Then click the `Load` button and select [openai.flow.json](examples/openai.flow.
 In addition to [Orchestrator's built-in tasks][2], LLMFlow defines the following tasks and flows:
 
    - Tasks
-      + [JSONLinesLoader](loader.go#L50-L181)
+      + [JSONLinesLoader](loader.go#L49-L170)
       + [Splitter](splitter.go)
       + [Template](template.go)
-      + [TextLoader](loader.go#L183-L239)
+      + [TextLoader](loader.go#L172-L228)
+      + [VectorStore_Delete](vectorstore/vectorstore_delete.go)
+      + [VectorStore_Query](vectorstore/vectorstore_query.go)
+      + [VectorStore_Upsert](vectorstore/vectorstore_upsert.go)
 
    - Flows
       + [Embedding](embedding.flow.json)
       + [LLM](llm.flow.json)
-      + [VectorStore_Delete](vectorstore_delete.flow.json)
-      + [VectorStore_Query](vectorstore_query.flow.json)
-      + [VectorStore_Upsert](vectorstore_upsert.flow.json)
       + [xHTTP](xhttp.flow.json)
 
 

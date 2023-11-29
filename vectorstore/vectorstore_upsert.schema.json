@@ -1,0 +1,78 @@
+{
+  "input": {
+    "type": "object",
+    "required": [
+      "vendor",
+      "vectors",
+      "documents"
+    ],
+    "properties": {
+      "vendor": {
+        "type": "string",
+        "description": "The vendor name"
+      },
+      "config": {
+        "type": "object",
+        "description": "The optional config for the vector store.",
+        "properties": {
+          "addr": {
+            "type": "string",
+            "description": "The address of the vector store server."
+          },
+          "collection_name": {
+            "type": "string",
+            "description": "The collection name."
+          },
+          "dim": {
+            "type": "integer",
+            "description": "The vector/embedding dimension."
+          }
+        }
+      },
+      "vectors": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "description": "The vector item"
+          }
+        }
+      },
+      "documents": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "vector": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "description": "The vector item"
+              }
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "source_id": {
+                  "type": "string"
+                }
+              }
+            },
+            "extra": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "output": {
+  }
+}

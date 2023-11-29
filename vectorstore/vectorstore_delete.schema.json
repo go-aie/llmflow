@@ -1,0 +1,34 @@
+{
+  "input": {
+    "type": "object",
+    "required": [
+      "vendor"
+    ],
+    "properties": {
+      "vendor": {
+        "type": "string",
+        "description": "The vendor name"
+      },
+      "config": {
+        "type": "object",
+        "description": "The optional config for the vector store.",
+        "properties": {
+          "addr": {
+            "type": "string",
+            "description": "The address of the vector store server."
+          },
+          "collection_name": {
+            "type": "string",
+            "description": "The collection name."
+          },
+          "dim": {
+            "type": "integer",
+            "description": "The vector/embedding dimension."
+          }
+        }
+      }
+    }
+  },
+  "output": {
+  }
+}

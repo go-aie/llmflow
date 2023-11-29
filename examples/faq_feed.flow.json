@@ -42,17 +42,11 @@
                 },
                 {
                   "name": "upsert_documents",
-                  "type": "call",
+                  "type": "vectorstore_upsert",
                   "input": {
-                    "loader": "llmflow",
-                    "task": "vectorstore_upsert",
-                    "input": {
-                      "vendor": "memory",
-                      "uri": "http://127.0.0.1:8080/vector/upsert",
-                      "api_key": "123",
-                      "vectors": "${calculate_embeddings.embeddings}",
-                      "documents": "${load_documents.documents}"
-                    }
+                    "vendor": "memory",
+                    "vectors": "${calculate_embeddings.embeddings}",
+                    "documents": "${load_documents.documents}"
                   }
                 }
               ]

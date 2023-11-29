@@ -15,6 +15,7 @@ import (
 	"github.com/RussellLuo/orchestrator"
 	"github.com/RussellLuo/orchestrator/builtin"
 	"github.com/go-aie/llmflow"
+	_ "github.com/go-aie/llmflow/vectorstore"
 	"github.com/go-aie/llmflow/cmd/llmflow/api"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"

@@ -33,7 +33,7 @@ type Document struct {
 }
 
 type Similarity struct {
-	*Document
+	*Document `json:",squash"`
 
 	Score float64 `json:"score,omitempty"`
 }

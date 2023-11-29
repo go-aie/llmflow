@@ -45,25 +45,19 @@
       },
       {
         "name": "query_documents",
-        "type": "call",
+        "type": "vectorstore_query",
         "input": {
-          "loader": "llmflow",
-          "task": "vectorstore_query",
-          "input": {
-            "vendor": "memory",
-            "uri": "http://127.0.0.1:8080/vector/query",
-            "api_key": "123",
-            "vector": "${calculate_embedding.embeddings[0]}",
-            "top_k": 3,
-            "min_score": 0.7
-          }
+          "vendor": "memory",
+          "vector": "${calculate_embedding.embeddings[0]}",
+          "top_k": 3,
+          "min_score": 0.7
         }
       },
       {
         "name": "similar_documents",
         "type": "decision",
         "input": {
-          "expression": "#{string(len(query_documents.similarities))}",
+          "expression": "${str(len(query_documents.similarities))}",
           "cases": {
             "0": {
               "name": "sorry",

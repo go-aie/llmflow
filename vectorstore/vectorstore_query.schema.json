@@ -1,0 +1,90 @@
+{
+  "input": {
+    "type": "object",
+    "required": [
+      "vendor",
+      "vector",
+      "top_k",
+      "min_score"
+    ],
+    "properties": {
+      "vendor": {
+        "type": "string",
+        "description": "The vendor name"
+      },
+      "config": {
+        "type": "object",
+        "description": "The optional config for the vector store.",
+        "properties": {
+          "addr": {
+            "type": "string",
+            "description": "The address of the vector store server."
+          },
+          "collection_name": {
+            "type": "string",
+            "description": "The collection name."
+          },
+          "dim": {
+            "type": "integer",
+            "description": "The vector/embedding dimension."
+          }
+        }
+      },
+      "vector": {
+        "type": "array",
+        "items": {
+          "type": "number",
+          "description": "The vector item"
+        }
+      },
+      "top_k": {
+        "type": "integer",
+        "description": "The maximum number of documents to return"
+      },
+      "min_score": {
+        "type": "number",
+        "description": "Only return documents whose scores are greater than or equal to this score"
+      }
+    }
+  },
+  "output": {
+    "type": "object",
+    "properties": {
+      "similarities": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "vector": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "description": "The vector item"
+              }
+            },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "source_id": {
+                  "type": "string"
+                }
+              }
+            },
+            "extra": {
+              "type": "string"
+            },
+            "score": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    }
+  }
+}
