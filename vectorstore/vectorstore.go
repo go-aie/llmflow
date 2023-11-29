@@ -38,7 +38,7 @@ type Config struct {
 
 func New(vendor string, cfg *Config) (VectorStore, error) {
 	switch vendor {
-	case "memory":
+	case "", "memory":
 		return globalMemory, nil
 
 	case "milvus":

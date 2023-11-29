@@ -23,6 +23,10 @@ func MustRegisterVectorStoreQuery(r *orchestrator.Registry) {
 				return nil, err
 			}
 
+			if vs.Input.TopK == 0 {
+				vs.Input.TopK = 3 // defaults to 3
+			}
+
 			store, err := New(vs.Input.Vendor, vs.Input.Config)
 			if err != nil {
 				return nil, err

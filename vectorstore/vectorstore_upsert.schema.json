@@ -9,7 +9,9 @@
     "properties": {
       "vendor": {
         "type": "string",
-        "description": "The vendor name"
+        "description": "The vendor name",
+        "enum": ["memory", "milvus"],
+        "default": "memory"
       },
       "config": {
         "type": "object",
