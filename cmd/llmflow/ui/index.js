@@ -8,6 +8,8 @@ let workflowAsTool = false
 
 let fileHandle
 
+let currentFocusedElem
+
 import { JSONEditor } from './svelte-jsoneditor/vanilla.js'
 
 let allSchemas = await loadSchemas()
@@ -107,6 +109,15 @@ async function loadConfiguration() {
 					return false
 				}
 				return true
+			},
+			canDeleteStep: (step) => {
+				// There is an issue with workflow-designer and json-editor, where if
+				// the backspace key is pressed in a json-editor element, the corresponding
+				// component managed by the workflow-designer will get deleted unexpectedly.
+				//
+				// The current patch is to check if the currently focused element is a json-editor,
+				// and if it is then the corresponding component cannot be deleted.
+				return !isJSONEditorElem()
 			}
 		},
 
@@ -1155,8 +1166,33 @@ function addMessage(msgType, msgContent) {
 	parent.appendChild(message);
 }
 
+function isJSONEditorElem() {
+	return currentFocusedElem !== null && currentFocusedElem.className === 'cm-content cm-lineWrapping'
+}
+
 document.getElementById('create').addEventListener('click', createWorkflow);
 document.getElementById('load').addEventListener('click', loadWorkflow);
 document.getElementById('save').addEventListener('click', saveWorkflow);
 document.getElementById('register').addEventListener('click', registerTool);
 document.getElementById('submit-button').addEventListener('click', runWorkflowInChatBot);
+
+// Note that to handle all cases correctly, we choose to listen for both events 'focusin' and 'focusout'.
+//
+// If there is no previously focused element, clicking on a json-editor element of a component
+// will only trigger a 'focusin' event. In this case, we need to update currentFocusedElem.
+document.addEventListener('focusin', function(event) {
+	currentFocusedElem = document.activeElement
+	//if (isJSONEditorElem()) {
+	//	console.log('json-editor element:', currentFocusedElem)
+	//}
+})
+
+// If the currently focused element is a json-editor element of a component, clicking on
+// the canvas will not trigger a 'focusin' event but will trigger a 'focusout' event.
+// In this case, we also need to update currentFocusedElem.
+document.addEventListener('focusout', function(event) {
+	currentFocusedElem = event.relatedTarget
+	//if (isJSONEditorElem()) {
+	//	console.log('json-editor element:', currentFocusedElem)
+	//}
+})
