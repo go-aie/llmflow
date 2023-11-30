@@ -3,20 +3,24 @@ package main
 import (
 	"context"
 	"embed"
+	"flag"
 	"fmt"
 	"io/fs"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"strconv"
 	"sync"
+	"syscall"
 
 	"github.com/RussellLuo/kun/pkg/appx/httpapp"
 	"github.com/RussellLuo/kun/pkg/httpcodec"
 	"github.com/RussellLuo/orchestrator"
 	"github.com/RussellLuo/orchestrator/builtin"
 	"github.com/go-aie/llmflow"
-	_ "github.com/go-aie/llmflow/vectorstore"
 	"github.com/go-aie/llmflow/cmd/llmflow/api"
+	_ "github.com/go-aie/llmflow/vectorstore"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
@@ -237,6 +241,10 @@ func (lf *LLMFlow) TestFlow(ctx context.Context, name string, input map[string]a
 }
 
 func main() {
+	var addr string
+	flag.StringVar(&addr, "addr", ":8888", "the TCP network address to listen on")
+	flag.Parse()
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(cors.Handler(cors.Options{
@@ -264,5 +272,16 @@ func main() {
 	// Note that the trailing "*" is a must, see https://github.com/go-chi/chi/issues/403.
 	r.Handle("/*", http.FileServer(http.FS(staticFS)))
 
-	http.ListenAndServe(":8888", r)
+	errs := make(chan error, 2)
+	go func() {
+		log.Printf("LLMFlow listening on %s\n", addr)
+		errs <- http.ListenAndServe(addr, r)
+	}()
+	go func() {
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+		errs <- fmt.Errorf("%s", <-c)
+	}()
+
+	log.Printf("LLMFlow terminated (err: %v)", <-errs)
 }

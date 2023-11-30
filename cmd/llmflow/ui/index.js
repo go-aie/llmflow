@@ -1167,6 +1167,7 @@ function addMessage(msgType, msgContent) {
 }
 
 function isJSONEditorElem() {
+	// Note that the class attribute is version-dependent and it might be changed in the future.
 	return currentFocusedElem !== null && currentFocusedElem.className === 'cm-content cm-lineWrapping'
 }
 
@@ -1176,15 +1177,12 @@ document.getElementById('save').addEventListener('click', saveWorkflow);
 document.getElementById('register').addEventListener('click', registerTool);
 document.getElementById('submit-button').addEventListener('click', runWorkflowInChatBot);
 
-// Note that to handle all cases correctly, we choose to listen for both events 'focusin' and 'focusout'.
+// Note that to handle all cases correctly, we have to listen for both events 'focusin' and 'focusout'.
 //
 // If there is no previously focused element, clicking on a json-editor element of a component
 // will only trigger a 'focusin' event. In this case, we need to update currentFocusedElem.
 document.addEventListener('focusin', function(event) {
 	currentFocusedElem = document.activeElement
-	//if (isJSONEditorElem()) {
-	//	console.log('json-editor element:', currentFocusedElem)
-	//}
 })
 
 // If the currently focused element is a json-editor element of a component, clicking on
@@ -1192,7 +1190,4 @@ document.addEventListener('focusin', function(event) {
 // In this case, we also need to update currentFocusedElem.
 document.addEventListener('focusout', function(event) {
 	currentFocusedElem = event.relatedTarget
-	//if (isJSONEditorElem()) {
-	//	console.log('json-editor element:', currentFocusedElem)
-	//}
 })
