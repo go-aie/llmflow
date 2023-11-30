@@ -6,6 +6,8 @@ let workflowResult = undefined
 let workflowDefinitions = undefined
 let workflowAsTool = false
 
+let fileHandle
+
 import { JSONEditor } from './svelte-jsoneditor/vanilla.js'
 
 let allSchemas = await loadSchemas()
@@ -673,6 +675,33 @@ function loadFlowFromStep(step) {
 	return s
 }
 
+async function createWorkflow() {
+	const handle = await window.showSaveFilePicker({
+		types: [{
+			accept: {
+				"application/json": [".json"]
+			}
+		}],
+		excludeAcceptAllOption: true,
+		multiple: false
+	})
+	fileHandle = handle
+
+	const workflow = {
+		"name": "unnamed",
+		"type": "serial",
+		"description": "",
+		"input": {
+			"schema": {
+				"input": {},
+				"output": {}
+			},
+			"tasks": []
+		}
+	}
+	await initWorkflow(workflow)
+}
+
 async function loadWorkflow() {
 	workflowAsTool = false
 
@@ -683,11 +712,15 @@ async function loadWorkflow() {
 			}
 		}],
 		excludeAcceptAllOption: true
-	});
-	this.handle = handle;
-	this.file = await handle.getFile();
+	})
+	fileHandle = handle
+	const file = await handle.getFile()
 
-	let workflow = JSON.parse(await this.file.text())
+	let workflow = JSON.parse(await file.text())
+	await initWorkflow(workflow)
+}
+
+async function initWorkflow(workflow) {
 	workflowName = workflow.name
 	workflowSchema = JSON.stringify(workflow.input.schema, null, 2)
 
@@ -725,7 +758,7 @@ async function saveWorkflow() {
 	const bytes = JSON.stringify(data, null, 2);
 	let blob = new Blob([bytes], {type: "application/json"});
 
-	const writable = await document.getElementById('load').handle.createWritable();
+	const writable = await fileHandle.createWritable();
 	await writable.write(blob);
 	await writable.close();
 }
@@ -1122,6 +1155,7 @@ function addMessage(msgType, msgContent) {
 	parent.appendChild(message);
 }
 
+document.getElementById('create').addEventListener('click', createWorkflow);
 document.getElementById('load').addEventListener('click', loadWorkflow);
 document.getElementById('save').addEventListener('click', saveWorkflow);
 document.getElementById('register').addEventListener('click', registerTool);
