@@ -1,5 +1,5 @@
 {
-  "name": "embedding",
+  "name": "embedding_openai",
   "type": "serial",
   "description": "Calculate embeddings for given texts",
   "input": {
@@ -15,21 +15,24 @@
         "properties": {
           "model": {
             "type": "string",
-            "description": "The model name"
+            "description": "ID of the model to use.",
+            "default": "text-embedding-ada-002"
           },
           "uri": {
             "type": "string",
-            "description": "The model endpoint"
+            "description": "The model endpoint.",
+            "default": "https://api.openai.com/v1/embeddings"
           },
           "api_key": {
             "type": "string",
-            "description": "The API key"
+            "description": "The API key for authentication.",
+            "default": "${getenv(\"OPENAI_API_KEY\")}"
           },
           "texts": {
             "type": "array",
             "items": {
               "type": "string",
-              "description": "The text to embed"
+              "description": "The texts to embed."
             }
           }
         }
@@ -55,17 +58,17 @@
         "name": "embed",
         "type": "http",
         "input": {
-          "method": "POST",
-          "uri": "${input.uri}",
+          "body": {
+            "model": "${input.model or \"text-embedding-ada-002\"}",
+            "input": "${input.texts}"
+          },
           "header": {
             "Authorization": [
-              "${\"Bearer \" + input.api_key}"
+              "${\"Bearer \" + (input.api_key or getenv(\"OPENAI_API_KEY\"))}"
             ]
           },
-          "body": {
-            "model": "${input.model}",
-            "input": "${input.texts}"
-          }
+          "method": "POST",
+          "uri": "${input.uri or \"https://api.openai.com/v1/embeddings\"}"
         }
       },
       {

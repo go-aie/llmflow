@@ -32,11 +32,8 @@
         "type": "call",
         "input": {
           "loader": "llmflow",
-          "task": "embedding",
+          "task": "embedding_openai",
           "input": {
-            "model": "rocketqa-query",
-            "uri": "http://127.0.0.1:8080/embeddings",
-            "api_key": "123",
             "texts": [
               "${input.query}"
             ]
@@ -57,7 +54,7 @@
         "name": "similar_documents",
         "type": "decision",
         "input": {
-          "expression": "#{string(len(query_documents.similarities))}",
+          "expression": "${str(len(query_documents.similarities))}",
           "cases": {
             "0": {
               "name": "sorry",

@@ -43,7 +43,7 @@ curl -XPOST -H 'Content-Type: application/json' 'http://127.0.0.1:8888/api/flows
 
 Open LLMFlow UI through your browser: http://127.0.0.1:8888.
 
-Then click the `Load` button and select [basic.flow.json](examples/basic.flow.json) to view it in the UI.
+Then click the `Open` button and select [basic.flow.json](examples/basic.flow.json) to view it in the UI.
 
 
 ## Tasks & Flows
@@ -60,7 +60,7 @@ In addition to [Orchestrator's built-in tasks][2], LLMFlow defines the following
       + [VectorStore_Upsert](vectorstore/vectorstore_upsert.go)
 
    - Flows
-      + [Embedding](embedding.flow.json)
+      + [Embedding_OpenAI](embedding/embedding_openai.flow.json)
       + [LLM_OpenAI](llm/llm_openai.flow.json)
       + [xHTTP](xhttp.flow.json)
 

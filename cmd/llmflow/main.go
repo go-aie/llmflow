@@ -63,8 +63,8 @@ func NewLLMFlow() *LLMFlow {
 			},
 			"Embeddings": {
 				{
-					Type: "embedding",
-					Name: "Embedding",
+					Type: "embedding_openai",
+					Name: "Embedding_OpenAI",
 				},
 			},
 			"Vector Stores": {

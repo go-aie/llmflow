@@ -34,11 +34,8 @@
         "type": "call",
         "input": {
           "loader": "llmflow",
-          "task": "embedding",
+          "task": "embedding_openai",
           "input": {
-            "model": "rocketqa-document",
-            "uri": "http://127.0.0.1:8080/embeddings",
-            "api_key": "123",
             "texts": "${[d.text for d in split_documents.documents]}"
           }
         }
