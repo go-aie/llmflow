@@ -31,10 +31,10 @@
         "name": "build_prompt",
         "type": "template",
         "input": {
-          "template": "What is a good name for a company that makes {{$.product}}?",
           "args": {
             "product": "${input.query}"
-          }
+          },
+          "template": "What is a good name for a company that makes {{$.product}}?"
         }
       },
       {
@@ -42,13 +42,14 @@
         "type": "call",
         "input": {
           "loader": "llmflow",
-          "task": "llm",
+          "task": "llm_openai",
           "input": {
-            "model": "chatglm",
-            "uri": "http://127.0.0.1:8080/chat/completions",
-            "api_key": "123",
-            "prompt": "${build_prompt.result}",
-            "temperature": 0
+            "messages": [
+              {
+                "role": "user",
+                "content": "${build_prompt.result}"
+              }
+            ]
           }
         }
       }

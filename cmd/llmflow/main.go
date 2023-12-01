@@ -103,8 +103,8 @@ func NewLLMFlow() *LLMFlow {
 			},
 			"LLMs": {
 				{
-					Type: "llm",
-					Name: "LLM",
+					Type: "llm_openai",
+					Name: "LLM_OpenAI",
 				},
 			},
 			"Tools": {

@@ -1,37 +1,56 @@
 {
-  "name": "llm",
+  "name": "llm_openai",
   "type": "serial",
-  "description": "Get a response from an LLM",
+  "description": "Create a response for the given chat conversation from an LLM (compatible with OpenAI API)",
   "input": {
     "schema": {
       "input": {
         "type": "object",
         "required": [
-          "model",
-          "uri",
-          "api_key",
-          "prompt"
+          "messages"
         ],
         "properties": {
           "model": {
             "type": "string",
-            "description": "The model name"
+            "description": "ID of the model to use.",
+            "default": "gpt-3.5-turbo"
           },
           "uri": {
             "type": "string",
-            "description": "The model endpoint"
+            "description": "The model endpoint.",
+            "default": "https://api.openai.com/v1/chat/completions"
           },
           "api_key": {
             "type": "string",
-            "description": "The API key"
+            "description": "The API key for authentication.",
+            "default": "${getenv(\"OPENAI_API_KEY\")}"
           },
-          "prompt": {
-            "type": "string",
-            "description": "The prompt to generate completions for"
+          "messages": {
+            "type": "array",
+            "description": "A list of messages comprising the conversation so far.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "description": "The role of the messages author.",
+                  "enum": [
+                    "system",
+                    "user",
+                    "assistant"
+                  ]
+                },
+                "content": {
+                  "type": "string",
+                  "description": "The contents of the user message."
+                }
+              }
+            }
           },
           "temperature": {
             "type": "number",
-            "description": "What sampling temperature to use, between 0 and 2"
+            "description": "What sampling temperature to use, between 0 and 2",
+            "default": 1
           },
           "stream": {
             "type": "boolean",
@@ -44,7 +63,7 @@
         "properties": {
           "response": {
             "type": "string",
-            "description": "The response message"
+            "description": "The response message."
           }
         }
       }
@@ -55,24 +74,19 @@
         "type": "http",
         "input": {
           "body": {
-            "model": "${input.model}",
-            "messages": [
-              {
-                "role": "user",
-                "content": "${input.prompt}"
-              }
-            ],
-            "temperature": "${input.temperature}",
+            "model": "${input.model or \"gpt-3.5-turbo\"}",
+            "messages": "${input.messages}",
+            "temperature": "${input.temperature or 1}",
             "stream": "${input.stream}"
           },
           "header": {
             "Authorization": [
-              "${\"Bearer \" + input.api_key}"
+              "${\"Bearer \" + (input.api_key or getenv(\"OPENAI_API_KEY\"))}"
             ]
           },
           "method": "POST",
           "sse_filter": "${jsonencode({\"response\": jsondecode(data).choices[0].delta.content or \"\"})}",
-          "uri": "${input.uri}"
+          "uri": "${input.uri or \"https://api.openai.com/v1/chat/completions\"}"
         }
       },
       {

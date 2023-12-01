@@ -6,7 +6,7 @@ go 1.20
 
 require (
 	github.com/RussellLuo/kun v0.4.5
-	github.com/RussellLuo/orchestrator v0.0.0-20231129115520-fc711434bc00
+	github.com/RussellLuo/orchestrator v0.0.0-20231201085600-69361cfed36e
 	github.com/RussellLuo/validating/v3 v3.0.0-beta.1
 	github.com/go-aie/llmflow v0.0.0-00010101000000-000000000000
 	github.com/go-chi/chi v4.1.2+incompatible
