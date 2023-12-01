@@ -1,15 +1,12 @@
 {
   "name": "embedding_openai",
   "type": "serial",
-  "description": "Calculate embeddings for given texts",
+  "description": "Create embedding vectors representing the input texts (compatible with OpenAI API).",
   "input": {
     "schema": {
       "input": {
         "type": "object",
         "required": [
-          "model",
-          "uri",
-          "api_key",
           "texts"
         ],
         "properties": {
@@ -30,9 +27,9 @@
           },
           "texts": {
             "type": "array",
+            "description": "The texts to embed.",
             "items": {
-              "type": "string",
-              "description": "The texts to embed."
+              "type": "string"
             }
           }
         }

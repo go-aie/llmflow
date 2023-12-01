@@ -1,7 +1,7 @@
 {
   "name": "llm_openai",
   "type": "serial",
-  "description": "Create a response for the given chat conversation from an LLM (compatible with OpenAI API)",
+  "description": "Create a response for the given chat conversation from an LLM (compatible with OpenAI API).",
   "input": {
     "schema": {
       "input": {
@@ -38,7 +38,8 @@
                     "system",
                     "user",
                     "assistant"
-                  ]
+                  ],
+                  "default": "user"
                 },
                 "content": {
                   "type": "string",

@@ -22,13 +22,13 @@ Run LLMFlow:
 OPENAI_API_KEY=<YOUR_API_KEY> llmflow
 ```
 
-Add the example flow:
+Add the basic flow:
 
 ```bash
 curl -XPUT -H 'Content-Type: application/json' 'http://127.0.0.1:8888/api/flows/basic' -d @examples/basic.flow.json
 ```
 
-Execute the example flow:
+Execute the basic flow:
 
 ```bash
 curl -XPOST -H 'Content-Type: application/json' 'http://127.0.0.1:8888/api/flows/basic:run' -d '{"query":"colorful socks"}'
