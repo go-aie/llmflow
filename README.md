@@ -61,7 +61,9 @@ In addition to [Orchestrator's built-in tasks][2], LLMFlow defines the following
 
    - Flows
       + [Embedding_OpenAI](embedding/embedding_openai.flow.json)
+      + [Embedding_Azure_OpenAI](embedding/embedding_azure_openai.flow.json)
       + [LLM_OpenAI](llm/llm_openai.flow.json)
+      + [LLM_Azure_OpenAI](llm/llm_azure_openai.flow.json)
       + [xHTTP](xhttp.flow.json)
 
 

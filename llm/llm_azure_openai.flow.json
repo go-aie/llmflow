@@ -1,0 +1,149 @@
+{
+  "name": "llm_azure_openai",
+  "type": "serial",
+  "description": "Create a response for the given chat conversation from an LLM (compatible with Azure OpenAI API).",
+  "input": {
+    "schema": {
+      "input": {
+        "type": "object",
+        "required": [
+          "resource_name",
+          "deployment_name",
+          "api_version",
+          "messages"
+        ],
+        "properties": {
+          "resource_name": {
+            "type": "string",
+            "description": "The name of your Azure OpenAI Resource."
+          },
+          "deployment_name": {
+            "type": "string",
+            "description": "The name of your model deployment. You're required to first deploy a model before you can make calls."
+          },
+          "api_version": {
+            "type": "string",
+            "description": "The API version to use for this operation. This follows the YYYY-MM-DD format.",
+            "enum": [
+              "2023-03-15-preview",
+              "2023-05-15",
+              "2023-06-01-preview",
+              "2023-07-01-preview",
+              "2023-08-01-preview"
+            ]
+          },
+          "api_key": {
+            "type": "string",
+            "description": "The API key for authentication.",
+            "default": "${getenv(\"AZURE_OPENAI_API_KEY\")}"
+          },
+          "messages": {
+            "type": "array",
+            "description": "A list of messages comprising the conversation so far.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "description": "The role of the messages author.",
+                  "enum": [
+                    "system",
+                    "user",
+                    "assistant"
+                  ],
+                  "default": "user"
+                },
+                "content": {
+                  "type": "string",
+                  "description": "The contents of the user message."
+                }
+              }
+            }
+          },
+          "temperature": {
+            "type": "number",
+            "description": "What sampling temperature to use, between 0 and 2",
+            "default": 1
+          },
+          "stream": {
+            "type": "boolean",
+            "description": "If set, partial message deltas will be sent. Tokens will be sent as data-only server-sent events as they become available, with the stream terminated by a data: [DONE] message."
+          }
+        }
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "response": {
+            "type": "string",
+            "description": "The response message."
+          }
+        }
+      }
+    },
+    "tasks": [
+      {
+        "name": "chat",
+        "type": "http",
+        "input": {
+          "body": {
+            "messages": "${input.messages}",
+            "temperature": "${input.temperature or 1}",
+            "stream": "${input.stream}"
+          },
+          "header": {
+            "api-key": [
+              "${getenv(\"AZURE_OPENAI_API_KEY\"))}"
+            ]
+          },
+          "method": "POST",
+          "sse_filter": "${jsonencode({\"response\": jsondecode(data).choices[0].delta.content or \"\"})}",
+          "uri": "https://${input.resource_name}.openai.azure.com/openai/deployments/${input.deployment_name}/chat/completions?api-version=${input.api_version}"
+        }
+      },
+      {
+        "name": "status",
+        "type": "decision",
+        "input": {
+          "expression": "${str(chat.status)}",
+          "cases": {
+            "200": {
+              "name": "stream",
+              "type": "decision",
+              "input": {
+                "expression": "${str(isiterator(chat.body))}",
+                "cases": {
+                  "True": {
+                    "name": "chunks",
+                    "type": "terminate",
+                    "input": {
+                      "output": {
+                        "iterator": "${chat.body}"
+                      }
+                    }
+                  },
+                  "False": {
+                    "name": "response",
+                    "type": "terminate",
+                    "input": {
+                      "output": {
+                        "response": "${chat.body.choices[0].message.content}"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "name": "failure",
+            "type": "terminate",
+            "input": {
+              "error": "${chat.body.error.message}"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

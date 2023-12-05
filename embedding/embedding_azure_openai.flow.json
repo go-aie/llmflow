@@ -1,0 +1,110 @@
+{
+  "name": "embedding_azure_openai",
+  "type": "serial",
+  "description": "Create embedding vectors representing the input texts (compatible with Azure OpenAI API).",
+  "input": {
+    "schema": {
+      "input": {
+        "type": "object",
+        "required": [
+          "resource_name",
+          "deployment_name",
+          "api_version",
+          "texts"
+        ],
+        "properties": {
+          "resource_name": {
+            "type": "string",
+            "description": "The name of your Azure OpenAI Resource."
+          },
+          "deployment_name": {
+            "type": "string",
+            "description": "The name of your model deployment. You're required to first deploy a model before you can make calls."
+          },
+          "api_version": {
+            "type": "string",
+            "description": "The API version to use for this operation. This follows the YYYY-MM-DD format.",
+            "enum": [
+              "2022-12-01",
+              "2023-03-15-preview",
+              "2023-05-15",
+              "2023-06-01-preview",
+              "2023-07-01-preview",
+              "2023-08-01-preview"
+            ]
+          },
+          "api_key": {
+            "type": "string",
+            "description": "The API key for authentication.",
+            "default": "${getenv(\"AZURE_OPENAI_API_KEY\")}"
+          },
+          "texts": {
+            "type": "array",
+            "description": "The texts to embed.",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "embeddings": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "description": "The embedding item"
+              }
+            }
+          }
+        }
+      }
+    },
+    "tasks": [
+      {
+        "name": "embed",
+        "type": "http",
+        "input": {
+          "body": {
+            "input": "${input.texts}"
+          },
+          "header": {
+            "api-key": [
+              "${getenv(\"AZURE_OPENAI_API_KEY\"))}"
+            ]
+          },
+          "method": "POST",
+          "uri": "https://${input.resource_name}.openai.azure.com/openai/deployments/${input.deployment_name}/embeddings?api-version=${input.api_version}"
+        }
+      },
+      {
+        "name": "status",
+        "type": "decision",
+        "input": {
+          "expression": "${str(embed.status)}",
+          "cases": {
+            "200": {
+              "name": "success",
+              "type": "terminate",
+              "input": {
+                "output": {
+                  "embeddings": "${[d.embedding for d in embed.body.data]}"
+                }
+              }
+            }
+          },
+          "default": {
+            "name": "failure",
+            "type": "terminate",
+            "input": {
+              "error": "${embed.body.error.message}"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

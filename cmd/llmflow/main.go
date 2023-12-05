@@ -41,7 +41,7 @@ type LLMFlow struct {
 
 func NewLLMFlow() *LLMFlow {
 	return &LLMFlow{
-		groups: []string{"Operators", "Embeddings", "Vector Stores", "Documents", "Prompts", "LLMs", "Tools"},
+		groups: []string{"Operators", "LLMs", "Embeddings", "Vector Stores", "Documents", "Prompts", "Tools"},
 		tools: map[string][]api.Tool{
 			"Operators": {
 				{
@@ -61,10 +61,24 @@ func NewLLMFlow() *LLMFlow {
 					Name: "Iterate",
 				},
 			},
+			"LLMs": {
+				{
+					Type: "llm_openai",
+					Name: "LLM_OpenAI",
+				},
+				{
+					Type: "llm_azure_openai",
+					Name: "LLM_Azure_OpenAI",
+				},
+			},
 			"Embeddings": {
 				{
 					Type: "embedding_openai",
 					Name: "Embedding_OpenAI",
+				},
+				{
+					Type: "embedding_azure_openai",
+					Name: "Embedding_Azure_OpenAI",
 				},
 			},
 			"Vector Stores": {
@@ -99,12 +113,6 @@ func NewLLMFlow() *LLMFlow {
 				{
 					Type: "template",
 					Name: "Prompt",
-				},
-			},
-			"LLMs": {
-				{
-					Type: "llm_openai",
-					Name: "LLM_OpenAI",
 				},
 			},
 			"Tools": {
