@@ -93,7 +93,7 @@
           },
           "header": {
             "api-key": [
-              "${getenv(\"AZURE_OPENAI_API_KEY\"))}"
+              "${input.api_key or getenv(\"AZURE_OPENAI_API_KEY\")}"
             ]
           },
           "method": "POST",
