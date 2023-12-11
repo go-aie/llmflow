@@ -87,6 +87,11 @@ In addition to [Orchestrator's built-in tasks][2], LLMFlow defines the following
 Check out the [documentation][1].
 
 
+## License
+
+[Apache License 2.0](LICENSE)
+
+
 [1]: https://pkg.go.dev/github.com/go-aie/llmflow
 [2]: https://github.com/RussellLuo/orchestrator#task
 [3]: https://github.com/go-aie/tableqa
