@@ -16,9 +16,9 @@
             "name": "load_documents",
             "type": "jsonlines_loader",
             "input": {
+              "batch_size": 2,
               "filename": "../../examples/data/百度百科常见问题.jsonl",
-              "pointer": "/问",
-              "batch_size": 2
+              "pointer": "/问"
             }
           },
           "body": {
@@ -41,9 +41,9 @@
                   "name": "upsert_documents",
                   "type": "vectorstore_upsert",
                   "input": {
-                    "vendor": "memory",
+                    "documents": "${load_documents.documents}",
                     "vectors": "${calculate_embeddings.embeddings}",
-                    "documents": "${load_documents.documents}"
+                    "vendor": "memory"
                   }
                 }
               ]

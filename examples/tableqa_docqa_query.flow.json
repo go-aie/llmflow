@@ -25,9 +25,9 @@
       "output": {
         "type": "object",
         "properties": {
-          "response": {
+          "content": {
             "type": "string",
-            "description": "The assistant's response."
+            "description": "The assistant's reply."
           }
         }
       }
@@ -49,7 +49,7 @@
         "name": "answer",
         "type": "decision",
         "input": {
-          "expression": "${tableqa.response}",
+          "expression": "${tableqa.content}",
           "cases": {
             "未找到相关答案": {
               "name": "docqa_query",
@@ -68,7 +68,7 @@
             "type": "terminate",
             "input": {
               "output": {
-                "response": "${tableqa.response}"
+                "content": "${tableqa.content}"
               }
             }
           }

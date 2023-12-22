@@ -19,9 +19,9 @@
       "output": {
         "type": "object",
         "properties": {
-          "response": {
+          "content": {
             "type": "string",
-            "description": "The assistant's response."
+            "description": "The assistant's reply."
           }
         }
       }

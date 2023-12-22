@@ -25,9 +25,9 @@
       "output": {
         "type": "object",
         "properties": {
-          "response": {
+          "content": {
             "type": "string",
-            "description": "The assistant's response."
+            "description": "The assistant's reply."
           }
         }
       }
@@ -40,11 +40,11 @@
           "loader": "llmflow",
           "task": "xhttp",
           "input": {
-            "method": "POST",
-            "uri": "http://127.0.0.1:8081/tables",
             "body": {
               "file": "${input.file}"
-            }
+            },
+            "method": "POST",
+            "uri": "http://127.0.0.1:8081/tables"
           }
         }
       },
@@ -55,12 +55,12 @@
           "loader": "llmflow",
           "task": "xhttp",
           "input": {
-            "method": "POST",
-            "uri": "http://127.0.0.1:8081/ask",
             "body": {
               "tables": "${parse_tables.body.tables}",
               "question": "${input.query}"
-            }
+            },
+            "method": "POST",
+            "uri": "http://127.0.0.1:8081/ask"
           }
         }
       },
@@ -69,7 +69,7 @@
         "type": "terminate",
         "input": {
           "output": {
-            "response": "${ask_tableqa.body.answer}"
+            "content": "${ask_tableqa.body.answer}"
           }
         }
       }

@@ -19,14 +19,14 @@
         "name": "split_documents",
         "type": "splitter",
         "input": {
+          "chunk_size": 50,
           "documents": "${load_documents.documents}",
           "split_chars": [
             "\n",
             "。",
             "！",
             "？"
-          ],
-          "chunk_size": 50
+          ]
         }
       },
       {
@@ -44,9 +44,9 @@
         "name": "upsert_documents",
         "type": "vectorstore_upsert",
         "input": {
-          "vendor": "memory",
+          "documents": "${split_documents.documents}",
           "vectors": "${calculate_embeddings.embeddings}",
-          "documents": "${split_documents.documents}"
+          "vendor": "memory"
         }
       }
     ]

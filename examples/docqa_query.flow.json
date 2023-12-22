@@ -19,9 +19,9 @@
       "output": {
         "type": "object",
         "properties": {
-          "response": {
+          "content": {
             "type": "string",
-            "description": "The assistant's response."
+            "description": "The assistant's reply."
           }
         }
       }
@@ -44,10 +44,10 @@
         "name": "query_documents",
         "type": "vectorstore_query",
         "input": {
-          "vendor": "memory",
-          "vector": "${calculate_embedding.embeddings[0]}",
+          "min_score": 0.7,
           "top_k": 3,
-          "min_score": 0.7
+          "vector": "${calculate_embedding.embeddings[0]}",
+          "vendor": "memory"
         }
       },
       {
@@ -61,7 +61,7 @@
               "type": "terminate",
               "input": {
                 "output": {
-                  "response": "对不起，我不知道。"
+                  "content": "对不起，我不知道。"
                 }
               }
             }
@@ -75,11 +75,11 @@
                   "name": "build_prompt",
                   "type": "template",
                   "input": {
-                    "template": "Answer the question using the provided context.\n            \nContext:\n{{- range $.documents}}\n* {{.text}}\n{{- end}}\n\nQ: {{$.query}}\nA:",
                     "args": {
                       "query": "${input.query}",
                       "documents": "${query_documents.similarities}"
-                    }
+                    },
+                    "template": "Answer the question using the provided context.\n            \nContext:\n{{- range $.documents}}\n* {{.text}}\n{{- end}}\n\nQ: {{$.query}}\nA:"
                   }
                 },
                 {
