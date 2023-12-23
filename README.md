@@ -80,6 +80,7 @@ In addition to [Orchestrator's built-in tasks][2], LLMFlow defines the following
 - Table & Document Question Answering (*requires [TableQA][3]*)
     + [Feed](examples/tableqa_docqa_feed.flow.json)
     + [Query](examples/tableqa_docqa_query.flow.json)
+- [Tool Call](examples/tool_call.flow.json)
 
 
 ## Documentation
