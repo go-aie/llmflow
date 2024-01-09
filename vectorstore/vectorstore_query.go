@@ -68,11 +68,12 @@ func (vs *VectorStoreQuery) String() string {
 }
 
 func (vs *VectorStoreQuery) Execute(ctx context.Context, input orchestrator.Input) (orchestrator.Output, error) {
-	if err := vs.Input.Vector.Evaluate(input); err != nil {
+	vector, err := vs.Input.Vector.EvaluateX(input)
+	if err != nil {
 		return nil, err
 	}
 
-	similarities, err := vs.store.Query(ctx, vs.Input.Vector.Value, vs.Input.TopK, vs.Input.MinScore)
+	similarities, err := vs.store.Query(ctx, vector, vs.Input.TopK, vs.Input.MinScore)
 	if err != nil {
 		return nil, err
 	}

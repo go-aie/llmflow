@@ -63,16 +63,22 @@ func (vs *VectorStoreUpsert) String() string {
 }
 
 func (vs *VectorStoreUpsert) Execute(ctx context.Context, input orchestrator.Input) (orchestrator.Output, error) {
-	if err := vs.Input.Vectors.Evaluate(input); err != nil {
-		return nil, err
-	}
-	if err := vs.Input.Documents.Evaluate(input); err != nil {
+	vectors, err := vs.Input.Vectors.EvaluateX(input)
+	if err != nil {
 		return nil, err
 	}
 
+	documents, err := vs.Input.Documents.EvaluateX(input)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(vectors) != len(documents) {
+		return nil, fmt.Errorf("len(vectors) does not equal len(documents)")
+	}
+
 	// Attach vectors to documents.
-	documents := vs.Input.Documents.Value
-	for i, vector := range vs.Input.Vectors.Value {
+	for i, vector := range vectors {
 		documents[i].Vector = vector
 	}
 
