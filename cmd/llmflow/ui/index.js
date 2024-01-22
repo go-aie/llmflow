@@ -68,6 +68,10 @@ async function loadConfiguration() {
 						'default': []
 					}
 					break
+				case 'parallel':
+					step.componentType = 'switch'
+					step.branches = {}
+					break
 				case 'loop':
 					step.componentType = 'container'
 					step.sequence = []
@@ -225,6 +229,16 @@ function getSchemaByType(type) {
 					}
 				}
 			}
+		case 'parallel':
+			return {
+				"input": {},
+				"output": {
+					"type": "object",
+					"patternProperties": {
+					  "^.*$": {}
+					}
+				}
+			}
 		case 'loop':
 			return {
 				"input": {},
@@ -313,7 +327,7 @@ function renderForm(ui, schema) {
 }
 
 function switchStepEditorProvider(step, editorContext) {
-	let {editor, lastElem} = otherStepEditorProvider(step, editorContext);
+	let {editor, container} = otherStepEditorProvider(step, editorContext);
 
 	function createCase(lastElem, step, value) {
 		const input = createInputElement('text', value, (value) => {
@@ -354,15 +368,14 @@ function switchStepEditorProvider(step, editorContext) {
 		});
 	}
 
-	const label = document.createElement('label');
-	label.innerText = 'cases';
-	label.className = 'required';
-	lastElem.insertAdjacentElement('afterend', label);
+	const label = document.createElement('label')
+	label.innerText = step.type == 'decision' ? 'cases' : 'tasks'
+	label.className = 'required'
+	container.appendChild(label)
 
-	// Add cases
+	// Add cases (or tasks)
 	for (const [name, _] of Object.entries(step.branches)) {
-		//console.log('branch name', name);
-		createCase(label, step, name);
+		createCase(label, step, name)
 	}
 
 	return editor
@@ -386,8 +399,6 @@ function otherStepEditorProvider(step, editorContext) {
 	container.className = 'container';
 	editor.appendChild(container)
 
-	let lastElem = null;
-
 	const stepSchema = getSchemaByType(step.type)
 	const required = stepSchema.input.required
 
@@ -402,54 +413,57 @@ function otherStepEditorProvider(step, editorContext) {
 		const inputType = getInputType(stepSchema, stepName)
 		//console.log('stepName', stepName, 'inputType', inputType)
 
-		if (inputType === 'option') {
-			const select = document.createElement('select');
-			select.addEventListener('change', () => {
-				step.properties[stepName] = select.value;
-			});
+		switch (inputType) {
+			case 'option':
+				const select = document.createElement('select');
+				select.addEventListener('change', () => {
+					step.properties[stepName] = select.value;
+				});
 
-			const enumOptions = stepSchema.input.properties[stepName].enum
-			for (let opt of enumOptions) {
-				const option = document.createElement('option');
-				option.value = opt;
-				option.text = opt;
-				select.appendChild(option);
-			}
+				const enumOptions = stepSchema.input.properties[stepName].enum
+				for (let opt of enumOptions) {
+					const option = document.createElement('option');
+					option.value = opt;
+					option.text = opt;
+					select.appendChild(option);
+				}
 
-			// Set value after all options have been attached.
-			select.value = stepValue
-			container.appendChild(select)
-			lastElem = select
-		} else if (inputType === 'textarea') {
-			const textarea = document.createElement('textarea')
-			textarea.style.width = '98%'
-			textarea.value = stepValue
-			textarea.rows = 5
-			textarea.addEventListener('input', () => {
-				step.properties[stepName] = textarea.value
-			})
-			container.appendChild(textarea)
+				// Set value after all options have been attached.
+				select.value = stepValue
+				container.appendChild(select)
 
-			lastElem = textarea
-		} else if (inputType === 'json') {
-			const jsonEditor = createJSONEditor(stepValue, (update) => {
-				step.properties[stepName] = update.text
-			})
-			container.appendChild(jsonEditor);
+				break
 
-			lastElem = jsonEditor;
-		} else {
-			const input = createInputElement(inputType, stepValue, (value) => {
-				step.properties[stepName] = value;
-				//console.log('new properties', step.properties)
-			})
-			container.appendChild(input)
+			case 'textarea':
+				const textarea = document.createElement('textarea')
+				textarea.style.width = '98%'
+				textarea.value = stepValue
+				textarea.rows = 5
+				textarea.addEventListener('input', () => {
+					step.properties[stepName] = textarea.value
+				})
+				container.appendChild(textarea)
 
-			lastElem = input
+				break
+
+			case 'json':
+				const jsonEditor = createJSONEditor(stepValue, (update) => {
+					step.properties[stepName] = update.text
+				})
+				container.appendChild(jsonEditor);
+
+				break
+
+			default:
+				const inputElem = createInputElement(inputType, stepValue, (value) => {
+					step.properties[stepName] = value;
+					//console.log('new properties', step.properties)
+				})
+				container.appendChild(inputElem)
 		}
 	}
 
-	return {editor, lastElem};
+	return {editor, container};
 }
 
 function getInputType(schema, name) {
@@ -653,6 +667,26 @@ function loadFlowFromStep(step) {
 
 			break
 
+		case 'parallel':
+			s.properties = {}
+			s.componentType = 'switch'
+			s.branches = {}
+
+			for (const task of step.input.tasks) {
+				let steps = [];
+				if (task.type === 'serial') {
+					for (let subTask of task.input.tasks) {
+						steps.push(loadFlowFromStep(subTask));
+					}
+				} else {
+					// We also accept a non-serial task for maximum compatibility.
+					steps.push(loadFlowFromStep(task));
+				}
+				s.branches[task.name] = steps;
+			}
+
+			break
+
 		case 'loop':
 			s.componentType = 'container'
 			s.properties = {}
@@ -852,6 +886,29 @@ function getDefFromStep(step) {
 						}
 					}
 				}
+			}
+
+			break
+
+		case 'parallel':
+			def.input = {
+				tasks: []
+			}
+
+			for (const [name, steps] of Object.entries(step.branches)) {
+				let tasks = [];
+				for (let s of steps) {
+					tasks.push(getDefFromStep(s))
+				}
+
+				// In order to save the branch name, we always create a serial task for each branch.
+				def.input.tasks.push({
+					name: name,
+					type: 'serial',
+					input: {
+						tasks: tasks,
+					}
+				})
 			}
 
 			break

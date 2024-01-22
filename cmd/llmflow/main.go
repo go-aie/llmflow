@@ -53,6 +53,10 @@ func NewLLMFlow() *LLMFlow {
 					Name: "Return",
 				},
 				{
+					Type: "parallel",
+					Name: "Parallel",
+				},
+				{
 					Type: "loop",
 					Name: "Loop",
 				},
