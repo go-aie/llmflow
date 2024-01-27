@@ -24,6 +24,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
+	"github.com/google/uuid"
 
 	"golang.org/x/exp/slices"
 )
@@ -35,8 +36,9 @@ type LLMFlow struct {
 	groups []string
 	tools  map[string][]api.Tool
 
-	definitions map[string]map[string]any
-	mu          sync.RWMutex
+	definitions  map[string]map[string]any
+	pausedActors map[string]*orchestrator.Actor
+	mu           sync.RWMutex
 }
 
 func NewLLMFlow() *LLMFlow {
@@ -63,6 +65,10 @@ func NewLLMFlow() *LLMFlow {
 				{
 					Type: "iterate",
 					Name: "Iterate",
+				},
+				{
+					Type: "wait",
+					Name: "Wait",
 				},
 			},
 			"LLMs": {
@@ -134,7 +140,8 @@ func NewLLMFlow() *LLMFlow {
 				},
 			},
 		},
-		definitions: make(map[string]map[string]any),
+		definitions:  make(map[string]map[string]any),
+		pausedActors: make(map[string]*orchestrator.Actor),
 	}
 }
 
@@ -223,7 +230,22 @@ func (lf *LLMFlow) GetSchemas(ctx context.Context) (map[string]any, error) {
 }
 
 func (lf *LLMFlow) RunFlow(ctx context.Context, name string, input map[string]any) (map[string]any, error) {
-	return builtin.CallFlow(ctx, "user", name, input)
+	output, err := builtin.CallFlow(ctx, "user", name, input)
+	actor, ok := output.Actor()
+	if !ok {
+		return output, err
+	}
+
+	result := <-actor.Outbox()
+	if result.Output["status"] == "pause" {
+		id := uuid.New().String()
+		result.Output["actor_id"] = id
+
+		lf.mu.Lock()
+		lf.pausedActors[id] = actor
+		lf.mu.Unlock()
+	}
+	return result.Output, result.Err
 }
 
 func (lf *LLMFlow) TestFlow(ctx context.Context, name string, input map[string]any) (orchestrator.Event, error) {
@@ -252,6 +274,40 @@ func (lf *LLMFlow) TestFlow(ctx context.Context, name string, input map[string]a
 	return event, nil
 }
 
+func (lf *LLMFlow) ResumeActor(ctx context.Context, id string, input map[string]any) (map[string]any, error) {
+	lf.mu.Lock()
+	defer lf.mu.Unlock()
+
+	actor, ok := lf.pausedActors[id]
+	if !ok {
+		return nil, fmt.Errorf("found no actor")
+	}
+
+	actor.Inbox() <- input
+	result := <-actor.Outbox()
+
+	if result.Output["status"] != "pause" {
+		// finish or error
+		delete(lf.pausedActors, id)
+	}
+
+	return result.Output, result.Err
+}
+
+func (lf *LLMFlow) StopActor(ctx context.Context, id string, input map[string]any) (map[string]any, error) {
+	lf.mu.Lock()
+	defer lf.mu.Unlock()
+
+	actor, ok := lf.pausedActors[id]
+	if !ok {
+		return nil, fmt.Errorf("found no actor")
+	}
+	delete(lf.pausedActors, id)
+
+	actor.Stop()
+	return nil, nil
+}
+
 func main() {
 	var addr string
 	flag.StringVar(&addr, "addr", ":8888", "the TCP network address to listen on")
@@ -270,6 +326,7 @@ func main() {
 	llmflow := NewLLMFlow()
 	httpapp.MountRouter(r, "/api", api.NewHTTPRouter(llmflow, httpcodec.NewDefaultCodecs(nil,
 		httpcodec.Op("RunFlow", new(api.EventStream)),
+		httpcodec.Op("ResumeActor", new(api.EventStream)),
 	)))
 
 	// Register user-defined flows into the "user" namespace. Now these flows can be used by a `Call` task.

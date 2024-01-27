@@ -147,6 +147,27 @@ paths:
           type: string
           description: ""
       %s
+  /actors/{id}:resume:
+    post:
+      description: ""
+      summary: ""
+      operationId: "ResumeActor"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+          description: ""
+        - name: Authorization
+          in: header
+          required: true
+          type: string
+          description: ""
+        - name: body
+          in: body
+          schema:
+            $ref: "#/definitions/ResumeActorRequestBody"
+      %s
   /flows/{name}:run:
     post:
       description: ""
@@ -201,6 +222,7 @@ func getResponses(schema oas2.Schema) []oas2.OASResponses {
 		oas2.GetOASResponses(schema, "UpsertTool", 200, &UpsertToolResponse{}),
 		oas2.GetOASResponses(schema, "GetSchemas", 200, &GetSchemasResponse{}),
 		oas2.GetOASResponses(schema, "GetTools", 200, &GetToolsResponse{}),
+		oas2.GetOASResponses(schema, "ResumeActor", 200, &ResumeActorResponse{}),
 		oas2.GetOASResponses(schema, "RunFlow", 200, &RunFlowResponse{}),
 		oas2.GetOASResponses(schema, "TestFlow", 200, &TestFlowResponse{}),
 	}
@@ -221,6 +243,9 @@ func getDefinitions(schema oas2.Schema) map[string]oas2.Definition {
 	oas2.AddResponseDefinitions(defs, schema, "GetSchemas", 200, (&GetSchemasResponse{}).Body())
 
 	oas2.AddResponseDefinitions(defs, schema, "GetTools", 200, (&GetToolsResponse{}).Body())
+
+	oas2.AddDefinition(defs, "ResumeActorRequestBody", reflect.ValueOf((&ResumeActorRequest{}).Input))
+	oas2.AddResponseDefinitions(defs, schema, "ResumeActor", 200, (&ResumeActorResponse{}).Body())
 
 	oas2.AddDefinition(defs, "RunFlowRequestBody", reflect.ValueOf((&RunFlowRequest{}).Input))
 	oas2.AddResponseDefinitions(defs, schema, "RunFlow", 200, (&RunFlowResponse{}).Body())

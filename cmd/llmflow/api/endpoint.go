@@ -169,6 +169,45 @@ func MakeEndpointOfGetTools(s Service) endpoint.Endpoint {
 	}
 }
 
+type ResumeActorRequest struct {
+	Id    string         `json:"-"`
+	Input map[string]any `json:"input"`
+}
+
+// ValidateResumeActorRequest creates a validator for ResumeActorRequest.
+func ValidateResumeActorRequest(newSchema func(*ResumeActorRequest) validating.Schema) httpoption.Validator {
+	return httpoption.FuncValidator(func(value interface{}) error {
+		req := value.(*ResumeActorRequest)
+		return httpoption.Validate(newSchema(req))
+	})
+}
+
+type ResumeActorResponse struct {
+	Output map[string]any `json:"output"`
+	Err    error          `json:"-"`
+}
+
+func (r *ResumeActorResponse) Body() interface{} { return &r.Output }
+
+// Failed implements endpoint.Failer.
+func (r *ResumeActorResponse) Failed() error { return r.Err }
+
+// MakeEndpointOfResumeActor creates the endpoint for s.ResumeActor.
+func MakeEndpointOfResumeActor(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*ResumeActorRequest)
+		output, err := s.ResumeActor(
+			ctx,
+			req.Id,
+			req.Input,
+		)
+		return &ResumeActorResponse{
+			Output: output,
+			Err:    err,
+		}, nil
+	}
+}
+
 type RunFlowRequest struct {
 	Name  string         `json:"-"`
 	Input map[string]any `json:"input"`

@@ -49,6 +49,18 @@ type Service interface {
 	//kun:body input
 	//kun:success body=event
 	TestFlow(ctx context.Context, name string, input map[string]any) (event orchestrator.Event, err error)
+
+	//kun:op POST /actors/{id}:resume
+	//kun:param __ in=header name=Authorization required=true
+	//kun:body input
+	//kun:success body=output
+	ResumeActor(ctx context.Context, id string, input map[string]any) (output map[string]any, err error)
+
+	//kun:op POST /actors/{id}:stop
+	//kun:param __ in=header name=Authorization required=true
+	//kun:body input
+	//kun:success statusCode=204 body=output
+	StopActor(ctx context.Context, id string, input map[string]any) (output map[string]any, err error)
 }
 
 type Tool struct {

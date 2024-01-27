@@ -6,12 +6,13 @@ go 1.20
 
 require (
 	github.com/RussellLuo/kun v0.4.5
-	github.com/RussellLuo/orchestrator v0.0.0-20231201085600-69361cfed36e
+	github.com/RussellLuo/orchestrator v0.0.0-20240127135705-f3b27ef79e7e
 	github.com/RussellLuo/validating/v3 v3.0.0-beta.1
 	github.com/go-aie/llmflow v0.0.0-00010101000000-000000000000
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/go-chi/cors v1.2.1
 	github.com/go-kit/kit v0.12.0
+	github.com/google/uuid v1.1.2
 	golang.org/x/exp v0.0.0-20231127185646-65229373498e
 )
 

@@ -1,6 +1,7 @@
 
 let workflowName = ''
 let workflowDescription = ''
+let workflowAsync = false
 let workflowSchema = '{}'
 let workflowResult = undefined
 let workflowDefinitions = undefined
@@ -158,7 +159,17 @@ async function loadConfiguration() {
 				})
 				we.appendChild(description)
 
-				// 3. Schema
+				// 3. Async
+				const labelAsync = document.createElement('h3')
+				labelAsync.innerText = 'Async'
+				we.appendChild(labelAsync)
+
+				const asyncFlag = createInputElement('boolean', workflowAsync, value => {
+					workflowAsync = value
+				})
+				we.appendChild(asyncFlag)
+
+				// 4. Schema
 				const labelSchema = document.createElement('h3')
 				labelSchema.innerText = 'Schema'
 				we.appendChild(labelSchema)
@@ -172,7 +183,7 @@ async function loadConfiguration() {
 				})
 				we.appendChild(schemaEditor)
 
-				// 4. Input
+				// 5. Input
 				const labelInput = document.createElement('h3')
 				labelInput.innerText = 'Input'
 				ui.appendChild(labelInput)
@@ -181,7 +192,7 @@ async function loadConfiguration() {
 				ui.appendChild(inputForm)
 				renderForm(inputForm, JSON.parse(workflowSchema).input)
 
-				// 5. Output
+				// 6. Output
 				const labelOutput = document.createElement('h3')
 				labelOutput.innerText = 'Output'
 				ui.appendChild(labelOutput)
@@ -767,6 +778,7 @@ async function loadWorkflow() {
 
 async function initWorkflow(workflow) {
 	workflowName = workflow.name
+	workflowAsync = workflow.input.async
 	workflowSchema = JSON.stringify(workflow.input.schema, null, 2)
 
 	let defs = []
@@ -1050,14 +1062,19 @@ function getDefinitions() {
 		defs.push(getDefFromStep(step))
 	}
 
+	let input = {
+		schema: JSON.parse(workflowSchema),
+		tasks: defs
+	}
+	if (workflowAsync) {
+		input.async = workflowAsync
+	}
+
 	return {
 		name: workflowName,
 		type: 'serial',
 		description: workflowDescription,
-		input: {
-			schema: JSON.parse(workflowSchema),
-			tasks: defs
-		}
+		input: input
 	}
 }
 

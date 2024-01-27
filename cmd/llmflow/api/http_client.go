@@ -251,6 +251,59 @@ func (c *HTTPClient) GetTools(ctx context.Context) (groups []string, tools map[s
 	return respBody.Groups, respBody.Tools, nil
 }
 
+func (c *HTTPClient) ResumeActor(ctx context.Context, id string, input map[string]any) (output map[string]any, err error) {
+	codec := c.codecs.EncodeDecoder("ResumeActor")
+
+	path := fmt.Sprintf("/actors/%s:resume",
+		codec.EncodeRequestParam("id", id)[0],
+	)
+	u := &url.URL{
+		Scheme: c.scheme,
+		Host:   c.host,
+		Path:   c.pathPrefix + path,
+	}
+
+	reqBody := input
+	reqBodyReader, headers, err := codec.EncodeRequestBody(&reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	_req, err := http.NewRequestWithContext(ctx, "POST", u.String(), reqBodyReader)
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range headers {
+		_req.Header.Set(k, v)
+	}
+	for _, v := range codec.EncodeRequestParam("__", nil) {
+		_req.Header.Add("Authorization", v)
+	}
+
+	_resp, err := c.httpClient.Do(_req)
+	if err != nil {
+		return nil, err
+	}
+	defer _resp.Body.Close()
+
+	if _resp.StatusCode < http.StatusOK || _resp.StatusCode > http.StatusNoContent {
+		var respErr error
+		err := codec.DecodeFailureResponse(_resp.Body, &respErr)
+		if err == nil {
+			err = respErr
+		}
+		return nil, err
+	}
+
+	respBody := &ResumeActorResponse{}
+	err = codec.DecodeSuccessResponse(_resp.Body, respBody.Body())
+	if err != nil {
+		return nil, err
+	}
+	return respBody.Output, nil
+}
+
 func (c *HTTPClient) RunFlow(ctx context.Context, name string, input map[string]any) (output map[string]any, err error) {
 	codec := c.codecs.EncodeDecoder("RunFlow")
 

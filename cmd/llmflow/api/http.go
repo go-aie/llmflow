@@ -94,6 +94,20 @@ func NewHTTPRouter(svc Service, codecs httpcodec.Codecs, opts ...httpoption.Opti
 		),
 	)
 
+	codec = codecs.EncodeDecoder("ResumeActor")
+	validator = options.RequestValidator("ResumeActor")
+	r.Method(
+		"POST", "/actors/{id}:resume",
+		kithttp.NewServer(
+			MakeEndpointOfResumeActor(svc),
+			decodeResumeActorRequest(codec, validator),
+			httpcodec.MakeResponseEncoder(codec, 200),
+			append(kitOptions,
+				kithttp.ServerErrorEncoder(httpcodec.MakeErrorEncoder(codec)),
+			)...,
+		),
+	)
+
 	codec = codecs.EncodeDecoder("RunFlow")
 	validator = options.RequestValidator("RunFlow")
 	r.Method(
@@ -242,6 +256,32 @@ func decodeGetToolsRequest(codec httpcodec.Codec, validator httpoption.Validator
 		}
 
 		return nil, nil
+	}
+}
+
+func decodeResumeActorRequest(codec httpcodec.Codec, validator httpoption.Validator) kithttp.DecodeRequestFunc {
+	return func(_ context.Context, r *http.Request) (interface{}, error) {
+		var _req ResumeActorRequest
+
+		if err := codec.DecodeRequestBody(r, &_req.Input); err != nil {
+			return nil, err
+		}
+
+		id := []string{chi.URLParam(r, "id")}
+		if err := codec.DecodeRequestParam("id", id, &_req.Id); err != nil {
+			return nil, err
+		}
+
+		__ := r.Header.Values("Authorization")
+		if err := codec.DecodeRequestParam("__", __, nil); err != nil {
+			return nil, err
+		}
+
+		if err := validator.Validate(&_req); err != nil {
+			return nil, err
+		}
+
+		return &_req, nil
 	}
 }
 
