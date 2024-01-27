@@ -2,9 +2,12 @@ package llmflow
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -50,10 +53,11 @@ type JSONLinesLoader struct {
 	def *orchestrator.TaskDefinition
 
 	Input struct {
-		ID        string `json:"id"`
-		Filename  string `json:"filename"`
-		Pointer   string `json:"pointer"`
-		BatchSize int    `json:"batch_size"`
+		ID        string                    `json:"id"`
+		Filename  orchestrator.Expr[string] `json:"filename"`
+		Content   orchestrator.Expr[string] `json:"content"`
+		Pointer   string                    `json:"pointer"`
+		BatchSize int                       `json:"batch_size"`
 	}
 
 	Output struct {
@@ -77,19 +81,43 @@ func (l *JSONLinesLoader) String() string {
 }
 
 func (l *JSONLinesLoader) Execute(ctx context.Context, input orchestrator.Input) (orchestrator.Output, error) {
+	filename, err := l.Input.Filename.EvaluateX(input)
+	if err != nil {
+		return nil, err
+	}
+
+	content, err := l.Input.Content.EvaluateX(input)
+	if err != nil {
+		return nil, err
+	}
+
+	var file io.ReadCloser
+	switch {
+	case content != "":
+		buf := bytes.NewBufferString(content)
+		file = ioutil.NopCloser(buf)
+
+	case filename != "":
+		// If no `content` is specified, the content will be read from the specified file.
+
+		var err error
+		file, err = os.Open(filename)
+		if err != nil {
+			return nil, err
+		}
+
+	default:
+		return nil, fmt.Errorf("either filename or content must be specified")
+	}
+
 	iterator := orchestrator.NewIterator(ctx, func(sender *orchestrator.IteratorSender) {
 		defer sender.End() // End the iteration
 
-		file, err := os.Open(l.Input.Filename)
-		if err != nil {
-			sender.Send(nil, err)
-			return
-		}
-		defer file.Close()
+		defer file.Close() // Close the file
 
 		id := l.Input.ID
 		if id == "" {
-			id = filepath.Base(l.Input.Filename)
+			id = filepath.Base(filename)
 		}
 
 		batchSize := l.Input.BatchSize

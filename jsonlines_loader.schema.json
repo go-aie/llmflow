@@ -12,7 +12,11 @@
       },
       "filename": {
         "type": "string",
-        "description": "The path to the file."
+        "description": "The path to the file. If no `content` is specified, the content will be read from the specified file."
+      },
+      "content": {
+        "type": "string",
+        "description": "The file content. No file reading will be performed if the `content` field is specified."
       },
       "pointer": {
         "type": "string",
