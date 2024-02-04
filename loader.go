@@ -135,6 +135,11 @@ func (l *JSONLinesLoader) Execute(ctx context.Context, input orchestrator.Input)
 				return
 			}
 
+			// Ignore `null` JSON lines.
+			if v == nil {
+				continue
+			}
+
 			p, err := jsonpointer.New(l.Input.Pointer)
 			if err != nil {
 				sender.Send(nil, err)
