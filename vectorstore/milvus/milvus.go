@@ -22,7 +22,12 @@ type Config struct {
 	Addr string `json:"addr"`
 
 	// Timeout configures a timeout for dialing the Milvus server initially.
+	// Defaults to 2s.
 	Timeout time.Duration `json:"timeout"`
+
+	// DBName is the database name.
+	// Defaults to "default".
+	DBName string `json:"db_name"`
 
 	// CollectionName is the collection name.
 	// This field is required.
@@ -39,6 +44,9 @@ func (cfg *Config) init() {
 	}
 	if cfg.Timeout == 0 {
 		cfg.Timeout = 2 * time.Second
+	}
+	if cfg.DBName == "" {
+		cfg.DBName = "default"
 	}
 	if cfg.Dim == 0 {
 		cfg.Dim = 1536
@@ -58,6 +66,7 @@ func New(cfg *Config) (*Milvus, error) {
 
 	c, err := client.NewClient(ctx, client.Config{
 		Address: cfg.Addr,
+		DBName:  cfg.DBName,
 	})
 	if err != nil {
 		if err == context.DeadlineExceeded {

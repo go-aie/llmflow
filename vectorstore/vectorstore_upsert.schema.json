@@ -19,7 +19,13 @@
         "properties": {
           "addr": {
             "type": "string",
-            "description": "The address of the vector store server."
+            "description": "The address of the vector store server.",
+            "default": "localhost:19530"
+          },
+          "db_name": {
+            "type": "string",
+            "description": "The database name.",
+            "default": "default"
           },
           "collection_name": {
             "type": "string",
@@ -27,7 +33,8 @@
           },
           "dim": {
             "type": "integer",
-            "description": "The vector/embedding dimension."
+            "description": "The vector/embedding dimension.",
+            "default": "1536"
           }
         }
       },
