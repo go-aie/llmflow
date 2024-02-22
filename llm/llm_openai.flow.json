@@ -149,7 +149,7 @@
             "messages": "${input.messages}",
             "tools": "${None if not input.tools else [dict(type=\"function\", function=tool) for tool in input.tools]}",
             "tool_choice": "${input.tool_choice or None}",
-            "temperature": "${input.temperature or 1}",
+            "temperature": "${1 if input.temperature == None else input.temperature}",
             "stream": "${input.stream}"
           },
           "header": {
@@ -158,7 +158,7 @@
             ]
           },
           "method": "POST",
-          "sse_filter": "${jsonencode(jsondecode(data).choices[0].delta)}",
+          "sse_filter": "${jsonencode(jsondecode(data).choices[0].delta if jsondecode(data).choices else {})}",
           "uri": "${input.uri or \"https://api.openai.com/v1/chat/completions\"}"
         }
       },
