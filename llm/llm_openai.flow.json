@@ -88,6 +88,10 @@
           "stream": {
             "type": "boolean",
             "description": "If set, partial message deltas will be sent. Tokens will be sent as data-only server-sent events as they become available, with the stream terminated by a data: [DONE] message."
+          },
+          "max_tokens": {
+            "type": "number",
+            "description": "The maximum number of tokens that can be generated in the chat completion."
           }
         }
       },
@@ -150,7 +154,8 @@
             "tools": "${None if not input.tools else [dict(type=\"function\", function=tool) for tool in input.tools]}",
             "tool_choice": "${input.tool_choice or None}",
             "temperature": "${1 if input.temperature == None else input.temperature}",
-            "stream": "${input.stream}"
+            "stream": "${input.stream}",
+            "max_tokens": "${input.max_tokens or None}"
           },
           "header": {
             "Authorization": [
