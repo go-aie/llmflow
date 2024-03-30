@@ -19,39 +19,22 @@ func init() {
 func MustRegisterTemplate(r *orchestrator.Registry) {
 	r.MustRegister(&orchestrator.TaskFactory{
 		Type: TypeTemplate,
-		Constructor: func(def *orchestrator.TaskDefinition) (orchestrator.Task, error) {
-			t := &Template{def: def}
-			if err := r.Decode(def.InputTemplate, &t.Input); err != nil {
-				return nil, err
-			}
-			return t, nil
-		},
+		New:  func() orchestrator.Task { return new(Template) },
 	})
 }
 
 // Template is a leaf task that is used to render a template by applying given arguments.
 type Template struct {
-	def *orchestrator.TaskDefinition
+	orchestrator.TaskHeader
 
 	Input struct {
 		Template string                            `json:"template"`
 		Args     orchestrator.Expr[map[string]any] `json:"args"`
-	}
+	} `json:"input"`
 }
-
-func NewTemplate(name string) *Template {
-	return &Template{
-		def: &orchestrator.TaskDefinition{
-			Name: name,
-			Type: TypeTemplate,
-		},
-	}
-}
-
-func (t *Template) Name() string { return t.def.Name }
 
 func (t *Template) String() string {
-	return fmt.Sprintf("%s(name:%s)", t.def.Type, t.def.Name)
+	return fmt.Sprintf("%s(name:%s)", t.Type, t.Name)
 }
 
 func (t *Template) Execute(ctx context.Context, input orchestrator.Input) (output orchestrator.Output, err error) {
@@ -84,3 +67,19 @@ func (t *Template) Execute(ctx context.Context, input orchestrator.Input) (outpu
 		"result": result,
 	}, nil
 }
+
+type TemplateBuilder struct {
+	task *Template
+}
+
+func NewTemplate(name string) *TemplateBuilder {
+	task := &Template{
+		TaskHeader: orchestrator.TaskHeader{
+			Name: name,
+			Type: TypeTemplate,
+		},
+	}
+	return &TemplateBuilder{task: task}
+}
+
+func (b *TemplateBuilder) Build() orchestrator.Task { return b.task }

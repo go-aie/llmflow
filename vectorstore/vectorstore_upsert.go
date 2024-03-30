@@ -17,24 +17,12 @@ func init() {
 func MustRegisterVectorStoreUpsert(r *orchestrator.Registry) {
 	r.MustRegister(&orchestrator.TaskFactory{
 		Type: TypeVectorStoreUpsert,
-		Constructor: func(def *orchestrator.TaskDefinition) (orchestrator.Task, error) {
-			vs := &VectorStoreUpsert{def: def}
-			if err := r.Decode(def.InputTemplate, &vs.Input); err != nil {
-				return nil, err
-			}
-
-			store, err := New(vs.Input.Vendor, vs.Input.Config)
-			if err != nil {
-				return nil, err
-			}
-			vs.store = store
-			return vs, nil
-		},
+		New:  func() orchestrator.Task { return new(VectorStoreUpsert) },
 	})
 }
 
 type VectorStoreUpsert struct {
-	def *orchestrator.TaskDefinition
+	orchestrator.TaskHeader
 
 	Input struct {
 		Vendor string  `json:"vendor"`
@@ -42,24 +30,22 @@ type VectorStoreUpsert struct {
 
 		Vectors   orchestrator.Expr[[]llmflow.Vector]    `json:"vectors"`
 		Documents orchestrator.Expr[[]*llmflow.Document] `json:"documents"`
-	}
+	} `json:"input"`
 
 	store VectorStore
 }
 
-func NewVectorStoreUpsert(name string) *VectorStoreUpsert {
-	return &VectorStoreUpsert{
-		def: &orchestrator.TaskDefinition{
-			Name: name,
-			Type: TypeVectorStoreUpsert,
-		},
+func (vs *VectorStoreUpsert) Init(r *orchestrator.Registry) error {
+	store, err := New(vs.Input.Vendor, vs.Input.Config)
+	if err != nil {
+		return err
 	}
+	vs.store = store
+	return nil
 }
 
-func (vs *VectorStoreUpsert) Name() string { return vs.def.Name }
-
 func (vs *VectorStoreUpsert) String() string {
-	return fmt.Sprintf("%s(name:%s)", vs.def.Type, vs.def.Name)
+	return fmt.Sprintf("%s(name:%s)", vs.Type, vs.Name)
 }
 
 func (vs *VectorStoreUpsert) Execute(ctx context.Context, input orchestrator.Input) (orchestrator.Output, error) {
@@ -88,3 +74,19 @@ func (vs *VectorStoreUpsert) Execute(ctx context.Context, input orchestrator.Inp
 
 	return orchestrator.Output{}, nil
 }
+
+type VectorStoreUpsertBuilder struct {
+	task *VectorStoreUpsert
+}
+
+func NewVectorStoreUpsert(name string) *VectorStoreUpsertBuilder {
+	task := &VectorStoreUpsert{
+		TaskHeader: orchestrator.TaskHeader{
+			Name: name,
+			Type: TypeVectorStoreUpsert,
+		},
+	}
+	return &VectorStoreUpsertBuilder{task: task}
+}
+
+func (b *VectorStoreUpsertBuilder) Build() orchestrator.Task { return b.task }

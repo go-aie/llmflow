@@ -16,46 +16,32 @@ func init() {
 func MustRegisterVectorStoreDelete(r *orchestrator.Registry) {
 	r.MustRegister(&orchestrator.TaskFactory{
 		Type: TypeVectorStoreDelete,
-		Constructor: func(def *orchestrator.TaskDefinition) (orchestrator.Task, error) {
-			vs := &VectorStoreDelete{def: def}
-			if err := r.Decode(def.InputTemplate, &vs.Input); err != nil {
-				return nil, err
-			}
-
-			store, err := New(vs.Input.Vendor, vs.Input.Config)
-			if err != nil {
-				return nil, err
-			}
-			vs.store = store
-			return vs, nil
-		},
+		New:  func() orchestrator.Task { return new(VectorStoreDelete) },
 	})
 }
 
 type VectorStoreDelete struct {
-	def *orchestrator.TaskDefinition
+	orchestrator.TaskHeader
 
 	Input struct {
 		Vendor string  `json:"vendor"`
 		Config *Config `json:"config"`
-	}
+	} `json:"input"`
 
 	store VectorStore
 }
 
-func NewVectorStoreDelete(name string) *VectorStoreDelete {
-	return &VectorStoreDelete{
-		def: &orchestrator.TaskDefinition{
-			Name: name,
-			Type: TypeVectorStoreDelete,
-		},
+func (vs *VectorStoreDelete) Init(r *orchestrator.Registry) error {
+	store, err := New(vs.Input.Vendor, vs.Input.Config)
+	if err != nil {
+		return err
 	}
+	vs.store = store
+	return nil
 }
 
-func (vs *VectorStoreDelete) Name() string { return vs.def.Name }
-
 func (vs *VectorStoreDelete) String() string {
-	return fmt.Sprintf("%s(name:%s)", vs.def.Type, vs.def.Name)
+	return fmt.Sprintf("%s(name:%s)", vs.Type, vs.Name)
 }
 
 func (vs *VectorStoreDelete) Execute(ctx context.Context, input orchestrator.Input) (orchestrator.Output, error) {
@@ -64,3 +50,19 @@ func (vs *VectorStoreDelete) Execute(ctx context.Context, input orchestrator.Inp
 	}
 	return orchestrator.Output{}, nil
 }
+
+type VectorStoreDeleteBuilder struct {
+	task *VectorStoreDelete
+}
+
+func NewVectorStoreDelete(name string) *VectorStoreDeleteBuilder {
+	task := &VectorStoreDelete{
+		TaskHeader: orchestrator.TaskHeader{
+			Name: name,
+			Type: TypeVectorStoreDelete,
+		},
+	}
+	return &VectorStoreDeleteBuilder{task: task}
+}
+
+func (b *VectorStoreDeleteBuilder) Build() orchestrator.Task { return b.task }

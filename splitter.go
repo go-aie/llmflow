@@ -17,42 +17,29 @@ func init() {
 func MustRegisterSplitter(r *orchestrator.Registry) {
 	r.MustRegister(&orchestrator.TaskFactory{
 		Type: TypeSplitter,
-		Constructor: func(def *orchestrator.TaskDefinition) (orchestrator.Task, error) {
-			s := &Splitter{def: def}
-			if err := r.Decode(def.InputTemplate, &s.Input); err != nil {
-				return nil, err
-			}
-			if len(s.Input.SplitChars) == 0 {
-				s.Input.SplitChars = []string{"\n", "。", "！", "？"}
-			}
-			return s, nil
-		},
+		New:  func() orchestrator.Task { return new(Splitter) },
 	})
 }
 
 type Splitter struct {
-	def *orchestrator.TaskDefinition
+	orchestrator.TaskHeader
 
 	Input struct {
 		Documents  orchestrator.Expr[[]*Document] `json:"documents"`
 		SplitChars []string                       `json:"split_chars"`
 		ChunkSize  int                            `json:"chunk_size"`
-	}
+	} `json:"input"`
 }
 
-func NewSplitter(name string) *Splitter {
-	return &Splitter{
-		def: &orchestrator.TaskDefinition{
-			Name: name,
-			Type: TypeSplitter,
-		},
+func (s *Splitter) Init(r *orchestrator.Registry) error {
+	if len(s.Input.SplitChars) == 0 {
+		s.Input.SplitChars = []string{"\n", "。", "！", "？"}
 	}
+	return nil
 }
-
-func (s *Splitter) Name() string { return s.def.Name }
 
 func (s *Splitter) String() string {
-	return fmt.Sprintf("%s(name:%s)", s.def.Type, s.def.Name)
+	return fmt.Sprintf("%s(name:%s)", s.Type, s.Name)
 }
 
 func (s *Splitter) Execute(ctx context.Context, input orchestrator.Input) (orchestrator.Output, error) {
@@ -110,3 +97,19 @@ func (s *Splitter) split(text string) []string {
 
 	return chunks
 }
+
+type SplitterBuilder struct {
+	task *Splitter
+}
+
+func NewSplitter(name string) *SplitterBuilder {
+	task := &Splitter{
+		TaskHeader: orchestrator.TaskHeader{
+			Name: name,
+			Type: TypeSplitter,
+		},
+	}
+	return &SplitterBuilder{task: task}
+}
+
+func (b *SplitterBuilder) Build() orchestrator.Task { return b.task }

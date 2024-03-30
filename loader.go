@@ -26,31 +26,19 @@ func init() {
 func MustRegisterJSONLinesLoader(r *orchestrator.Registry) {
 	r.MustRegister(&orchestrator.TaskFactory{
 		Type: TypeJSONLinesLoader,
-		Constructor: func(def *orchestrator.TaskDefinition) (orchestrator.Task, error) {
-			l := &JSONLinesLoader{def: def}
-			if err := r.Decode(def.InputTemplate, &l.Input); err != nil {
-				return nil, err
-			}
-			return l, nil
-		},
+		New:  func() orchestrator.Task { return new(JSONLinesLoader) },
 	})
 }
 
 func MustRegisterTextLoader(r *orchestrator.Registry) {
 	r.MustRegister(&orchestrator.TaskFactory{
 		Type: TypeTextLoader,
-		Constructor: func(def *orchestrator.TaskDefinition) (orchestrator.Task, error) {
-			l := &TextLoader{def: def}
-			if err := r.Decode(def.InputTemplate, &l.Input); err != nil {
-				return nil, err
-			}
-			return l, nil
-		},
+		New:  func() orchestrator.Task { return new(TextLoader) },
 	})
 }
 
 type JSONLinesLoader struct {
-	def *orchestrator.TaskDefinition
+	orchestrator.TaskHeader
 
 	Input struct {
 		ID        string                    `json:"id"`
@@ -58,26 +46,15 @@ type JSONLinesLoader struct {
 		Content   orchestrator.Expr[string] `json:"content"`
 		Pointer   string                    `json:"pointer"`
 		BatchSize int                       `json:"batch_size"`
-	}
+	} `json:"input"`
 
 	Output struct {
 		Documents []*Document `json:"documents"`
 	}
 }
 
-func NewJSONLinesLoader(name string) *JSONLinesLoader {
-	return &JSONLinesLoader{
-		def: &orchestrator.TaskDefinition{
-			Name: name,
-			Type: TypeJSONLinesLoader,
-		},
-	}
-}
-
-func (l *JSONLinesLoader) Name() string { return l.def.Name }
-
 func (l *JSONLinesLoader) String() string {
-	return fmt.Sprintf("%s(name:%s)", l.def.Type, l.def.Name)
+	return fmt.Sprintf("%s(name:%s)", l.Type, l.Name)
 }
 
 func (l *JSONLinesLoader) Execute(ctx context.Context, input orchestrator.Input) (orchestrator.Output, error) {
@@ -134,6 +111,7 @@ func (l *JSONLinesLoader) Execute(ctx context.Context, input orchestrator.Input)
 				sender.Send(nil, err)
 				return
 			}
+			fmt.Printf("JSON Line: %s\n", line)
 
 			// Ignore `null` JSON lines.
 			if v == nil {
@@ -202,28 +180,33 @@ func (l *JSONLinesLoader) Execute(ctx context.Context, input orchestrator.Input)
 	return orchestrator.Output{"iterator": iterator}, nil
 }
 
+type JSONLinesLoaderBuilder struct {
+	task *JSONLinesLoader
+}
+
+func NewJSONLinesLoader(name string) *JSONLinesLoaderBuilder {
+	task := &JSONLinesLoader{
+		TaskHeader: orchestrator.TaskHeader{
+			Name: name,
+			Type: TypeJSONLinesLoader,
+		},
+	}
+	return &JSONLinesLoaderBuilder{task: task}
+}
+
+func (b *JSONLinesLoaderBuilder) Build() orchestrator.Task { return b.task }
+
 type TextLoader struct {
-	def *orchestrator.TaskDefinition
+	orchestrator.TaskHeader
 
 	Input struct {
 		ID       string `json:"id"`
 		Filename string `json:"filename"`
-	}
+	} `json:"input"`
 }
-
-func NewTextLoader(name string) *TextLoader {
-	return &TextLoader{
-		def: &orchestrator.TaskDefinition{
-			Name: name,
-			Type: TypeTextLoader,
-		},
-	}
-}
-
-func (l *TextLoader) Name() string { return l.def.Name }
 
 func (l *TextLoader) String() string {
-	return fmt.Sprintf("%s(name:%s)", l.def.Type, l.def.Name)
+	return fmt.Sprintf("%s(name:%s)", l.Type, l.Name)
 }
 
 func (l *TextLoader) Execute(ctx context.Context, input orchestrator.Input) (orchestrator.Output, error) {
@@ -259,3 +242,19 @@ func (l *TextLoader) Execute(ctx context.Context, input orchestrator.Input) (orc
 
 	return output.(map[string]any), nil
 }
+
+type TextLoaderBuilder struct {
+	task *TextLoader
+}
+
+func NewTextLoader(name string) *TextLoaderBuilder {
+	task := &TextLoader{
+		TaskHeader: orchestrator.TaskHeader{
+			Name: name,
+			Type: TypeTextLoader,
+		},
+	}
+	return &TextLoaderBuilder{task: task}
+}
+
+func (b *TextLoaderBuilder) Build() orchestrator.Task { return b.task }

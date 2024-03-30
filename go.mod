@@ -3,7 +3,7 @@ module github.com/go-aie/llmflow
 go 1.20
 
 require (
-	github.com/RussellLuo/orchestrator v0.0.0-20240127135705-f3b27ef79e7e
+	github.com/RussellLuo/orchestrator v0.0.0-20240330135913-aaff2164e6d2
 	github.com/go-aie/xslices v0.0.0-20230221025134-e24f453f38b6
 	github.com/go-openapi/jsonpointer v0.20.0
 	github.com/milvus-io/milvus-sdk-go/v2 v2.3.3
