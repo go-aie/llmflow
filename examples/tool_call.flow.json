@@ -128,7 +128,7 @@
                     "name": "validate_tool",
                     "type": "code",
                     "input": {
-                      "code": "# Here we use a Code task just for demonstration purposes.\n# Typically, you should use an HTTP task to access the service provided by the tool vendor.\n\ndef _(env):\n    tool = env.extract_tool.result\n\n    args = tool.arguments\n    arg_name = args.get('name', '') if args else ''\n    arg_visibility = args.get('visibility', '') if args else ''\n\n    if tool.name == 'create_project':\n        if not arg_name.isalnum():\n            return 'Please provide the name.'\n        if arg_visibility not in ('public', 'private'):\n            return 'Please provide the visibility (public or private).'\n    elif tool.name == 'delete_project':\n        if not arg_name.isalnum():\n            return 'Please provide the name.'\n    else:\n        return 'Sorry, operation not supported!'\n\n    return ''"
+                      "code": "# Here we use a Code task just for demonstration purposes.\n# Typically, you should use an HTTP task to access the service provided by the tool vendor.\n\ndef _(env):\n    tool = env.extract_tool\n\n    args = tool.arguments\n    arg_name = args.get('name', '') if args else ''\n    arg_visibility = args.get('visibility', '') if args else ''\n\n    if tool.name == 'create_project':\n        if not arg_name.isalnum():\n            return 'Please provide the name.'\n        if arg_visibility not in ('public', 'private'):\n            return 'Please provide the visibility (public or private).'\n    elif tool.name == 'delete_project':\n        if not arg_name.isalnum():\n            return 'Please provide the name.'\n    else:\n        return 'Sorry, operation not supported!'\n\n    return ''"
                     }
                   },
                   {
@@ -234,7 +234,7 @@
                                 "name": "build_confirm_message",
                                 "type": "code",
                                 "input": {
-                                  "code": "def _(env):\n    tool = env.extract_tool.result\n    args = dict(\n        name=tool.name.removesuffix('_project'),\n        arguments=jsonencode(tool.arguments),\n    ) \n    \n    return '''About to {name} a project for you, with the following arguments:\n```json\n{arguments}\n```\nAre you sure?'''.format(**args)"
+                                  "code": "def _(env):\n    tool = env.extract_tool\n    args = dict(\n        name=tool.name.removesuffix('_project'),\n        arguments=jsonencode(tool.arguments),\n    ) \n    \n    return '''About to {name} a project for you, with the following arguments:\n```json\n{arguments}\n```\nAre you sure?'''.format(**args)"
                                 }
                               },
                               {
