@@ -325,6 +325,7 @@ func main() {
 
 	llmflow := NewLLMFlow()
 	httpapp.MountRouter(r, "/api", api.NewHTTPRouter(llmflow, httpcodec.NewDefaultCodecs(nil,
+		httpcodec.Op("UpsertFlow", new(api.JSONOrYAML)),
 		httpcodec.Op("RunFlow", new(api.EventStream)),
 		httpcodec.Op("ResumeActor", new(api.EventStream)),
 	)))

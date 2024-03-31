@@ -2,10 +2,14 @@ package api
 
 import (
 	"fmt"
+	"mime"
 	"net/http"
 
 	"github.com/RussellLuo/kun/pkg/httpcodec"
+	"github.com/RussellLuo/kun/pkg/werror"
+	"github.com/RussellLuo/kun/pkg/werror/gcode"
 	"github.com/RussellLuo/orchestrator"
+	"sigs.k8s.io/yaml/goyaml.v3"
 )
 
 type EventStream struct {
@@ -54,6 +58,38 @@ func (es *EventStream) sendEvents(w http.ResponseWriter, statusCode int, iterato
 
 		fmt.Fprintf(w, "data: %s\n\n", data)
 		flusher.Flush()
+	}
+
+	return nil
+}
+
+type JSONOrYAML struct {
+	httpcodec.JSON
+}
+
+func (jy *JSONOrYAML) DecodeRequestBody(r *http.Request, out interface{}) error {
+	contentType := r.Header.Get("Content-Type")
+	mediaType := "application/json"
+
+	if contentType != "" {
+		var err error
+		mediaType, _, err = mime.ParseMediaType(contentType)
+		if err != nil {
+			return err
+		}
+	}
+
+	switch {
+	case mediaType == "application/json":
+		return jy.DecodeRequestBody(r, out)
+
+	case mediaType == "application/yaml":
+		if err := yaml.NewDecoder(r.Body).Decode(out); err != nil {
+			return werror.Wrap(gcode.ErrInvalidArgument, err)
+		}
+
+	default:
+		return werror.Wrapf(gcode.ErrInvalidArgument, "unsupported Media Type: %q", mediaType)
 	}
 
 	return nil

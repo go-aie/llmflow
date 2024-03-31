@@ -1,0 +1,35 @@
+name: basic
+type: serial
+description: Basic flow.
+input:
+  schema:
+    input:
+      type: object
+      required:
+      - query
+      properties:
+        query:
+          type: string
+          description: The user's query.
+    output:
+      type: object
+      properties:
+        content:
+          type: string
+          description: The assistant's reply.
+  tasks:
+  - name: build_prompt
+    type: template
+    input:
+      args:
+        product: ${input.query}
+      template: What is a good name for a company that makes {{$.product}}?
+  - name: ask_llm
+    type: call
+    input:
+      loader: llmflow
+      task: llm_openai
+      input:
+        messages:
+        - role: user
+          content: ${build_prompt.result}
