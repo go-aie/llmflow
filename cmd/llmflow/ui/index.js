@@ -8,10 +8,12 @@ let workflowDefinitions = undefined
 let workflowAsTool = false
 
 let fileHandle
+let fileFormat
 
 let currentFocusedElem
 
 import { JSONEditor } from './svelte-jsoneditor/vanilla.js'
+import { parse as YAMLParse, stringify as YAMLStringify} from './eemeli-yaml/yaml.js' // From https://cdn.jsdelivr.net/npm/yaml@2.4.1/+esm
 
 let allSchemas = await loadSchemas()
 let allStepLabels = {}
@@ -733,15 +735,19 @@ function loadFlowFromStep(step) {
 
 async function createWorkflow() {
 	const handle = await window.showSaveFilePicker({
+		suggestedName: 'UNTITLED.flow.yaml',
 		types: [{
 			accept: {
-				"application/json": [".json"]
+				"application/yaml": [".yaml"],
+				"application/json": [".json"],
 			}
 		}],
 		excludeAcceptAllOption: true,
 		multiple: false
 	})
 	fileHandle = handle
+	const file = await handle.getFile()
+	fileFormat = file.name.split('.').pop()
 
 	const workflow = {
 		"name": "unnamed",
@@ -764,15 +770,26 @@ async function loadWorkflow() {
 	const [handle] = await window.showOpenFilePicker({
 		types: [{
 			accept: {
-				"application/json": [".json"]
+				"application/yaml": [".yaml"],
+				"application/json": [".json"],
 			}
 		}],
 		excludeAcceptAllOption: true
 	})
 	fileHandle = handle
 	const file = await handle.getFile()
+	fileFormat = file.name.split('.').pop()
 
-	let workflow = JSON.parse(await file.text())
+	var workflow
+	switch (fileFormat) {
+		case 'yaml':
+			workflow = YAMLParse(await file.text())
+			break
+
+		case 'json':
+			workflow = JSON.parse(await file.text())
+			break
+	}
 	await initWorkflow(workflow)
 }
 
@@ -812,8 +829,24 @@ async function initDesigner(defs) {
 async function saveWorkflow() {
 	const data = getDefinitions()
 
-	const bytes = JSON.stringify(data, null, 2);
-	let blob = new Blob([bytes], {type: "application/json"});
+	let bytes
+	let mimeType
+	switch (fileFormat) {
+		case 'yaml':
+			bytes = YAMLStringify(data, null, {
+				'indentSeq': false,
+				'blockQuote': 'literal',
+			})
+			mimeType = "application/yaml"
+			break
+
+		case 'json':
+			bytes = JSON.stringify(data, null, 2)
+			mimeType = "application/json"
+			break
+	}
+
+	let blob = new Blob([bytes], {type: mimeType});
 
 	const writable = await fileHandle.createWritable();
 	await writable.write(blob);
