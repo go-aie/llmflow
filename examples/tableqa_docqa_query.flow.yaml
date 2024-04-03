@@ -1,0 +1,52 @@
+name: tableqa_docqa_query
+type: serial
+description: Table & Document Question Answering query flow.
+input:
+  schema:
+    input:
+      type: object
+      required:
+      - file
+      - query
+      properties:
+        file:
+          type: string
+          format: data-url
+          description: The PDF file.
+        query:
+          type: string
+          description: The user's query.
+    output:
+      type: object
+      properties:
+        content:
+          type: string
+          description: The assistant's reply.
+  tasks:
+  - name: tableqa
+    type: call
+    input:
+      loader: user
+      task: tableqa
+      input:
+        file: ${input.file}
+        query: ${input.query}
+  - name: answer
+    type: decision
+    input:
+      expression: ${tableqa.content}
+      cases:
+        未找到相关答案:
+          name: docqa_query
+          type: call
+          input:
+            loader: user
+            task: docqa_query
+            input:
+              query: ${input.query}
+      default:
+        name: return
+        type: terminate
+        input:
+          output:
+            content: ${tableqa.content}

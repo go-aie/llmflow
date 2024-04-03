@@ -1,0 +1,35 @@
+name: docqa_feed
+type: serial
+description: Document Question Answering feed flow.
+input:
+  schema:
+    input: {}
+    output: {}
+  tasks:
+  - name: load_documents
+    type: text_loader
+    input:
+      filename: ../../examples/data/百度百科介绍文档.txt
+  - name: split_documents
+    type: splitter
+    input:
+      chunk_size: 50
+      documents: ${load_documents.documents}
+      split_chars:
+      - "\n"
+      - 。
+      - ！
+      - ？
+  - name: calculate_embeddings
+    type: call
+    input:
+      loader: llmflow
+      task: embedding_openai
+      input:
+        texts: ${[d.text for d in split_documents.documents]}
+  - name: upsert_documents
+    type: vectorstore_upsert
+    input:
+      documents: ${split_documents.documents}
+      vectors: ${calculate_embeddings.embeddings}
+      vendor: memory

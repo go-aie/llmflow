@@ -1,0 +1,49 @@
+name: tableqa_docqa_feed
+type: serial
+description: Table & Document Question Answering feed flow.
+input:
+  schema:
+    input:
+      type: object
+      required:
+      - file
+      properties:
+        file:
+          type: string
+          format: data-url
+          description: The PDF file.
+    output: {}
+  tasks:
+  - name: parse_text
+    type: call
+    input:
+      loader: llmflow
+      task: xhttp
+      input:
+        body:
+          file: ${input.file}
+        method: POST
+        uri: http://127.0.0.1:8081/texts
+  - name: make_documents
+    type: code
+    input:
+      code: |-
+        def _(env):
+            return [dict(
+                id="doc",
+                text=env.parse_text.body.text,
+                metadata=dict(source_id="doc")
+            )]
+  - name: calculate_embeddings
+    type: call
+    input:
+      loader: llmflow
+      task: embedding_openai
+      input:
+        texts: ${[r.text for r in make_documents.result]}
+  - name: upsert_documents
+    type: vectorstore_upsert
+    input:
+      documents: ${make_documents.result}
+      vectors: ${calculate_embeddings.embeddings}
+      vendor: memory
