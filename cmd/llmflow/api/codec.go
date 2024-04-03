@@ -79,11 +79,11 @@ func (jy *JSONOrYAML) DecodeRequestBody(r *http.Request, out interface{}) error 
 		}
 	}
 
-	switch {
-	case mediaType == "application/json":
-		return jy.DecodeRequestBody(r, out)
+	switch mediaType {
+	case "application/json":
+		return jy.JSON.DecodeRequestBody(r, out)
 
-	case mediaType == "application/yaml":
+	case "application/yaml":
 		if err := yaml.NewDecoder(r.Body).Decode(out); err != nil {
 			return werror.Wrap(gcode.ErrInvalidArgument, err)
 		}
