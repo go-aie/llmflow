@@ -83,6 +83,7 @@
             "stream": "${True if input.stream == None else input.stream}"
           },
           "method": "POST",
+          "sse_filter": "${jsonencode(jsondecode(data).message)}",
           "uri": "${input.uri or \"http://localhost:11434/api/chat\"}"
         }
       },
