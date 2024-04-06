@@ -11,10 +11,10 @@ Start [Ollama][2]:
 ollama serve
 ```
 
-Run this flow using LLMFlow:
+Run this flow using [LLMFlow][3]:
 
 ```bash
-BING_SEARCH_V7_SUBSCRIPTION_KEY=<YOUR_KEY> llmflow run perlexity.flow.yaml
+BING_SEARCH_V7_SUBSCRIPTION_KEY=<YOUR_KEY> llmflow run perplexity.flow.yaml
 >>> Is GPT-3.5 free to use?
 Greetings! I'm here to help you with your question. To answer your query, GPT-3.5 is a language model that is available in both free and paid versions. The free version of ChatGPT, which GPT-3.5 is a part of, is accessible to everyone without any cost. However, if you want to use the advanced features of GPT-3.5, you will need to subscribe to the paid Turbo API.
 
@@ -34,3 +34,4 @@ BING_SEARCH_V7_SUBSCRIPTION_KEY=<YOUR_KEY> llmflow run https://raw.githubusercon
 
 [1]: https://www.perplexity.ai/
 [2]: https://github.com/ollama/ollama
+[3]: https://github.com/go-aie/llmflow#installation
