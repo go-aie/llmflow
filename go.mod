@@ -3,7 +3,7 @@ module github.com/go-aie/llmflow
 go 1.20
 
 require (
-	github.com/RussellLuo/orchestrator v0.0.0-20240330135913-aaff2164e6d2
+	github.com/RussellLuo/orchestrator v0.0.0-20240406064758-314114a91fb8
 	github.com/go-aie/xslices v0.0.0-20230221025134-e24f453f38b6
 	github.com/go-openapi/jsonpointer v0.20.0
 	github.com/milvus-io/milvus-sdk-go/v2 v2.3.3
@@ -31,6 +31,7 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/milvus-io/milvus-proto/go-api/v2 v2.3.3 // indirect
+	github.com/olivere/ndjson v1.0.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/tidwall/gjson v1.14.4 // indirect
@@ -47,4 +48,5 @@ require (
 	google.golang.org/grpc v1.48.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	sigs.k8s.io/yaml v1.4.0 // indirect
 )

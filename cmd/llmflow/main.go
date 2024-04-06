@@ -80,6 +80,10 @@ func NewLLMFlow() *LLMFlow {
 					Type: "llm_azure_openai",
 					Name: "LLM_Azure_OpenAI",
 				},
+				{
+					Type: "llm_ollama",
+					Name: "LLM_Ollama",
+				},
 			},
 			"Embeddings": {
 				{

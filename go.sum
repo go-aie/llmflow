@@ -12,10 +12,8 @@ github.com/PaesslerAG/jsonpath v0.1.1 h1:c1/AToHQMVsduPAa4Vh6xp2U0evy4t8SWp8imEs
 github.com/PaesslerAG/jsonpath v0.1.1/go.mod h1:lVboNxFGal/VwW6d9JzIy56bUsYAP6tH/x80vjnCseY=
 github.com/RussellLuo/mapstructure v1.3.4-0.20230915005935-0ccb59b15cf2 h1:iwHtW2gVIDynzVcv+6NqhnkvhqhufmEOpbgSsxSdN68=
 github.com/RussellLuo/mapstructure v1.3.4-0.20230915005935-0ccb59b15cf2/go.mod h1:Wdvd26olfMFybEGBobXgoTlLLXbWmdp25yEfL3KnrMc=
-github.com/RussellLuo/orchestrator v0.0.0-20240127135705-f3b27ef79e7e h1:QwpXgfcksS+jiclYWhLXZyZuIliEYK/mXyROmyCstpM=
-github.com/RussellLuo/orchestrator v0.0.0-20240127135705-f3b27ef79e7e/go.mod h1:BYzdwBVsqfKsLqnVu7g+O3gKoYwMfcyiydskEV0ppHg=
-github.com/RussellLuo/orchestrator v0.0.0-20240330135913-aaff2164e6d2 h1:QOzUDkZRB4pJV1ODf/DNHL9GusWQipdY+xTYuSaQiuk=
-github.com/RussellLuo/orchestrator v0.0.0-20240330135913-aaff2164e6d2/go.mod h1:BYzdwBVsqfKsLqnVu7g+O3gKoYwMfcyiydskEV0ppHg=
+github.com/RussellLuo/orchestrator v0.0.0-20240406064758-314114a91fb8 h1:b55oPGHu68SFqgIHX1bXwyhEQMY/GAAUrWfVzXTE9G0=
+github.com/RussellLuo/orchestrator v0.0.0-20240406064758-314114a91fb8/go.mod h1:SRSHtEoCoCmDKWE6eO6nv1UJnXDmfSUytU7/diDbJcY=
 github.com/RussellLuo/structool v0.0.0-20230915010420-41b17257d885 h1:zJHKc/aA6OtUwJEMKpKYyOzZvl7DBBT72sCzOUk7H6M=
 github.com/RussellLuo/structool v0.0.0-20230915010420-41b17257d885/go.mod h1:WcYzut1H8YR15z6U3TUijLb+QAhTO2esip1854Aiyes=
 github.com/RussellLuo/structs v1.2.0 h1:rLR+opKsDCfDUwHCYG2mvFi1xUvYcWSt9kwns4e8OkU=
@@ -122,7 +120,8 @@ github.com/google/go-cmp v0.4.0/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/
 github.com/google/go-cmp v0.5.0/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.5.6/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
-github.com/google/go-cmp v0.5.8 h1:e6P7q2lk1O+qJJb4BtCQXlK8vWEO8V1ZeuEdJNOqZyg=
+github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=
+github.com/google/go-cmp v0.5.9/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/google/go-querystring v1.0.0/go.mod h1:odCYkC5MyYFN7vkCjXpyrEuKhc/BUO6wN/zVPAxq5ck=
 github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
 github.com/google/uuid v1.1.2/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
@@ -199,6 +198,8 @@ github.com/nats-io/jwt v0.3.0/go.mod h1:fRYCDE99xlTsqUzISS1Bi75UBJ6ljOJQOAAu5Vgl
 github.com/nats-io/nats.go v1.9.1/go.mod h1:ZjDU1L/7fJ09jvUSRVBR2e7+RnLiiIQyqyzEE/Zbp4w=
 github.com/nats-io/nkeys v0.1.0/go.mod h1:xpnFELMwJABBLVhffcfd1MZx6VsNRFpEugbxziKVo7w=
 github.com/nats-io/nuid v1.0.1/go.mod h1:19wcPz3Ph3q0Jbyiqsd0kePYG7A95tJPxeL+1OSON2c=
+github.com/olivere/ndjson v1.0.1 h1:q+rEa/MOpElAGj7W4IHmpY6VG7baHAugfs0MGx8DNA8=
+github.com/olivere/ndjson v1.0.1/go.mod h1:y3NXfLEBYQd+QGVQxzIFYnbRhdVKVBaLSCGAoyialk4=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
 github.com/onsi/ginkgo v1.10.3/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
 github.com/onsi/gomega v1.7.1/go.mod h1:XdKZgCCFLUoM/7CFJVPcG8C1xQ1AJ0vpAezJrB7JYyY=
@@ -443,3 +444,5 @@ gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
 gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 honnef.co/go/tools v0.0.0-20190102054323-c2f93a96b099/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
+sigs.k8s.io/yaml v1.4.0 h1:Mk1wCc2gy/F0THH0TAp1QYyJNzRm2KCLy3o5ASXVI5E=
+sigs.k8s.io/yaml v1.4.0/go.mod h1:Ejl7/uTz7PSA4eKMyQCUTnhZYNmLIl+5c2lQPGR2BPY=

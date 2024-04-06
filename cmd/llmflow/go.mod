@@ -6,7 +6,7 @@ go 1.20
 
 require (
 	github.com/RussellLuo/kun v0.4.5
-	github.com/RussellLuo/orchestrator v0.0.0-20240330135913-aaff2164e6d2
+	github.com/RussellLuo/orchestrator v0.0.0-20240406064758-314114a91fb8
 	github.com/RussellLuo/validating/v3 v3.0.0-beta.1
 	github.com/go-aie/llmflow v0.0.0-00010101000000-000000000000
 	github.com/go-chi/chi v4.1.2+incompatible
@@ -14,6 +14,7 @@ require (
 	github.com/go-kit/kit v0.12.0
 	github.com/google/uuid v1.1.2
 	golang.org/x/exp v0.0.0-20231127185646-65229373498e
+	sigs.k8s.io/yaml v1.4.0
 )
 
 require (
@@ -42,6 +43,7 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/milvus-io/milvus-proto/go-api/v2 v2.3.3 // indirect
 	github.com/milvus-io/milvus-sdk-go/v2 v2.3.3 // indirect
+	github.com/olivere/ndjson v1.0.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/tidwall/gjson v1.14.4 // indirect
@@ -58,7 +60,5 @@ require (
 	google.golang.org/genproto v0.0.0-20220503193339-ba3ae3f07e29 // indirect
 	google.golang.org/grpc v1.48.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	sigs.k8s.io/yaml v1.4.0 // indirect
 )
