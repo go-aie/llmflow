@@ -16,10 +16,10 @@ go install github.com/go-aie/llmflow/cmd/llmflow@latest
 
 ### API
 
-Run LLMFlow:
+Start LLMFlow:
 
 ```bash
-OPENAI_API_KEY=<YOUR_API_KEY> llmflow
+OPENAI_API_KEY=<YOUR_API_KEY> llmflow serve
 ```
 
 Add the basic flow (in YAML format):
