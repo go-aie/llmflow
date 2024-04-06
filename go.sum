@@ -12,8 +12,8 @@ github.com/PaesslerAG/jsonpath v0.1.1 h1:c1/AToHQMVsduPAa4Vh6xp2U0evy4t8SWp8imEs
 github.com/PaesslerAG/jsonpath v0.1.1/go.mod h1:lVboNxFGal/VwW6d9JzIy56bUsYAP6tH/x80vjnCseY=
 github.com/RussellLuo/mapstructure v1.3.4-0.20230915005935-0ccb59b15cf2 h1:iwHtW2gVIDynzVcv+6NqhnkvhqhufmEOpbgSsxSdN68=
 github.com/RussellLuo/mapstructure v1.3.4-0.20230915005935-0ccb59b15cf2/go.mod h1:Wdvd26olfMFybEGBobXgoTlLLXbWmdp25yEfL3KnrMc=
-github.com/RussellLuo/orchestrator v0.0.0-20240406064758-314114a91fb8 h1:b55oPGHu68SFqgIHX1bXwyhEQMY/GAAUrWfVzXTE9G0=
-github.com/RussellLuo/orchestrator v0.0.0-20240406064758-314114a91fb8/go.mod h1:SRSHtEoCoCmDKWE6eO6nv1UJnXDmfSUytU7/diDbJcY=
+github.com/RussellLuo/orchestrator v0.0.0-20240406114838-81cdc4801382 h1:Ek6C+oVzWTlmMpTKftWm+Tf9mhtUH0srTN2wqUAVRQk=
+github.com/RussellLuo/orchestrator v0.0.0-20240406114838-81cdc4801382/go.mod h1:SRSHtEoCoCmDKWE6eO6nv1UJnXDmfSUytU7/diDbJcY=
 github.com/RussellLuo/structool v0.0.0-20230915010420-41b17257d885 h1:zJHKc/aA6OtUwJEMKpKYyOzZvl7DBBT72sCzOUk7H6M=
 github.com/RussellLuo/structool v0.0.0-20230915010420-41b17257d885/go.mod h1:WcYzut1H8YR15z6U3TUijLb+QAhTO2esip1854Aiyes=
 github.com/RussellLuo/structs v1.2.0 h1:rLR+opKsDCfDUwHCYG2mvFi1xUvYcWSt9kwns4e8OkU=

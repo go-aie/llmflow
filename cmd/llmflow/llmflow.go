@@ -315,9 +315,11 @@ func (lf *LLMFlow) StopActor(ctx context.Context, id string, input map[string]an
 	return nil, nil
 }
 
-func startServer(addr string) error {
+func startServer(addr string, quiet bool, stopC <-chan int) error {
 	r := chi.NewRouter()
-	r.Use(middleware.Logger)
+	if !quiet {
+		r.Use(middleware.Logger)
+	}
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"OPTIONS", "PUT", "POST", "DELETE"},
@@ -347,7 +349,9 @@ func startServer(addr string) error {
 
 	errs := make(chan error, 2)
 	go func() {
-		log.Printf("LLMFlow listening on %s\n", addr)
+		if !quiet {
+			log.Printf("LLMFlow listening on %s\n", addr)
+		}
 		errs <- http.ListenAndServe(addr, r)
 	}()
 	go func() {
@@ -356,6 +360,12 @@ func startServer(addr string) error {
 		errs <- fmt.Errorf("%s", <-c)
 	}()
 
-	log.Printf("LLMFlow terminated (err: %v)", <-errs)
+	select {
+	case err := <-errs:
+		if !quiet {
+			log.Printf("LLMFlow terminated (err: %v)", err)
+		}
+	case <-stopC:
+	}
 	return nil
 }

@@ -6,9 +6,10 @@ go 1.20
 
 require (
 	github.com/RussellLuo/kun v0.4.5
-	github.com/RussellLuo/orchestrator v0.0.0-20240406064758-314114a91fb8
+	github.com/RussellLuo/orchestrator v0.0.0-20240406114838-81cdc4801382
 	github.com/RussellLuo/validating/v3 v3.0.0-beta.1
 	github.com/alecthomas/kong v0.9.0
+	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/go-aie/llmflow v0.0.0-00010101000000-000000000000
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/go-chi/cors v1.2.1
