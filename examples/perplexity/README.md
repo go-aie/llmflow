@@ -25,13 +25,11 @@ In summary, GPT-3.5 is free to use in its basic form through the free web app ve
 >>> 
 ```
 
-> **NOTE**:
->
-> Run the online version of this flow:
-> 
-> ```bash
-> BING_SEARCH_V7_SUBSCRIPTION_KEY=<YOUR_KEY> llmflow run https://raw.githubusercontent.com/go-aie/llmflow/main/examples/perplexity/perplexity.flow.yaml
-> ```
+Or run the online version of this flow:
+
+```bash
+BING_SEARCH_V7_SUBSCRIPTION_KEY=<YOUR_KEY> llmflow run https://raw.githubusercontent.com/go-aie/llmflow/main/examples/perplexity/perplexity.flow.yaml
+```
 
 
 [1]: https://www.perplexity.ai/
