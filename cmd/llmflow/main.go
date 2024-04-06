@@ -142,6 +142,10 @@ func NewLLMFlow() *LLMFlow {
 					Type: "code",
 					Name: "Code",
 				},
+				{
+					Type: "bing_search",
+					Name: "Bing_Search",
+				},
 			},
 		},
 		definitions:  make(map[string]map[string]any),

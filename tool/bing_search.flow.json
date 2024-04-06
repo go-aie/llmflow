@@ -1,0 +1,117 @@
+{
+  "name": "bing_search",
+  "type": "serial",
+  "description": "Search relevant information from billions of web documents using Bing.",
+  "input": {
+    "schema": {
+      "input": {
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "properties": {
+          "endpoint": {
+            "type": "string",
+            "description": "The HTTP request URI.",
+            "default": "https://api.bing.microsoft.com/v7.0/search"
+          },
+          "subscription_key": {
+            "type": "string",
+            "description": "The user's search query term.",
+            "default": "${getenv(\"BING_SEARCH_V7_SUBSCRIPTION_KEY\")}"
+          },
+          "query": {
+            "type": "string",
+            "description": "The user's search query term."
+          },
+          "market": {
+            "type": "string",
+            "description": "The market where the results come from.",
+            "default": "en-US"
+          },
+          "offset": {
+            "type": "integer",
+            "description": "The zero-based offset that indicates the number of search results to skip before returning results. The default is 0.",
+            "default": 0
+          },
+          "count": {
+            "type": "integer",
+            "description": "The number of search results to return in the response. The default is 10 and the maximum value is 50.",
+            "default": 10
+          }
+        }
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "webPages": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "snippet": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "tasks": [
+      {
+        "name": "search",
+        "type": "http",
+        "input": {
+          "query": {
+            "q": "${input.query}",
+            "mkt": "${input.market or \"en-US\"}",
+            "offset": "${0 if input.offset == None else input.offset}",
+            "count": "${10 if input.count == None else input.count}"
+          },
+          "header": {
+            "Ocp-Apim-Subscription-Key": [
+              "${input.subscription_key or getenv(\"BING_SEARCH_V7_SUBSCRIPTION_KEY\")}"
+            ]
+          },
+          "method": "GET",
+          "uri": "${input.endpoint or \"https://api.bing.microsoft.com/v7.0/search\"}"
+        }
+      },
+      {
+        "name": "success",
+        "type": "decision",
+        "input": {
+          "expression": "${str(search.status == 200)}",
+          "cases": {
+            "True": {
+              "name": "response",
+              "type": "terminate",
+              "input": {
+                "output": "${search.body}"
+              }
+            },
+            "False": {
+              "name": "failure",
+              "type": "terminate",
+              "input": {
+                "error": "${search.body.error.message}"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

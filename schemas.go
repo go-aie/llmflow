@@ -16,6 +16,7 @@ var FlowSchemas map[string]map[string]any
 //go:embed *.json
 //go:embed embedding/*.json
 //go:embed llm/*.json
+//go:embed tool/*.json
 //go:embed vectorstore/*.json
 var allFS embed.FS
 
