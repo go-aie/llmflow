@@ -6,13 +6,24 @@ Orchestration engine & UI for your customized LLM flow.
 
 ![LLMFlow](llmflow-ui-screenshot.png)
 
+
 ## Installation
 
 ```bash
 go install github.com/go-aie/llmflow/cmd/llmflow@latest
 ```
 
+
 ## Quick Start
+
+Run the basic flow:
+
+```bash
+OPENAI_API_KEY=<YOUR_API_KEY> llmflow run examples/basic.flow.yaml
+```
+
+
+## Start LLMFlow
 
 ### API
 
@@ -70,7 +81,9 @@ In addition to [Orchestrator's built-in tasks][2], LLMFlow defines the following
       + [Embedding_Azure_OpenAI](embedding/embedding_azure_openai.flow.json)
       + [LLM_OpenAI](llm/llm_openai.flow.json)
       + [LLM_Azure_OpenAI](llm/llm_azure_openai.flow.json)
-      + [xHTTP](xhttp.flow.json)
+      + [LLM_Ollama](llm/llm_ollama.flow.json)
+      + [xHTTP](tool/xhttp.flow.json)
+      + [Bing_Search](tool/bing_search.flow.json)
 
 
 ## Examples
@@ -87,6 +100,7 @@ In addition to [Orchestrator's built-in tasks][2], LLMFlow defines the following
     + [Feed](examples/tableqa_docqa_feed.flow.yaml)
     + [Query](examples/tableqa_docqa_query.flow.yaml)
 - [Tool Call](examples/tool_call.flow.yaml)
+- [Perplexity](examples/perplexity)
 
 
 ## Documentation
